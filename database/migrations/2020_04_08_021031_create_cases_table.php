@@ -15,12 +15,12 @@ class CreateCasesTable extends Migration
     {
         Schema::create('cases', function (Blueprint $table) {
             $table->id();
-            $table->string('province');
+            $table->text('province');
             $table->string('city', 100);
             $table->string('age', 50);
-            $table->string('travel_history');
-            $table->string('confirmed_presumptive');
-            $table->string('source');
+            $table->text('travel_history');
+            $table->text('confirmed_presumptive');
+            $table->text('source');
             $table->datetime('date', 0);
             // $table->timestamps();
         });
