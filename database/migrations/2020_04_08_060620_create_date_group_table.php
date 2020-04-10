@@ -18,9 +18,7 @@ class CreateDateGroupTable extends Migration
             $table->date('date');
             $table->string('group');
             $table->integer('cases');
-            $table->integer('cumulative_cases');
             $table->integer('fatalities');
-            $table->integer('cumulative_fatalities');
             $table->timestamps();
         });
     }
