@@ -22,3 +22,4 @@ Route::get('summary', 'CaseController@summary');
 Route::get('summary/province', 'CaseController@SummaryProvince');
 
 Route::get('cases/by-date', 'CaseController@casesByDate');
+Route::get('cases/by-date/{province}', 'CaseController@casesByDate');

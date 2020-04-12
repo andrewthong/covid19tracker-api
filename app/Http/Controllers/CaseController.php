@@ -45,7 +45,7 @@ class CaseController extends Controller
         returns the number of daily cases
         $province:
     */
-    public function casesByDate( $province = null ) {
+    public function casesByDate( Request $request, $province = null ) {
         // query to get daily case totals
         $cases = Cases::groupBy( 'date' )
             ->selectRaw( 'DATE_FORMAT(date, \'%Y-%m-%d\') as date, count(id) as total' )
@@ -70,10 +70,10 @@ class CaseController extends Controller
         };
 
         return [
-            'data' => $base_dates,
-            'first' => $first_date,
-            'last' => $last_date,
             'province' => $province ? $province : 'All',
+            'data' => $base_dates,
+            'first_date' => $first_date,
+            'last' => $last_date,
         ];
     }
 }
