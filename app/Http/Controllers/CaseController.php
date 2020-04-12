@@ -42,6 +42,13 @@ class CaseController extends Controller
     }
 
     /*
+        return all province information
+    */
+    public function provinces() {
+        return DB::table('provinces')->get();
+    }
+
+    /*
         returns the number of daily cases
         $province:
     */
