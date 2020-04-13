@@ -49,6 +49,52 @@ class CaseController extends Controller
     }
 
     /*
+        produces report with daily and cumulative totals for key attributes
+    */
+    public function report( Request $request, $province = null ) {
+        $data = DB::select('
+            SELECT
+                r.date,
+                tests_ct as daily_tests,
+                @tests_cu:=@tests_cu + r.tests_ct as cumu_tests,
+                cases_ct as daily_cases,
+                @cases_cu:=@cases_cu + r.cases_ct as cumu_cases,
+                hosptl_ct as daily_hospitalizations,
+                @hosptl_cu:=@hosptl_cu + r.hosptl_ct as cumu_hospitalizations,
+                criticals_ct as daily_criticals,
+                @criticals_cu:=@criticals_cu + r.criticals_ct as cumu_criticals,
+                recoveries_ct as daily_recoveries,
+                @recoveries_cu:=@recoveries_cu + r.recoveries_ct as cumu_recoveries,
+                fatalities_ct as daily_fatalities,
+                @fatalities_cu:=@fatalities_cu + r.fatalities_ct as cumu_fatalities
+            FROM (
+                SELECT
+                    `date`,
+                    SUM(tests) AS tests_ct,
+                    SUM(cases) AS cases_ct,
+                    SUM(hospitalizations) AS hosptl_ct,
+                    SUM(criticals) AS criticals_ct,
+                    SUM(recoveries) AS recoveries_ct,
+                    SUM(fatalities) AS fatalities_ct
+                FROM reports
+                # WHERE province = "bb"
+                GROUP BY `date`
+            ) AS r
+            JOIN (SELECT
+                @cases_cu:=0,
+                @tests_cu:=0,
+                @hosptl_cu:=0,
+                @criticals_cu:=0,
+                @recoveries_cu:=0,
+                @fatalities_cu:=0
+            ) j
+            ORDER BY r.date
+        ');
+
+        return response()->json($data)->setEncodingOptions(JSON_NUMERIC_CHECK);
+    }
+
+    /*
         returns the number of daily cases
         $province:
     */

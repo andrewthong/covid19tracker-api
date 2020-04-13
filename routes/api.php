@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('summary', 'CaseController@summary');
 Route::get('summary/province', 'CaseController@SummaryProvince');
 
+Route::get('report', 'CaseController@Report');
+
 Route::get('provinces', 'CaseController@Provinces');
 
 Route::get('cases/by-date', 'CaseController@casesByDate');
