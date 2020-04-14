@@ -25,5 +25,7 @@ Route::get('report', 'CaseController@Report');
 
 Route::get('provinces', 'CaseController@Provinces');
 
+Route::get('cases/transform-provinces', 'CaseController@transformProvinces');
+
 Route::get('cases/by-date', 'CaseController@casesByDate');
 Route::get('cases/by-date/{province}', 'CaseController@casesByDate');

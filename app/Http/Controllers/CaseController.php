@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Common;
+use App\Province;
 use App\Cases;
 use App\Fatality;
 
@@ -45,7 +46,9 @@ class CaseController extends Controller
         return all province information
     */
     public function provinces() {
-        return DB::table('provinces')->get();
+        // return DB::table('provinces')->get();
+        $provinces = Province::all();
+        return $provinces;
     }
 
     /*
@@ -56,17 +59,23 @@ class CaseController extends Controller
             SELECT
                 r.date,
                 tests_ct as daily_tests,
-                @tests_cu:=@tests_cu + r.tests_ct as cumu_tests,
+                @tests_cu:=@tests_cu + IFNULL(r.tests_ct, 0)
+                    as cumu_tests,
                 cases_ct as daily_cases,
-                @cases_cu:=@cases_cu + r.cases_ct as cumu_cases,
+                @cases_cu:=@cases_cu + IFNULL(r.cases_ct, 0)
+                    as cumu_cases,
                 hosptl_ct as daily_hospitalizations,
-                @hosptl_cu:=@hosptl_cu + r.hosptl_ct as cumu_hospitalizations,
+                @hosptl_cu:=@hosptl_cu + IFNULL(r.hosptl_ct, 0)
+                    as cumu_hospitalizations,
                 criticals_ct as daily_criticals,
-                @criticals_cu:=@criticals_cu + r.criticals_ct as cumu_criticals,
+                @criticals_cu:=@criticals_cu + IFNULL(r.criticals_ct, 0)
+                    as cumu_criticals,
                 recoveries_ct as daily_recoveries,
-                @recoveries_cu:=@recoveries_cu + r.recoveries_ct as cumu_recoveries,
+                @recoveries_cu:=@recoveries_cu + IFNULL(r.recoveries_ct, 0)
+                    as cumu_recoveries,
                 fatalities_ct as daily_fatalities,
-                @fatalities_cu:=@fatalities_cu + r.fatalities_ct as cumu_fatalities
+                @fatalities_cu:=@fatalities_cu + IFNULL(r.fatalities_ct, 0)
+                    as cumu_fatalities
             FROM (
                 SELECT
                     `date`,
@@ -129,4 +138,36 @@ class CaseController extends Controller
             'last' => $last_date,
         ];
     }
+
+    /*
+     utility function to convert provinces attribute in cases
+     $to_code: if true, converts names to code where applicable
+     */
+    public function transformProvinces( $to_code = true ) {
+        // modular from-to
+        $vfrom = 'name';
+        $vto = 'code';
+        // swap them around (from code to names)
+        if( $to_code !== false ) {
+            list( $vto, $vfrom ) = array( $vto, $vfrom );
+        }
+        // get all provinces
+        $provinces = Province::all()->toArray();
+        $result = array();
+    
+        foreach($provinces as $province) {
+            // run an update statement for each province on cases
+            // Eloquent equivalent to
+            //   update `cases` set `province` = 'code_or_name' where `province` = 'name_or_code' 
+            $affected_rows = Cases::where( 'province', $province[$vfrom] )
+                ->update( ['province' => $province[$vto]] );
+            $result[] = array(
+                'from' => $province[$vfrom],
+                'to' => $province[$vto],
+                'affected_rows' => $affected_rows,
+            );
+        }
+        return $result;
+    }
+
 }
