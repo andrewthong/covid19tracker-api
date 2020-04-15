@@ -55,7 +55,14 @@ class CaseController extends Controller
         produces report with daily and cumulative totals for key attributes
     */
     public function report( Request $request, $province = null ) {
-        $data = DB::select('
+
+        // check for province request
+        $where_province = "";
+        if( $province ) {
+            $where_province = "WHERE province = '{$province}'";
+        }
+
+        $data = DB::select("
             SELECT
                 r.date,
                 tests_ct as daily_tests,
@@ -64,9 +71,7 @@ class CaseController extends Controller
                 cases_ct as daily_cases,
                 @cases_cu:=@cases_cu + IFNULL(r.cases_ct, 0)
                     as cumu_cases,
-                hosptl_ct as daily_hospitalizations,
-                @hosptl_cu:=@hosptl_cu + IFNULL(r.hosptl_ct, 0)
-                    as cumu_hospitalizations,
+                hosptl_ct as daily_net_hospitalizations,
                 criticals_ct as daily_criticals,
                 @criticals_cu:=@criticals_cu + IFNULL(r.criticals_ct, 0)
                     as cumu_criticals,
@@ -86,7 +91,7 @@ class CaseController extends Controller
                     SUM(recoveries) AS recoveries_ct,
                     SUM(fatalities) AS fatalities_ct
                 FROM reports
-                # WHERE province = "bb"
+                {$where_province}
                 GROUP BY `date`
             ) AS r
             JOIN (SELECT
@@ -98,45 +103,14 @@ class CaseController extends Controller
                 @fatalities_cu:=0
             ) j
             ORDER BY r.date
-        ');
+        ");
 
-        return response()->json($data)->setEncodingOptions(JSON_NUMERIC_CHECK);
-    }
-
-    /*
-        returns the number of daily cases
-        $province:
-    */
-    public function casesByDate( Request $request, $province = null ) {
-        // query to get daily case totals
-        $cases = Cases::groupBy( 'date' )
-            ->selectRaw( 'DATE_FORMAT(date, \'%Y-%m-%d\') as date, count(id) as total' )
-            ->when( $province, function($query) use ($province) {
-                // if a province is provided; otherwise all
-                return $query->where('province', $province);
-            })
-            ->orderBy('date')
-            ->get();
-        
-        // grab the first and last date
-        $first_date = $cases->first()->date;
-        $last_date = $cases->last()->date;
-        // generate an array of dates between the two dates
-        $dates = Common::getDateArray( $first_date, $last_date );
-        // default to no daily case totals
-        $base_dates = array_fill_keys( $dates, 0 );
-
-        // loop through results and fill in daily totals
-        foreach( $cases as $item ) {
-            $base_dates[ $item->date ] = $item->total;
-        };
-
-        return [
+        $response = [
             'province' => $province ? $province : 'All',
-            'data' => $base_dates,
-            'first_date' => $first_date,
-            'last' => $last_date,
+            'data' => $data,
         ];
+
+        return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
     }
 
     /*
