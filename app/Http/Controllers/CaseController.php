@@ -44,6 +44,7 @@ class CaseController extends Controller
 
     /*
         return all province information
+        TODO: move to provinces controller
     */
     public function provinces() {
         // return DB::table('provinces')->get();
@@ -52,65 +53,43 @@ class CaseController extends Controller
     }
 
     /*
-        produces report with daily and cumulative totals for key attributes
-    */
-    public function report( Request $request, $province = null ) {
+    cases
+     */
+    public function list(Request $request, $province = null) {
 
-        // check for province request
-        $where_province = "";
-        if( $province ) {
-            $where_province = "WHERE province = '{$province}'";
+        // province support
+        if( $request->province ) {
+            $province = $request->province;
         }
 
-        $data = DB::select("
-            SELECT
-                r.date,
-                tests_ct as daily_tests,
-                @tests_cu:=@tests_cu + IFNULL(r.tests_ct, 0)
-                    as cumu_tests,
-                cases_ct as daily_cases,
-                @cases_cu:=@cases_cu + IFNULL(r.cases_ct, 0)
-                    as cumu_cases,
-                hosptl_ct as daily_net_hospitalizations,
-                criticals_ct as daily_criticals,
-                @criticals_cu:=@criticals_cu + IFNULL(r.criticals_ct, 0)
-                    as cumu_criticals,
-                recoveries_ct as daily_recoveries,
-                @recoveries_cu:=@recoveries_cu + IFNULL(r.recoveries_ct, 0)
-                    as cumu_recoveries,
-                fatalities_ct as daily_fatalities,
-                @fatalities_cu:=@fatalities_cu + IFNULL(r.fatalities_ct, 0)
-                    as cumu_fatalities
-            FROM (
-                SELECT
-                    `date`,
-                    SUM(tests) AS tests_ct,
-                    SUM(cases) AS cases_ct,
-                    SUM(hospitalizations) AS hosptl_ct,
-                    SUM(criticals) AS criticals_ct,
-                    SUM(recoveries) AS recoveries_ct,
-                    SUM(fatalities) AS fatalities_ct
-                FROM reports
-                {$where_province}
-                GROUP BY `date`
-            ) AS r
-            JOIN (SELECT
-                @cases_cu:=0,
-                @tests_cu:=0,
-                @hosptl_cu:=0,
-                @criticals_cu:=0,
-                @recoveries_cu:=0,
-                @fatalities_cu:=0
-            ) j
-            ORDER BY r.date
-        ");
+        // pagination
+        $per_page = 100;
+        if( is_int($request->per_page) ) {
+            $per_page = max( $request->per_page, 1000 );//limit
+        }
 
-        $response = [
-            'province' => $province ? $province : 'All',
-            'data' => $data,
-        ];
+        $order = 'DESC';
+        $order_by = 'id';
+        if( $request->order === 'ASC' ) {
+            $order = $request->order;
+        }
 
-        return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
+        $cases = DB::table('cases')
+            ->when( $province, function($query) use ($province) {
+                // if a province is provided; otherwise all
+                return $query->where('province', $province);
+            })
+            ->orderBy('id', $order)
+            ->paginate($per_page);
+
+        return $cases;
+    }
+
+    /*
+    get specific case
+     */
+    public function get($id) {
+        return Cases::find($id);
     }
 
     /*
@@ -133,7 +112,7 @@ class CaseController extends Controller
             // run an update statement for each province on cases
             // Eloquent equivalent to
             //   update `cases` set `province` = 'code_or_name' where `province` = 'name_or_code' 
-            $affected_rows = Cases::where( 'province', $province[$vfrom] )
+            $affected_rows = Fatality::where( 'province', $province[$vfrom] )
                 ->update( ['province' => $province[$vto]] );
             $result[] = array(
                 'from' => $province[$vfrom],
@@ -142,6 +121,68 @@ class CaseController extends Controller
             );
         }
         return $result;
+    }
+
+    /*
+     this utility function takes counts cases and fatalities to fill the reports
+     needed for reporting unless reports also include cases and fatalities
+     current tracking logs cases and fatalities on an individual level
+    */
+    public function fillReports( $fill_with = ['cases', 'fatalities'] ) {
+
+        $provinces = Province::all()->toArray();
+        
+        // query to count daily cases and fatalities from individual db
+        $records = DB::select("
+            SELECT
+                province,
+                day,
+                COUNT(c_id) as cases,
+                COUNT(f_id) as fatalities
+            FROM (
+                SELECT
+                    province,
+                    DATE(`date`) AS day,
+                    id AS c_id,
+                    null AS f_id
+                FROM 
+                    `cases`
+                UNION
+                SELECT
+                    province,
+                    DATE(`date`) AS day,
+                    null as c_id,
+                    id AS f_id
+                FROM
+                    `fatalities`
+            ) AS un
+            GROUP BY
+                day,
+                province
+            ORDER BY
+                day
+        ");
+
+        $response = [];
+
+        foreach( $records as $record ) {
+            DB::table('reports')
+                ->updateOrInsert(
+                    [
+                        'date' => $record->day,
+                        'province' => $record->province
+                    ],
+                    [
+                        'date' => $record->day,
+                        'province' => $record->province,
+                        'cases' => $record->cases,
+                        'fatalities' => $record->fatalities,
+                    ]
+                );
+        }
+
+        return $response;
+        
     }
 
 }
