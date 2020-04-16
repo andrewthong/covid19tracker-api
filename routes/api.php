@@ -21,9 +21,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('summary', 'CaseController@summary');
 Route::get('summary/province', 'CaseController@SummaryProvince');
 
-Route::get('report', 'CaseController@Report');
-Route::get('report/{province}', 'CaseController@Report')->where('province', '[A-Za-z]+');
-
 Route::get('provinces', 'CaseController@Provinces');
 
-Route::get('cases/transform-provinces', 'CaseController@transformProvinces');
+Route::get('report', 'ReportController@generate');
+Route::get('report/full', 'Reportcontroller@generateFull');
+Route::get('report/province/{province}', 'ReportController@generate')->where('province', '[A-Za-z]+');
+Route::get('report/province/{province}/full', 'ReportController@generateFull')->where('province', '[A-Za-z]+');
+
+Route::get('cases', 'CaseController@list');
+Route::get('case/{id}', 'CaseController@get')->where('id', '[\d]+');
+
+# Route::get('cases/transform-provinces', 'CaseController@transformProvinces');
+# Route::get('cases/fill-reports', 'CaseController@fillReports');
