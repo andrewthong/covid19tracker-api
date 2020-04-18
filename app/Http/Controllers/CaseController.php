@@ -64,8 +64,9 @@ class CaseController extends Controller
 
         // pagination
         $per_page = 100;
-        if( is_int($request->per_page) ) {
-            $per_page = max( $request->per_page, 1000 );//limit
+        if( $request->per_page ) {
+            $num = (int) $request->per_page;
+            $per_page = max( min( $request->per_page, 1000 ), 1);//limit
         }
 
         $order = 'DESC';
