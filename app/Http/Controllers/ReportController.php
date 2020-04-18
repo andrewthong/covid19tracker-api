@@ -133,7 +133,6 @@ class ReportController extends Controller
         $response = [
             'province' => $province ? $province : 'All',
             'data' => $data,
-            'reset_row' => $reset_row,
         ];
 
         return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
