@@ -32,4 +32,4 @@ Route::get('cases', 'CaseController@list');
 Route::get('case/{id}', 'CaseController@get')->where('id', '[\d]+');
 
 Route::get('fatalities', 'FatalityController@list');
-Route::get('fatalities/{id}', 'FatalityController@get')->where('id', '[\d]+');
+Route::get('fatality/{id}', 'FatalityController@get')->where('id', '[\d]+');

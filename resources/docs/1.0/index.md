@@ -1,0 +1,7 @@
+- ## API
+    - [Overview](/{{route}}/{{version}}/overview)
+    - [Summary](/{{route}}/{{version}}/summary)
+    - [Reports](/{{route}}/{{version}}/reports)
+    - [Cases](/{{route}}/{{version}}/cases)
+    - [Fatalities](/{{route}}/{{version}}/fatalities)
+    - [Provinces](/{{route}}/{{version}}/provinces)

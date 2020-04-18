@@ -21,8 +21,8 @@ class FatalityController extends Controller
 
         // pagination
         $per_page = 100;
-        if( is_int($request->per_page) ) {
-            $per_page = max( $request->per_page, 1000 );//limit
+        if( is_int( (int) $request->per_page ) ) {
+            $per_page = min( $request->per_page, 1000 );//limit
         }
 
         $order = 'DESC';
