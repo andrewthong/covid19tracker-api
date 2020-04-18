@@ -23,7 +23,7 @@ class ReportController extends Controller
             'tests', 'cases', 'hospitalizations', 'criticals', 'fatalities', 'recoveries'
         ];
         $cumu_attrs = [
-            'tests', 'cases', 'fatalities', 'recoveries'
+            'tests', 'cases', 'fatalities'
         ];
         $ct_prefix = "_ct"; // simple prefixes
         $cu_prefix = "_cu";
