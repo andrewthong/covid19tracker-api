@@ -2,6 +2,8 @@
 
 namespace App;
 
+use DateTime;
+
 class Common {
     
     /* 
@@ -29,6 +31,45 @@ class Common {
         }
 
         return $dates;
+    }
+
+    /**
+     * takes an array of objects(array), then finds and fills any missing dates
+     * missing rows will be copy of the earliest known row
+     * $data: the array of objects(array); must be sorted earliest-to-newest
+     * $reset_row: optional array that is merged (will override attributes)
+     * $date_attr: optional key for date
+     */
+    static function fillMissingDates( $data, $reset_row = [], $date_attr = 'date' ) {
+
+        $filler = [];
+        for( $i = 0; $i < count($data) - 1; ++$i ) {
+            $date1 = new DateTime( $data[$i][$date_attr] );
+            $date2 = new DateTime( $data[$i+1][$date_attr] );
+            // check if dates are one day apart or not
+            $diff = $date1->diff( $date2 );
+            if( $diff->days > 1 ) {
+                // base on difference in days, loop out
+                for( $j = 1; $j < $diff->days; $j++ ) {
+                    // copy and merge reset row, which nulls new_ values
+                    $new_row = array_merge( $data[$i], $reset_row );
+                    // set date
+                    $new_row[$date_attr] = $date1->modify('+1 day')->format('Y-m-d');
+                    // stash missing date
+                    $filler[] = [
+                        'pos' => $i+1,
+                        'row' => $new_row,
+                    ];
+                }
+            }
+        }
+        // now loop through stash of missing dates
+        foreach( $filler as $index => $fill ) {
+            array_splice( $data, $fill['pos'] + $index, 0, [$fill['row']] );
+        }
+
+        return $data;
+
     }
 
 }

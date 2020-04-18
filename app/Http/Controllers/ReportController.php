@@ -36,7 +36,7 @@ class ReportController extends Controller
 
         // full config
         $cumulative = false;
-        if( $request->full ) {
+        if( $request->full || $request->cumulative) {
             $cumulative = true;
         }
 
@@ -45,6 +45,18 @@ class ReportController extends Controller
             // single date does not need cumulative
             $cumulative = false;
             $subwhere_core[] = "`date` = '{$request->date}'";
+        }
+        // date range (if date is not provided)
+        else if( $request->after ) {
+            // date range cumulative would be inaccurate
+            $cumulative = false;
+            $subwhere_core[] = "`date` >= '{$request->after}'";
+            // before defaults to today
+            $date_before = date('Y-m-d');
+            if( $request->before ) {
+                $date_before = $request->before;
+            }
+            $subwhere_core[] = "`date` <= '{$date_before}'";
         }
 
         // stat
@@ -89,7 +101,7 @@ class ReportController extends Controller
             $subwhere_stmt = "WHERE " . implode(" AND ", $subwhere_core);
         }
 
-        $data = DB::select("
+        $result = DB::select("
             SELECT
                 r.date,
                 {$select_stmt}
@@ -104,9 +116,24 @@ class ReportController extends Controller
             ORDER BY r.date
         ");
 
+        // convert DB::select to a basic array
+        $data = json_decode(json_encode($result), true);
+
+        // fill dates (useful for charting)
+        if( $request->fill_dates ) {
+            // prepare a new_ field reset
+            $reset_row = [];
+            foreach( $core_attrs as $attr ) {
+                if( in_array($attr, $cumu_attrs) )
+                    $reset_row["new_{$attr}"] = null;
+            }
+            $data = Common::fillMissingDates( $data, $reset_row );
+        }
+
         $response = [
             'province' => $province ? $province : 'All',
             'data' => $data,
+            'reset_row' => $reset_row,
         ];
 
         return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
