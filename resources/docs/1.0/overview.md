@@ -2,9 +2,18 @@
 
 ---
 
-- [First Section](#section-1)
+- [Welcome](#welcome)
 
-<a name="section-1"></a>
-## First Section
+<a name="welcome"></a>
+## Welcome
 
-Write something cool.. 🦊
+This COVID-19 tracker provides a simple REST API to retrieve information logged in it's database on items such as cases and tests.
+
+## Features
+
+TBD
+
+## Credits
+
+- Framework: [Laravel](https://laravel.com/)
+- Documentation: [LaRecipe](https://larecipe.binarytorch.com.my/)
