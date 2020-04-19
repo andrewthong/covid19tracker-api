@@ -154,16 +154,20 @@ class Utility
      * generates ProcessedReports
      * 
      */
-    static function processReports( $mode = null ) {
+    static function processReports( $mode = null, $province = null ) {
+
+        $response = [];
 
         // process change_{stat}s (cases, fatalities)
-        return self::processReportChanges( $mode );
+        $response['process_changes'] = self::processReportChanges( $mode, $province );
         
         // process total_{stat}s (tests, hospitalizations, criticals, recoveries)
-        return self::processReportTotals( $mode );
+        $response['process_totals'] = self::processReportTotals( $mode, $province );
 
         // fill in gaps (change <-> total)
-        return self::processReportGaps( $mode );
+        $response['process_gaps'] = self::processReportGaps( $mode, $province );
+
+        return $response;
 
     }
 
@@ -172,12 +176,15 @@ class Utility
      * cases and fatalities by default
      * this sub-helper processes these
      */
-    static function processReportChanges( $mode = null ) {
+    static function processReportChanges( $mode = null, $province = null ) {
 
         $from_date = self::processReportsMode( $mode );
 
         // only for registered provinces
         $province_codes = Common::getProvinceCodes();
+        if( in_array($province, $province_codes) ) {
+            $province_codes = [$province];
+        }
 
         $where_core = [];
         
@@ -187,7 +194,7 @@ class Utility
 
         // only process records on or after this date
         if( $from_date ) {
-            $where_stmt[] = "date >= '{$from_date}'";
+            $where_core[] = "`date` >= '{$from_date}'";
         }
 
         // prepare statement
@@ -208,6 +215,7 @@ class Utility
                     null AS f_id
                 FROM 
                     `cases`
+                {$where_stmt}
                 UNION
                 SELECT
                     province,
@@ -216,16 +224,14 @@ class Utility
                     id AS f_id
                 FROM
                     `fatalities`
+                {$where_stmt}
             ) AS un
-            {$where_stmt}
             GROUP BY
                 day,
                 province
             ORDER BY
                 day
         ");
-
-        $response = [];
 
         foreach( $records as $record ) {
             DB::table('processed_reports')
@@ -242,6 +248,12 @@ class Utility
                     ]
                 );
         }
+
+        return [
+            'mode' => $mode,
+            'province' => $province ? $province : 'All',
+            'total_records' => count( $records ),
+        ];
     }
 
     /**
@@ -249,13 +261,16 @@ class Utility
      * they are an accumulate total of tracked stats
      * this sub-helper moves these to the processReports table
      */
-    static function processReportTotals( $mode = null ) {
+    static function processReportTotals( $mode = null, $province = null ) {
 
         // determine date to run on based on mode
         $from_date = self::processReportsMode( $mode );
 
         // only for registered provinces
         $province_codes = Common::getProvinceCodes();
+        if( in_array($province, $province_codes) ) {
+            $province_codes = [$province];
+        }
 
         // retrieve reports
         $reports = DB::table( 'reports' )
@@ -285,19 +300,28 @@ class Utility
                     ]
                 );
         }
+
+        return [
+            'mode' => $mode,
+            'province' => $province ? $province : 'All',
+            'total_reports' => count( $reports ),
+        ];
     }
 
     /**
      * this sub-helper runs through process reports and attempts
      * to fill in incomplete change_ and total_ numbers
      */
-    static function processReportGaps( $mode = null ) {
+    static function processReportGaps( $mode = null, $province = null ) {
 
         // determine date to run on based on mode
         $from_date = self::processReportsMode( $mode );
 
         // list of provinces
         $province_codes = Common::getProvinceCodes();
+        if( in_array($province, $province_codes) ) {
+            $province_codes = [$province];
+        }
 
         // core attributes
         $core_attrs = [
