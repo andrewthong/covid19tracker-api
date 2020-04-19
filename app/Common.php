@@ -4,6 +4,8 @@ namespace App;
 
 use DateTime;
 
+use App\Province;
+
 class Common {
     
     /* 
@@ -31,6 +33,13 @@ class Common {
         }
 
         return $dates;
+    }
+
+    /**
+     * return an array of province codes
+     */
+    static function getProvinceCodes() {
+        return Province::all()->pluck('code')->toArray();
     }
 
     /**
