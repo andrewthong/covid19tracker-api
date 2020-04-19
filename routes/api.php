@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::get('summary', 'CaseController@summary');
-Route::get('summary/province', 'CaseController@SummaryProvince');
+Route::get('summary', 'ReportController@summary');
+Route::get('summary/{split}', 'ReportController@Summary')->where('split', 'split');
 
 Route::get('provinces', 'CaseController@Provinces');
 

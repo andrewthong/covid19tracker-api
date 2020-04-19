@@ -13,6 +13,54 @@ use App\ProcessedReport;
 
 class ReportController extends Controller
 {
+
+    /**
+     * summary takes latest reports for each province and aggregates
+     *  - $split if true, will not aggregate
+     */
+    public function summary( $split = false ) {
+        // setup
+        $core_attrs = Common::attributes();
+        $change_prefix = 'change_';
+        $total_prefix = 'total_';
+
+        // preparing SQL query
+        $date_select = "MAX(r1.date) AS latest_date";
+        $stat_select = 'SUM(r1.%1$s) AS %1$s';
+
+        // $split modifiers, we no longer need to group
+        if( $split ) {
+            $select_core[] = "r1.province";
+            $date_select = "r1.date";
+            $stat_select = 'r1.%1$s';
+        }
+
+        $select_core = [$date_select];
+        foreach( [$change_prefix, $total_prefix] as $prefix ) {
+            foreach( $core_attrs as $attr ) {
+                // $select_core[] = "SUM(r1.{$prefix}{$attr}) AS {$prefix}{$attr}";
+                $select_core[] = sprintf( $stat_select, "{$prefix}{$attr}" );
+            }
+        }
+
+        $select_stmt = implode( ",", $select_core );
+
+        $report = DB::select("
+            SELECT
+                {$select_stmt}
+            FROM
+                processed_reports AS r1
+            LEFT JOIN
+                processed_reports AS r2
+                ON r1.province = r2.province
+                AND r1.date < r2.date
+                WHERE r2.province IS NULL
+        ");
+
+        return [
+            'data' =>  $report
+        ];
+    }
     
     /*
         produces report with daily and cumulative totals for key attributes
@@ -29,7 +77,11 @@ class ReportController extends Controller
         $reset_value = 0;
 
         // query core modifiers
-        $where_core = [];
+        foreach( [$change_prefix, $total_prefix] as $prefix ) {
+            foreach( $core_attrs as $attr ) {
+                $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
+            }
+        }
 
         // check for province request
         if( $province ) {
