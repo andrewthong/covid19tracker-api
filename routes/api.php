@@ -23,10 +23,8 @@ Route::get('summary/province', 'CaseController@SummaryProvince');
 
 Route::get('provinces', 'CaseController@Provinces');
 
-Route::get('report', 'ReportController@generate');
-Route::get('report/full', 'Reportcontroller@generateFull');
-Route::get('report/province/{province}', 'ReportController@generate')->where('province', '[A-Za-z]+');
-Route::get('report/province/{province}/full', 'ReportController@generateFull')->where('province', '[A-Za-z]+');
+Route::get('reports', 'ReportController@generate');
+Route::get('reports/province/{province}', 'ReportController@generate')->where('province', '[A-Za-z]+');
 
 Route::get('cases', 'CaseController@list');
 Route::get('case/{id}', 'CaseController@get')->where('id', '[\d]+');

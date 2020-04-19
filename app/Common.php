@@ -36,6 +36,31 @@ class Common {
     }
 
     /**
+     * return core attributes
+     * optional $t (type)
+     *  - change: returns attributes where data source is from change_
+     *  - total: returns attributes where data source is from total_
+     */
+    static function attributes( $t = null ) {
+        $core_attrs = [
+            'cases',
+            'fatalities',
+            'tests',
+            'hospitalizations',
+            'criticals',
+            'recoveries'
+        ];
+        if( $t === 'change' ) {
+            // change_ sourced attributes
+            return array_slice( $core_attrs, 0, 2 );
+        } elseif( $t === 'total' ) {
+            // total_ sourced attributes
+            return array_slice( $core_attrs, 2 );
+        }
+        return $core_attrs;
+    }
+
+    /**
      * return an array of province codes
      */
     static function getProvinceCodes() {
