@@ -150,23 +150,6 @@ class Utility
         return $from_date;
     }
 
-    static function test( $mode = null ) {
-        $res = DB::table( 'reports' )
-            ->where( 'province', '=', 'ON' )
-            ->where( 'date', '<', '2020-01-31' )
-            ->orderBy( 'date' )
-            ->first();
-
-        $comp = (object) ['a' => 'new object'];
-        $comp->cases = 10;
-
-        if($res) {
-            return $res->cases + $comp->cases;
-        } else {
-            return false;
-        }
-    }
-
     /**
      * generates ProcessedReports
      * 
@@ -174,10 +157,10 @@ class Utility
     static function processReports( $mode = null ) {
 
         // process change_{stat}s (cases, fatalities)
-        // return self::processReportChanges( $mode );
+        return self::processReportChanges( $mode );
         
         // process total_{stat}s (tests, hospitalizations, criticals, recoveries)
-        // return self::processReportTotals( $mode );
+        return self::processReportTotals( $mode );
 
         // fill in gaps (change <-> total)
         return self::processReportGaps( $mode );
@@ -384,6 +367,11 @@ class Utility
                 foreach( $total_attrs as $attr ) {
                     $ch_attr = $change_prefix.$attr;
                     $tt_attr = $total_prefix.$attr;
+                    // gaps can introduce weird results
+                    if( is_null($report->{$tt_attr}) ) {
+                        // set it to backtrack value so change is 0
+                        $report->{$tt_attr} = $backtrack->{$tt_attr};
+                    }
                     // subtract current total w/ backtrack total
                     $update_arr[ $ch_attr ] =
                           $report->{$tt_attr}
