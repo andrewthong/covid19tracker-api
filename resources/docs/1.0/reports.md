@@ -15,7 +15,7 @@ By default, this returns a day-to-day rolling summary of stats for all provinces
 
 | Method | URI |
 | :- | :- |
-| GET | `/report` |
+| GET | `/reports` |
 
 <a name="sample-response"></a>
 
@@ -26,13 +26,19 @@ By default, this returns a day-to-day rolling summary of stats for all provinces
   "province": "All",
   "data": [
     {
-      "date": "2020-01-30",
-      "new_tests": 3000,
-      "new_cases": 30,
-      "total_hospitalizations": 15,
-      "total_criticals": 3,
-      "new_fatalities": 0,
-      "total_recoveries": 100
+      "date": "2020-03-24",
+      "change_cases": 661,
+      "change_fatalities": 3,
+      "change_tests": 7743,
+      "change_hospitalizations": 49,
+      "change_criticals": 19,
+      "change_recoveries": 74,
+      "total_cases": 2806,
+      "total_fatalities": 27,
+      "total_tests": 110989,
+      "total_hospitalizations": 146,
+      "total_criticals": 70,
+      "total_recoveries": 186
     },
     ...
   ]
@@ -45,8 +51,8 @@ When _All_, report is for all provinces.
 ### data
 An array of daily reports. Note the prefix for all reporting stats.
 - **date** — in `Y-m-d` format
-- **new_{stat}** — daily new additions 
-- **total_{stat}** — a total count for the day
+- **change_{stat}** — daily change compared to the previous report
+- **total_{stat}** — the total, cumulative count up to the date
 
 <a name="parameters"></a>
 
@@ -54,7 +60,6 @@ An array of daily reports. Note the prefix for all reporting stats.
 
 | Parameter | Type | Description |
 | :- | :- | :- |
-| cumulative | Boolean | When `true`, the response will include a rolling total count of all new_{stat}. <br><br>_cumulative is unavailable when any date parameter is used._ |
 | fill_dates | Boolean | When `true`, the response will fill any missing dates in-between with blank entries. Can be useful for some visualizations. |
 | stat | String | Reports only on the set statistic e.g. `recoveries` |
 | date | Date | Reports only on a single date e.g. `2020-01-01` |
@@ -63,7 +68,7 @@ An array of daily reports. Note the prefix for all reporting stats.
 
 ### Example
 
-`report?stat=tests&cumulative=true&fill_dates=true`
+`reports?stat=tests&fill_dates=true`
 
 
 
@@ -75,8 +80,8 @@ Filter the data to the province level by providing a province code e.g. `SK`. Al
 
 | Method | URI |
 | :- | :- |
-| GET | `/report/province/:code` |
+| GET | `/reports/province/:code` |
 
 ### Example
 
-`report/province/ab?cumulative=true`
+`reports/province/ab`

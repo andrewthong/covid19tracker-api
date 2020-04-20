@@ -6,8 +6,6 @@
 - [Sample Response](#sample-response)
 - [By Province](#province)
 
-> {warning} This route is under consideration for deprecation.
-
 <a name="basic"></a>
 ## Basic Usage
 
@@ -22,19 +20,56 @@ Returns a summary of total cases and fatalities.
 
 ```json
 {
-  "total_cases": 2337,
-  "total_fatalities": 103
+  "data": [
+    {
+      "latest_date": "2020-04-13",
+      "change_cases": null,
+      "change_fatalities": null,
+      "change_tests": "6464",
+      "change_hospitalizations": "23",
+      "change_criticals": "2",
+      "change_recoveries": "240",
+      "total_cases": "18554",
+      "total_fatalities": "417",
+      "total_tests": "433650",
+      "total_hospitalizations": "1801",
+      "total_criticals": "571",
+      "total_recoveries": "7412"
+    }
+  ]
 }
 ```
 
-## By Province
+## Split
 
-Appending a province code will filter the totals to that province.
+This will not aggregate all province totals.
 
 | Method | URI |
 | :- | :- |
-| GET | `/summary/province/:code` |
+| GET | `/summary/split` |
 
-### Example
+### Sample Response
 
-`summary/province/bc`
+```json
+{
+  "data": [
+    {
+      "province": "ON",
+      "date": "2020-04-13",
+      "change_cases": null,
+      "change_fatalities": null,
+      "change_tests": 5150,
+      "change_hospitalizations": 22,
+      "change_criticals": 2,
+      "change_recoveries": 236,
+      "total_cases": 5396,
+      "total_fatalities": 189,
+      "total_tests": 106696,
+      "total_hospitalizations": 760,
+      "total_criticals": 263,
+      "total_recoveries": 3357
+    },
+    ...
+  ]
+}
+```
