@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 use App\Common;
 use App\Province;
-use App\Cases;
-use App\Fatality;
 use App\ProcessedReport;
 
 class ReportController extends Controller
