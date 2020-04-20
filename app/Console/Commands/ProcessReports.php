@@ -88,6 +88,15 @@ class ProcessReports extends Command
 
     }
 
+    /**
+     * helper function to determine [date-scope] mode
+     * essentially defines from when process scripts should start
+     * supports
+     *  - 'Y-m-d'
+     *  - integer days (will substract days from [today])
+     *  - 'all'
+     * defaults to [today]
+     */
     public function processReportsMode( $mode = null ) {
 
         $from_date = null;
@@ -115,7 +124,7 @@ class ProcessReports extends Command
     /**
      * changes are data that is stored on an individual basis
      * cases and fatalities by default
-     * this sub-helper processes these
+     * this sub-helper calculates daily changes for processedReports
      */
     public function processReportChanges( $mode = null, $province = null ) {
 
@@ -204,7 +213,7 @@ class ProcessReports extends Command
     /**
      * totals are data that is stored in the reports log
      * they are an accumulate total of tracked stats
-     * this sub-helper moves these to the processReports table
+     * this sub-helper moves these totals to processedReports
      */
     public function processReportTotals( $mode = null, $province = null ) {
 
