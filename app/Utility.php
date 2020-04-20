@@ -9,6 +9,7 @@ use App\Province;
 
 class Utility
 {
+
     /**
      * utility function to convert provinces attribute in defined tables
      * $to_code: if true, converts names to code where applicable
@@ -114,21 +115,6 @@ class Utility
 
         return $response;
         
-    }
-
-    /**
-     * create records of gaps between dates
-     * facilitates time series charting and cumulative calculation
-     */
-    static function dateFillReports() {
-        // only for registered provinces
-        $provinces = Province::all();
-        // get earliest and latest report dates
-
-        // loop through provinces
-            // loop through dates
-                // if missing, add null entry
-                // log  
     }
 
 }

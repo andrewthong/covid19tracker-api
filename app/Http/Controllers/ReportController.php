@@ -9,54 +9,101 @@ use App\Common;
 use App\Province;
 use App\Cases;
 use App\Fatality;
+use App\ProcessedReport;
 
 class ReportController extends Controller
 {
+
+    /**
+     * summary takes latest reports for each province and aggregates
+     *  - $split if true, will not aggregate
+     */
+    public function summary( $split = false ) {
+        // setup
+        $core_attrs = Common::attributes();
+        $change_prefix = 'change_';
+        $total_prefix = 'total_';
+
+        // preparing SQL query
+        $select_core = [];
+        $date_select = "MAX(r1.date) AS latest_date";
+        $stat_select = 'SUM(r1.%1$s) AS %1$s';
+
+        // $split modifiers, we no longer need to group
+        if( $split ) {
+            $select_core[] = "r1.province";
+            $date_select = "r1.date";
+            $stat_select = 'r1.%1$s';
+        }
+
+        $select_core[] = $date_select;
+        foreach( [$change_prefix, $total_prefix] as $prefix ) {
+            foreach( $core_attrs as $attr ) {
+                // $select_core[] = "SUM(r1.{$prefix}{$attr}) AS {$prefix}{$attr}";
+                $select_core[] = sprintf( $stat_select, "{$prefix}{$attr}" );
+            }
+        }
+
+        $select_stmt = implode( ",", $select_core );
+
+        $report = DB::select("
+            SELECT
+                {$select_stmt}
+            FROM
+                processed_reports AS r1
+            LEFT JOIN
+                processed_reports AS r2
+                ON r1.province = r2.province
+                AND r1.date < r2.date
+                WHERE r2.province IS NULL
+        ");
+
+        return [
+            'data' =>  $report
+        ];
+    }
     
     /*
         produces report with daily and cumulative totals for key attributes
     */
     public function generate( Request $request, $province = null ) {
 
+        // setup
+        $core_attrs = Common::attributes();
+        $change_attrs = Common::attributes('change');
+        $total_attrs = Common::attributes('total');
         // TODO: migrate to a config
-        $core_attrs = [
-            'tests', 'cases', 'hospitalizations', 'criticals', 'fatalities', 'recoveries'
-        ];
-        $cumu_attrs = [
-            'tests', 'cases', 'fatalities'
-        ];
-        $ct_prefix = "_ct"; // simple prefixes
-        $cu_prefix = "_cu";
+        $change_prefix = 'change_';
+        $total_prefix = 'total_';
+        $reset_value = 0;
 
-        // check for province request
-        $subwhere_core = [];
-        if( $province ) {
-            $subwhere_core[] = "province = '{$province}'";
+        $where_core = [];
+
+        // query core modifiers
+        foreach( [$change_prefix, $total_prefix] as $prefix ) {
+            foreach( $core_attrs as $attr ) {
+                $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
+            }
         }
 
-        // full config
-        $cumulative = false;
-        if( $request->full || $request->cumulative) {
-            $cumulative = true;
+        // check for province request
+        if( $province ) {
+            $where_core[] = "province = '{$province}'";
         }
 
         // date
         if( $request->date ) {
-            // single date does not need cumulative
-            $cumulative = false;
-            $subwhere_core[] = "`date` = '{$request->date}'";
+            $where_core[] = "`date` = '{$request->date}'";
         }
         // date range (if date is not provided)
         else if( $request->after ) {
-            // date range cumulative would be inaccurate
-            $cumulative = false;
-            $subwhere_core[] = "`date` >= '{$request->after}'";
+            $where_core[] = "`date` >= '{$request->after}'";
             // before defaults to today
             $date_before = date('Y-m-d');
             if( $request->before ) {
                 $date_before = $request->before;
             }
-            $subwhere_core[] = "`date` <= '{$date_before}'";
+            $where_core[] = "`date` <= '{$date_before}'";
         }
 
         // stat
@@ -65,55 +112,31 @@ class ReportController extends Controller
             $core_attrs = [$request->stat];
         }
 
-        // start building our query
-        $select_core = [];
-        $subselect_core = [];
-
-        // loop through each
-        foreach( $core_attrs as $attr ) {
-            // internal column name
-            $ct = "{$attr}{$ct_prefix}";
-            // count prefix: depends if attribute supports cumulative
-            $ct_postfix = "new_";
-            if( !in_array($attr, $cumu_attrs) ) $ct_postfix = "total_";
-            // add count to select statements
-            //   tests AS daily_tests
-            $select_core[] = "{$ct} as {$ct_postfix}{$attr}";
-            //   SUM(tests) AS tests_ct
-            $subselect_core[] = "SUM({$attr}) AS {$ct}";
-
-            // cumulative mode
-            if( $cumulative && in_array($attr, $cumu_attrs) ) {
-                $cu = "@{$attr}{$cu_prefix}";
-                // add cumulative to select statement
-                //   @tests_cu := @tests_cu + IFNULL(tests_ct, 0)
-                $select_core[] = "{$cu}:={$cu} + IFNULL({$ct}, 0) as cumu_{$attr}";
-                //   @tests_cu:=0
-                $subselect_core[] = "{$cu}:=0";
+        // build out select list
+        $select_core = ['date'];
+        foreach( [$change_prefix, $total_prefix] as $prefix ) {
+            foreach( $core_attrs as $attr ) {
+                $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
             }
         }
-
+        
         // prepare SELECT
         $select_stmt = implode(",", $select_core);
-        $subselect_stmt = implode(",", $subselect_core);
-        $subwhere_stmt = "";
-        if( $subwhere_core ) {
-            $subwhere_stmt = "WHERE " . implode(" AND ", $subwhere_core);
+        $where_stmt = "";
+        if( $where_core ) {
+            $where_stmt = "WHERE " . implode(" AND ", $where_core);
         }
 
         $result = DB::select("
             SELECT
-                r.date,
                 {$select_stmt}
-            FROM (
-                SELECT
-                    `date`,
-                    {$subselect_stmt}
-                FROM reports
-                {$subwhere_stmt}
-                GROUP BY `date`
-            ) AS r
-            ORDER BY r.date
+            FROM
+                processed_reports
+            {$where_stmt}
+            GROUP BY
+                `date`
+            ORDER BY
+                `date`
         ");
 
         // convert DB::select to a basic array
@@ -121,13 +144,12 @@ class ReportController extends Controller
 
         // fill dates (useful for charting)
         if( $request->fill_dates ) {
-            // prepare a new_ field reset
-            $reset_row = [];
+            // prepare a reset array; all change_{stat} must be null
+            $reset_arr = ['fill' => 1];
             foreach( $core_attrs as $attr ) {
-                if( in_array($attr, $cumu_attrs) )
-                    $reset_row["new_{$attr}"] = null;
+                $reset_arr["{$change_prefix}{$attr}"] = null;
             }
-            $data = Common::fillMissingDates( $data, $reset_row );
+            $data = Common::fillMissingDates( $data, $reset_arr );
         }
 
         $response = [
@@ -136,12 +158,6 @@ class ReportController extends Controller
         ];
 
         return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
-    }
-
-
-    public function generateFull( Request $request, $province = null ) {
-        $request->merge(['full' => true]);
-        return $this->generate( $request, $province );
     }
 
 }
