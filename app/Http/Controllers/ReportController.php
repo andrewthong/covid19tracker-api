@@ -25,6 +25,7 @@ class ReportController extends Controller
         $total_prefix = 'total_';
 
         // preparing SQL query
+        $select_core = [];
         $date_select = "MAX(r1.date) AS latest_date";
         $stat_select = 'SUM(r1.%1$s) AS %1$s';
 
@@ -35,7 +36,7 @@ class ReportController extends Controller
             $stat_select = 'r1.%1$s';
         }
 
-        $select_core = [$date_select];
+        $select_core[] = $date_select;
         foreach( [$change_prefix, $total_prefix] as $prefix ) {
             foreach( $core_attrs as $attr ) {
                 // $select_core[] = "SUM(r1.{$prefix}{$attr}) AS {$prefix}{$attr}";
@@ -75,6 +76,8 @@ class ReportController extends Controller
         $change_prefix = 'change_';
         $total_prefix = 'total_';
         $reset_value = 0;
+
+        $where_core = [];
 
         // query core modifiers
         foreach( [$change_prefix, $total_prefix] as $prefix ) {
