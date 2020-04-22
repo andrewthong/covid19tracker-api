@@ -41,8 +41,21 @@ class ProcessReports extends Command
      */
     public function handle()
     {
+        $this->line('');
+
+        $this->line("     ___  _______  ____  ___ __________");
+        $this->line("    / _ \/ __/ _ \/ __ \/ _ \_  __/ __/");
+        $this->line("   / , _/ _// ___/ /_/ / , _// / _\ \  ");
+        $this->line("  /_/|_/___/_/   \____/_/|_|/_/ /___/  ");
+
+        $this->line('');
+
+        $this->line(' # <fg=black;bg=white>COVID-19 Tracker API Database v0.7</> #');
+        $this->line(' # Report processing utility');
+        $this->line(' # Last Run: [todo]');
+
         // prompt
-        $mode_from = $this->choice('Process reports from:', [
+        $mode_from = $this->choice('Process reports starting from', [
             1 => 'Today',
             2 => 'Yesterday',
             3 => 'Last week',
@@ -59,7 +72,7 @@ class ProcessReports extends Command
                 $mode_opt = 7;
                 break;
             case 'Custom date':
-                $mode_opt = $this->ask('Please provide date YYYY-MM-DD e.g. 2020-01-15');
+                $mode_opt = $this->ask('Please provide date (format: YYYY-MM-DD e.g. 2020-01-15)');
                 break;
             case 'The beginning':
                 $mode_opt = 'all';
@@ -70,21 +83,56 @@ class ProcessReports extends Command
         }
 
         // province
-        // $choice_province = $this->choice('Cover all provinces?', [
-        //     1 => 'Yes',
-        //     2 => 'No',
-        // ], 1);
+        $province = null;
+        $choice_province = $this->choice('Would you like to process all Provinces?', [
+            1 => 'Yes',
+            2 => 'No',
+        ], 1);
+
+        if( $choice_province !== 'Yes' ) {
+            $province = $this->ask('Please enter a province code (e.g. SK)');
+            // [todo]
+        }
+
+        // $pass = $this->secret('Now, the secret code please?');
+        // usleep(650000);
+        // $this->line(' <bg=red>[ERROR] Incorrect secret</>');
+        // $this->line('');
+        // usleep(550000);
+        // $this->output->write(' .');
+        // usleep(500000);
+        // $this->output->write('.');
+        // usleep(500000);
+        // $this->output->write('.');
+        // usleep(350000);
+        // $this->line(' (╯°□°)╯︵ ┻━┻');
+        // usleep(750000);
+        // $this->line(' <fg=magenta>You are already in SSH so letting you in this time</>');
 
         $mode = $this->processReportsMode( $mode_opt );
 
-        // process change_{stat}s (cases, fatalities)
-        $this->processReportChanges( $mode );
-        // process total_{stat}s (tests, hospitalizations, criticals, recoveries)
-        $this->processReportTotals( $mode );
-        // fill in gaps (change <-> total)
-        $this->processReportGaps( $mode );
+        $this->output->write(' >> Starting process...');
+            $this->line(' testing db connection');
+        $this->line('');
 
-        $this->line("<fg=cyan>Reports processed</>");
+        // process change_{stat}s (cases, fatalities)
+        $this->processReportChanges( $mode, $province );
+        $this->line('');
+
+        // process total_{stat}s (tests, hospitalizations, criticals, recoveries)
+        $this->processReportTotals( $mode, $province );
+        $this->line('');
+
+        // fill in gaps (change <-> total)
+        $this->processReportGaps( $mode, $province );
+        $this->line('');
+
+        $this->line(' Finising up...');
+
+        $this->line(" <fg=green;bg=black>Processing complete. Reports up to date.</>");
+        $this->line('');
+        $this->line(' Have a nice day ツ');
+        $this->line('');
 
     }
 
@@ -184,7 +232,8 @@ class ProcessReports extends Command
         ");
 
         // [artisan]
-        $this->line("Calculating changes (cases, fatalities)");
+        $this->line(" Calculating day-to-day changes");
+        $this->line(" (cases, fatalities)");
         $bar = $this->output->createProgressBar( count($records) );
         $bar->start();
 
@@ -207,7 +256,7 @@ class ProcessReports extends Command
 
         $bar->finish();
         $this->line("");
-        $this->line("Calculations complete");
+        $this->line(" Calculations complete >>");
     }
 
     /**
@@ -236,7 +285,8 @@ class ProcessReports extends Command
             ->get();
 
         // [artisan]
-        $this->line("Transferring totals (tests, hospitalizations, criticals, recoveries)");
+        $this->line(" Transferring daily totals");
+        $this->line(" (tests, hospitalizations, criticals, recoveries)");
         $bar = $this->output->createProgressBar( count($reports) );
         $bar->start();
 
@@ -264,7 +314,7 @@ class ProcessReports extends Command
 
         $bar->finish();
         $this->line("");
-        $this->line("Transfer complete");
+        $this->line(" Transfers complete >>");
 
         
     }
@@ -317,8 +367,9 @@ class ProcessReports extends Command
             ->count();
 
         // [artisan]
-        $this->line("Locating reports... {$total_reports} found");
-        $this->line("Calculating empty values...");
+        $this->output->write(' Locating reports... ');
+        $this->line("{$total_reports} found");
+        $this->line(" Calculating numbers (changes <-> totals)...");
         $bar = $this->output->createProgressBar( $total_reports );
         $bar->start();
 
@@ -388,7 +439,7 @@ class ProcessReports extends Command
 
         $bar->finish();
         $this->line("");
-        $this->line("Report numbers updated.");
+        $this->line(" Calculations complete >>");
 
     }
 }
