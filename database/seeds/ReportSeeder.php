@@ -3,7 +3,7 @@
 use Illuminate\Database\Seeder;
 use Flynsarmy\CsvSeeder\CsvSeeder;
 
-class ReportsSeeder extends Seeder
+class ReportSeeder extends Seeder
 {
     /**
      * Run the database seeds.
