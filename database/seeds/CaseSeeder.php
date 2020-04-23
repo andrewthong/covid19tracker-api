@@ -15,7 +15,7 @@ class CaseSeeder extends Seeder
         $table = 'cases';
 
         // truncate: comment out if using to add data
-        DB::table($table)->truncate();
+        # DB::table($table)->truncate();
 
         // use csv to seed database
         $seed_csv = base_path()."/database/seeds/csv/{$table}.csv";
