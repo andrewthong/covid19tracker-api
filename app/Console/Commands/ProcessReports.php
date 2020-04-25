@@ -417,7 +417,8 @@ class ProcessReports extends Command
                     // gaps can introduce weird results
                     if( is_null($report->{$tt_attr}) ) {
                         // set it to backtrack value so change is 0
-                        $report->{$tt_attr} = $backtrack->{$tt_attr};
+                        $update_arr[ $tt_attr ] = $backtrack->{$tt_attr};
+                        $report->{$tt_attr} = $update_arr[ $tt_attr ];
                     }
                     // subtract current total w/ backtrack total
                     $update_arr[ $ch_attr ] =
