@@ -392,7 +392,7 @@ class ProcessReports extends Command
                 $bt = DB::table( 'processed_reports' )
                     ->where( 'province', '=', $pc )
                     ->where( 'date', '<', $from_date )
-                    ->orderBy( 'date' )
+                    ->orderBy( 'date', 'desc' )
                     ->first();
                 if( $bt ) $backtrack = $bt;
             }
@@ -426,12 +426,13 @@ class ProcessReports extends Command
                         - $backtrack->{$tt_attr};
                     $report->{$ch_attr} = $update_arr[ $ch_attr ];
                 }
+                // report is now new backtrack
+                $backtrack = clone $report;
+
                 // update db
                 DB::table('processed_reports')
                     ->where( 'id', '=', $report->id )
                     ->update( $update_arr );
-                // report is now new backtrack
-                $backtrack = clone $report;
 
                 $bar->advance();
             }
