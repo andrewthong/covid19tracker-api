@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Common;
+use App\Option;
 use App\Province;
 use App\ProcessedReport;
 
@@ -21,6 +22,10 @@ class ReportController extends Controller
         $core_attrs = Common::attributes();
         $change_prefix = 'change_';
         $total_prefix = 'total_';
+
+        // meta
+        $option_last = 'report_last_processed';
+        $last_run = Option::get($option_last);
 
         // preparing SQL query
         $select_core = [];
@@ -57,7 +62,8 @@ class ReportController extends Controller
         ");
 
         return [
-            'data' =>  $report
+            'data' =>  $report,
+            'last_updated' => $last_run,
         ];
     }
     
