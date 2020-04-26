@@ -36,9 +36,12 @@ Returns a summary of total cases and fatalities.
       "total_criticals": "571",
       "total_recoveries": "7412"
     }
-  ]
+  ],
+  "last_updated":"2020-04-26 12:40:18"
 }
 ```
+
+Last updated refers to the last time the reports were processed, in America/Regina time.
 
 ## Split
 
