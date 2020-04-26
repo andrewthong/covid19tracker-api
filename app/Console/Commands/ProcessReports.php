@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Common;
 use App\Utility;
+use App\Option;
 
 class ProcessReports extends Command
 {
@@ -41,6 +42,10 @@ class ProcessReports extends Command
      */
     public function handle()
     {
+
+        $option_last = 'report_last_processed';
+        $last_run = Option::get($option_last);
+
         $this->line('');
 
         $this->line("     ___  _______  ____  ___ __________");
@@ -52,7 +57,7 @@ class ProcessReports extends Command
 
         $this->line(' # <fg=black;bg=white>COVID-19 Tracker API Database v0.7</> #');
         $this->line(' # Report processing utility');
-        $this->line(' # Last Run: [todo]');
+        $this->line(" # Last Run: ${last_run}");
 
         // prompt
         $mode_from = $this->choice('Process reports starting from', [
@@ -128,6 +133,8 @@ class ProcessReports extends Command
         $this->line('');
 
         $this->line(' Finising up...');
+
+        Option::set( $option_last, date('Y-m-d H:i:s') );
 
         $this->line(" <fg=green;bg=black>Processing complete. Reports up to date.</>");
         $this->line('');
