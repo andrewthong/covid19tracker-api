@@ -41,7 +41,11 @@ Returns a summary of total cases and fatalities.
 }
 ```
 
-Last updated refers to the last time the reports were processed, in America/Regina time.
+### data
+An array of summary. When reporting on all provinces, there will only be one object in this array.
+
+### last_updated
+Refers to the last time the reports were processed, in America/Regina time.
 
 ## Split
 

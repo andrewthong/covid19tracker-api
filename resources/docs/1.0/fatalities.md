@@ -1,4 +1,4 @@
-# fatalities
+# Fatalities
 
 ---
 
@@ -68,4 +68,4 @@ Returns a single fatality record by ID.
 
 ### Example
 
-`/fatalist/123`
+`/fatality/123`
