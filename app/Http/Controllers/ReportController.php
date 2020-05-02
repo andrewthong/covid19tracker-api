@@ -18,16 +18,20 @@ class ReportController extends Controller
      * summary takes latest reports for each province and aggregates
      *  - $split if true, will not aggregate
      */
-    public function summary( $split = false ) {
-        // setup
-        $province_codes = Common::getProvinceCodes();
-        $core_attrs = Common::attributes();
-        $change_prefix = 'change_';
-        $total_prefix = 'total_';
+    public function summary( $split = false ) {// cache
+        $cache_key = "summary";
+        if( $split ) $cache_key .= "_split";
+        $value = Cache::get( $cache_key, function() use ($split) {
+            
+            // setup
+            $province_codes = Common::getProvinceCodes();
+            $core_attrs = Common::attributes();
+            $change_prefix = 'change_';
+            $total_prefix = 'total_';
 
-        // meta
-        $option_last = 'report_last_processed';
-        $last_run = Option::get($option_last);
+            // meta
+            $option_last = 'report_last_processed';
+            $last_run = Option::get($option_last);
 
             // preparing SQL query
             $select_core = [];
