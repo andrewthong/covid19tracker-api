@@ -63,7 +63,7 @@ class ReportController extends Controller
         }
         $subquery_stmt = implode( " UNION ", $subquery_core );
 
-        echo("
+        $report = DB::select("
             SELECT
                 {$select_stmt}
             FROM (
