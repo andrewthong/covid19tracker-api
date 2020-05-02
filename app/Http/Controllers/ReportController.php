@@ -52,7 +52,6 @@ class ReportController extends Controller
                     $select_core[] = sprintf( $stat_select, "{$prefix}{$attr}" );
                 }
             }
-
             $select_stmt = implode( ",", $select_core );
 
             $subquery_core = [];
