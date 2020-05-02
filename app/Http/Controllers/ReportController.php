@@ -19,6 +19,7 @@ class ReportController extends Controller
      */
     public function summary( $split = false ) {
         // setup
+        $province_codes = Common::getProvinceCodes();
         $core_attrs = Common::attributes();
         $change_prefix = 'change_';
         $total_prefix = 'total_';
@@ -29,36 +30,45 @@ class ReportController extends Controller
 
         // preparing SQL query
         $select_core = [];
-        $date_select = "MAX(r1.date) AS latest_date";
-        $stat_select = 'SUM(r1.%1$s) AS %1$s';
+        $date_select = "MAX(date) AS latest_date";
+        $stat_select = 'SUM(%1$s) AS %1$s';
 
         // $split modifiers, we no longer need to group
         if( $split ) {
-            $select_core[] = "r1.province";
-            $date_select = "r1.date";
-            $stat_select = 'r1.%1$s';
+            $select_core[] = "province";
+            $date_select = "date";
+            $stat_select = '%1$s';
         }
 
         $select_core[] = $date_select;
         foreach( [$change_prefix, $total_prefix] as $prefix ) {
             foreach( $core_attrs as $attr ) {
-                // $select_core[] = "SUM(r1.{$prefix}{$attr}) AS {$prefix}{$attr}";
+                // $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
                 $select_core[] = sprintf( $stat_select, "{$prefix}{$attr}" );
             }
         }
 
         $select_stmt = implode( ",", $select_core );
 
-        $report = DB::select("
+        $subquery_core = [];
+        foreach( $province_codes as $pc ) {
+            $subquery_core[] = "(
+                SELECT *
+                FROM processed_reports
+                WHERE
+                    province='{$pc}'
+                ORDER BY `date` DESC
+                LIMIT 1
+            )";
+        }
+        $subquery_stmt = implode( " UNION ", $subquery_core );
+
+        echo("
             SELECT
                 {$select_stmt}
-            FROM
-                processed_reports AS r1
-            LEFT JOIN
-                processed_reports AS r2
-                ON r1.province = r2.province
-                AND r1.date < r2.date
-                WHERE r2.province IS NULL
+            FROM (
+                {$subquery_stmt}
+            ) pr
         ");
 
         return [
