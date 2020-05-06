@@ -24,7 +24,7 @@ Route::get('summary/{split}', 'ReportController@Summary')->where('split', 'split
 Route::get('provinces', 'CaseController@Provinces');
 
 Route::get('reports', 'ReportController@generate');
-Route::get('reports/province/{province}', 'ReportController@generate')->where('province', '[A-Za-z]+');
+Route::get('reports/province/{province}', 'ReportController@generate')->where('province', '[A-Za-z_]+');
 
 Route::get('cases', 'CaseController@list');
 Route::get('case/{id}', 'CaseController@get')->where('id', '[\d]+');

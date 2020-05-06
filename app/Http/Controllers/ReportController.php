@@ -19,7 +19,7 @@ class ReportController extends Controller
      */
     public function summary( $split = false ) {
         // setup
-        $province_codes = Common::getProvinceCodes();
+        $province_codes = Common::getProvinceCodes( false );
         $core_attrs = Common::attributes();
         $change_prefix = 'change_';
         $total_prefix = 'total_';
