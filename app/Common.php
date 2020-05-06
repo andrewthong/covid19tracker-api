@@ -63,8 +63,12 @@ class Common {
     /**
      * return an array of province codes
      */
-    static function getProvinceCodes() {
-        return Province::all()->pluck('code')->toArray();
+    static function getProvinceCodes( $geo_only = true ) {
+        if( $geo_only ) {
+            return Province::where('geographic', 1)->pluck('code')->toArray();
+        } else {
+            return Province::all()->pluck('code')->toArray();
+        }
     }
 
     /**
