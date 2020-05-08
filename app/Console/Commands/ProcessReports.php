@@ -185,8 +185,8 @@ class ProcessReports extends Command
 
         $from_date = $mode;
 
-        // only for registered provinces
-        $province_codes = Common::getProvinceCodes();
+        // only for registered provinces, include non-geographic
+        $province_codes = Common::getProvinceCodes( false );
         if( in_array($province, $province_codes) ) {
             $province_codes = [$province];
         }
