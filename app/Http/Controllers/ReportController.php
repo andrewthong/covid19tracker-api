@@ -24,7 +24,7 @@ class ReportController extends Controller
         $value = Cache::get( $cache_key, function() use ($split) {
             
             // setup
-            $province_codes = Common::getProvinceCodes( false );
+            $province_codes = Common::getProvinceCodes(  );
             $core_attrs = Common::attributes();
             $change_prefix = 'change_';
             $total_prefix = 'total_';
