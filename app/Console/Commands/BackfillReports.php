@@ -42,6 +42,8 @@ class BackfillReports extends Command
      */
     public function handle()
     {
+        $curr_env = config('app.env');
+
         $this->line('');
 
         $this->line("     ___  _______  ____  ___ __________");
@@ -51,8 +53,11 @@ class BackfillReports extends Command
 
         $this->line('');
 
-        $this->line(' # <fg=black;bg=white>COVID-19 Tracker API Database v0.7</> #');
-        $this->line(' # Report backfill utility');
+        $this->line(' # <fg=black;bg=white>Report backfill utility</>');
+        $this->line(' # COVID-19 Tracker API Database v0.7 #');
+        // $this->line(' # github.com/andrewthong/covid19tracker-api');
+        $this->line('');
+        $this->line(" # Environment: <fg=yellow>${curr_env}</>");
 
         $start_date = $this->ask('Start date (format: YYYY-MM-DD e.g. 2020-01-15)');
         $end_date = $this->ask('End date (format: YYYY-MM-DD e.g. 2020-02-15)');
