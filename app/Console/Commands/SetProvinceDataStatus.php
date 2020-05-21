@@ -72,7 +72,7 @@ class SetProvinceDataStatus extends Command
         $status_choices = $status_arr;
         array_unshift( $status_choices, "");
         unset( $status_choices[0] );
-        $status_choices['0'] = '<fg=cyan>{custom status}</>';
+        $status_choices['0'] = '{custom status}';
 
         //prep province choices
         $province_choices = $province_codes;
@@ -86,25 +86,30 @@ class SetProvinceDataStatus extends Command
             $the_status = $this->ask( 'Please enter a custom status (32 characters max)' );
         }
 
-        $the_province = $this->choice( 'Set for ALL provinces or a selection', [
+        $the_province = $this->choice( 'Set for all Provinces or specify', [
             '1' => 'All Provinces',
-            '2' => '<fg=cyan>Other</>'
+            '2' => 'Specify'
         ], 1 );
 
         $in_provinces = [];
-        if( $the_province === 'Other' ) {
+        if( $the_province === 'Specify' ) {
+            // request user to specify
             $this->line( "Provinces: ".implode( ' ', $province_choices ) );
-            $provinces = $this->ask( 'Please enter the province(s) (separate multiple with space)' );
+            $provinces = $this->ask( 'Please specify which Province(s) (separate multiple with space)' );
             $provinces = explode( ' ', $provinces );
             $in_provinces = array_intersect( $provinces, $province_codes );
         } else {
+            // all provinces
             $in_provinces = $province_codes;
         }
 
-        Province::whereIn( 'code', $in_provinces )
-            ->update( [
-                'data_status' => $the_status
-            ] );
+        // perform update
+        if( count($in_provinces) > 0 ) {
+            Province::whereIn( 'code', $in_provinces )
+                ->update( [
+                    'data_status' => $the_status
+                ] );
+        }
 
         // wrap-up
         $p = implode( ' ', $in_provinces );
