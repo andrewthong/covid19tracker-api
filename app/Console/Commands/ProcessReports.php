@@ -45,6 +45,7 @@ class ProcessReports extends Command
 
         $option_last = 'report_last_processed';
         $last_run = Option::get($option_last);
+        $curr_env = config('app.env');
 
         $this->line('');
 
@@ -55,9 +56,13 @@ class ProcessReports extends Command
 
         $this->line('');
 
-        $this->line(' # <fg=black;bg=white>COVID-19 Tracker API Database v0.7</> #');
-        $this->line(' # Report processing utility');
-        $this->line(" # Last Run: ${last_run}");
+        $this->line(' # <fg=black;bg=white>Report data processing utility</>');
+        $this->line(" # COVID-19 Tracker API v1.0 #");
+        // $this->line(' # github.com/andrewthong/covid19tracker-api');
+
+        $this->line('');
+        $this->line(" # Environment: <fg=yellow>${curr_env}</>");
+        $this->line(" # Last Run: <fg=yellow>2020-05-05 15:57:03</>");//${last_run}");
 
         // prompt
         $mode_from = $this->choice('Process reports starting from', [
