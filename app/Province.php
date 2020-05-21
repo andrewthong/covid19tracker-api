@@ -8,12 +8,13 @@ class Province extends Model
 {
     protected $table = 'provinces';
 
-    // not using eloquent timestamps
-    public $timestamps = false;
+    public $timestamps = ['updated_at'];
 
     protected $appends = array('density');
 
     public function getDensityAttribute() {
-        return $this->population / $this->area;
+        if( $this->area > 0 )
+            return $this->population / $this->area;
+        return null;
     }
 }
