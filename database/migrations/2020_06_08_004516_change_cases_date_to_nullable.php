@@ -4,6 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+use Illuminate\Support\Facades\DB;
+
 class ChangeCasesDateToNullable extends Migration
 {
     /**
@@ -14,7 +16,7 @@ class ChangeCasesDateToNullable extends Migration
     public function up()
     {
         Schema::table('cases', function (Blueprint $table) {
-            $table->datetime('date', 0)->nullable()->change();
+            DB::select("ALTER TABLE `cases` MODIFY `date` datetime NULL;");
         });
     }
 
@@ -25,8 +27,10 @@ class ChangeCasesDateToNullable extends Migration
      */
     public function down()
     {
-        Schema::table('nullable', function (Blueprint $table) {
-            //
+        Schema::table('cases', function (Blueprint $table) {
+            /* Make date un-nullable */
+            DB::select("UPDATE `cases` SET `date` = '2020-01-01 00:00:00' WHERE `date` IS NULL;");
+            DB::select('ALTER TABLE `cases` MODIFY `date` datetime NOT NULL;');
         });
     }
 }
