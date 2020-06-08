@@ -196,7 +196,7 @@ class ProcessReports extends Command
             $province_codes = [$province];
         }
 
-        $where_core = [];
+        $where_core = ["`date` IS NOT NULL"];
         
         // only include known provinces
         $provinces_in = implode( "','", $province_codes );
