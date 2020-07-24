@@ -62,7 +62,7 @@ class ProcessReports extends Command
 
         $this->line('');
         $this->line(" # Environment: <fg=yellow>${curr_env}</>");
-        $this->line(" # Last Run: <fg=yellow>2020-05-05 15:57:03</>");//${last_run}");
+        $this->line(" # Last Run: <fg=yellow>${last_run}</>");//${last_run}");
 
         // prompt
         $mode_from = $this->choice('Process reports starting from', [
