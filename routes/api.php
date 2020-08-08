@@ -31,3 +31,7 @@ Route::get('case/{id}', 'CaseController@get')->where('id', '[\d]+');
 
 Route::get('fatalities', 'FatalityController@list');
 Route::get('fatality/{id}', 'FatalityController@get')->where('id', '[\d]+');
+
+Route::get('regions', 'HealthRegionController@regions');
+Route::get('regions/{hr_uid}', 'HealthRegionController@regions')->where('hr_uid', '[\d]+');
+Route::get('regions/{hr_uid}/reports', 'HealthRegionController@reports')->where('hr_uid', '[\d]+');

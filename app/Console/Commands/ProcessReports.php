@@ -101,23 +101,7 @@ class ProcessReports extends Command
 
         if( $choice_province !== 'Yes' ) {
             $province = $this->ask('Please enter a province code (e.g. SK)');
-            // [todo]
         }
-
-        // $pass = $this->secret('Now, the secret code please?');
-        // usleep(650000);
-        // $this->line(' <bg=red>[ERROR] Incorrect secret</>');
-        // $this->line('');
-        // usleep(550000);
-        // $this->output->write(' .');
-        // usleep(500000);
-        // $this->output->write('.');
-        // usleep(500000);
-        // $this->output->write('.');
-        // usleep(350000);
-        // $this->line(' (╯°□°)╯︵ ┻━┻');
-        // usleep(750000);
-        // $this->line(' <fg=magenta>You are already in SSH so letting you in this time</>');
 
         $mode = $this->processReportsMode( $mode_opt );
 
