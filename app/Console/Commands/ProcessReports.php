@@ -301,6 +301,7 @@ class ProcessReports extends Command
                         'total_hospitalizations' => $report->hospitalizations,
                         'total_criticals' => $report->criticals,
                         'total_recoveries' => $report->recoveries,
+                        'total_vaccinations' => $report->vaccinations,
                         'notes' => $report->notes,
                     ]
                 );
@@ -337,7 +338,8 @@ class ProcessReports extends Command
             'tests',
             'hospitalizations',
             'criticals',
-            'recoveries'
+            'recoveries',
+            'vaccinations',
         ];
         // attributes where change is expected and total must be calculated
         $change_attrs = array_slice( $core_attrs, 0, 2 );
@@ -490,6 +492,7 @@ public function processHrReports( $mode, $hr_uid = null ) {
                     'total_hospitalizations' => $report->hospitalizations,
                     'total_criticals' => $report->criticals,
                     'total_recoveries' => $report->recoveries,
+                    'total_vaccinations' => $report->vaccinations,
                     'notes' => $report->notes,
                 ]
             );

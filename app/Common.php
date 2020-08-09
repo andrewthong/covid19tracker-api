@@ -49,7 +49,8 @@ class Common {
             'tests',
             'hospitalizations',
             'criticals',
-            'recoveries'
+            'recoveries',
+            'vaccinations',
         ];
         if( $t === 'change' ) {
             // change_ sourced attributes
