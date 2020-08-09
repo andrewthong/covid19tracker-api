@@ -4,6 +4,7 @@ namespace App;
 
 use DateTime;
 
+use App\HealthRegion;
 use App\Province;
 
 class Common {
@@ -69,6 +70,13 @@ class Common {
         } else {
             return Province::all()->pluck('code')->toArray();
         }
+    }
+
+    /**
+     * return an array of hr_uid
+     */
+    static function getHealthRegionCodes() {
+        return HealthRegion::all()->pluck('hr_uid')->toArray();
     }
 
     /**
