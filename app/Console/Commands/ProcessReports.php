@@ -447,17 +447,58 @@ class ProcessReports extends Command
 */
 public function processHrReports( $mode, $hr_uid = null ) {
 
-    // hr
-    $regions = [];
-    if( !$hr_uid ) {
-        // all
-        $regions = Common::getHealthRegionCodes();
-    } else {
-        $regions[] = $hr_uid;
+    // determine date to run on based on mode
+    $from_date = $mode;
+
+    // all or specific region
+    $region = null;
+    if( $hr_uid ) {
+        $region = $hr_uid;
     }
 
-    // do a total (all data is daily for hr)
+    // retrieve hr_reports
+    $reports = DB::table( 'hr_reports' )
+        ->when( $from_date, function( $query ) use( $from_date ) {
+            $query->where( 'date', '>=', $from_date );
+        })
+        ->when( $region, function( $query ) use( $region ) {
+            $query->where( 'hr_uid', '=', $region );
+        })
+        ->orderBy('date')
+        ->get();
 
-    // 
+    // [artisan]
+    $this->line(" Transferring health region totals");
+    $this->line(" (cases, fatalities, tests, hospitalizations, criticals, recoveries)");
+    $bar = $this->output->createProgressBar( count($reports) );
+    $bar->start();
+
+    // loop through reports and copy records over
+    foreach( $reports as $report) {
+        DB::table('processed_hr_reports')
+            ->updateOrInsert(
+                [
+                    'date' => $report->date,
+                    'province' => $report->province
+                ],
+                [
+                    'date' => $report->date,
+                    'province' => $report->province,
+                    'total_cases' => $report->cases,
+                    'total_fatalities' => $report->fatalities,
+                    'total_tests' => $report->tests,
+                    'total_hospitalizations' => $report->hospitalizations,
+                    'total_criticals' => $report->criticals,
+                    'total_recoveries' => $report->recoveries,
+                    'notes' => $report->notes,
+                ]
+            );
+
+        $bar->advance();
+    }
+
+    $bar->finish();
+    $this->line("");
+    $this->line(" Transfers complete >>");
 
 }
