@@ -441,3 +441,23 @@ class ProcessReports extends Command
 
     }
 }
+
+/*
+    adaptation for hr_reports
+*/
+public function processHrReports( $mode, $hr_uid = null ) {
+
+    // hr
+    $regions = [];
+    if( !$hr_uid ) {
+        // all
+        $regions = Common::getHealthRegionCodes();
+    } else {
+        $regions[] = $hr_uid;
+    }
+
+    // do a total (all data is daily for hr)
+
+    // 
+
+}
