@@ -442,66 +442,67 @@ class ProcessReports extends Command
         $this->line(" Calculations complete >>");
 
     }
-}
 
-/*
-    adaptation for hr_reports
-*/
-public function processHrReports( $mode, $hr_uid = null ) {
+    /*
+        adaptation for hr_reports
+    */
+    public function processHrReports( $mode, $hr_uid = null ) {
 
-    // determine date to run on based on mode
-    $from_date = $mode;
+        // determine date to run on based on mode
+        $from_date = $mode;
 
-    // all or specific region
-    $region = null;
-    if( $hr_uid ) {
-        $region = $hr_uid;
+        // all or specific region
+        $region = null;
+        if( $hr_uid ) {
+            $region = $hr_uid;
+        }
+
+        // retrieve hr_reports
+        $reports = DB::table( 'hr_reports' )
+            ->when( $from_date, function( $query ) use( $from_date ) {
+                $query->where( 'date', '>=', $from_date );
+            })
+            ->when( $region, function( $query ) use( $region ) {
+                $query->where( 'hr_uid', '=', $region );
+            })
+            ->orderBy('date')
+            ->get();
+
+        // [artisan]
+        $this->line(" Transferring health region totals");
+        $this->line(" (cases, fatalities, tests, hospitalizations, criticals, recoveries)");
+        $bar = $this->output->createProgressBar( count($reports) );
+        $bar->start();
+
+        // loop through reports and copy records over
+        foreach( $reports as $report) {
+            DB::table('processed_hr_reports')
+                ->updateOrInsert(
+                    [
+                        'date' => $report->date,
+                        'province' => $report->province
+                    ],
+                    [
+                        'date' => $report->date,
+                        'province' => $report->province,
+                        'total_cases' => $report->cases,
+                        'total_fatalities' => $report->fatalities,
+                        'total_tests' => $report->tests,
+                        'total_hospitalizations' => $report->hospitalizations,
+                        'total_criticals' => $report->criticals,
+                        'total_recoveries' => $report->recoveries,
+                        'total_vaccinations' => $report->vaccinations,
+                        'notes' => $report->notes,
+                    ]
+                );
+
+            $bar->advance();
+        }
+
+        $bar->finish();
+        $this->line("");
+        $this->line(" Transfers complete >>");
+
     }
 
-    // retrieve hr_reports
-    $reports = DB::table( 'hr_reports' )
-        ->when( $from_date, function( $query ) use( $from_date ) {
-            $query->where( 'date', '>=', $from_date );
-        })
-        ->when( $region, function( $query ) use( $region ) {
-            $query->where( 'hr_uid', '=', $region );
-        })
-        ->orderBy('date')
-        ->get();
-
-    // [artisan]
-    $this->line(" Transferring health region totals");
-    $this->line(" (cases, fatalities, tests, hospitalizations, criticals, recoveries)");
-    $bar = $this->output->createProgressBar( count($reports) );
-    $bar->start();
-
-    // loop through reports and copy records over
-    foreach( $reports as $report) {
-        DB::table('processed_hr_reports')
-            ->updateOrInsert(
-                [
-                    'date' => $report->date,
-                    'province' => $report->province
-                ],
-                [
-                    'date' => $report->date,
-                    'province' => $report->province,
-                    'total_cases' => $report->cases,
-                    'total_fatalities' => $report->fatalities,
-                    'total_tests' => $report->tests,
-                    'total_hospitalizations' => $report->hospitalizations,
-                    'total_criticals' => $report->criticals,
-                    'total_recoveries' => $report->recoveries,
-                    'total_vaccinations' => $report->vaccinations,
-                    'notes' => $report->notes,
-                ]
-            );
-
-        $bar->advance();
-    }
-
-    $bar->finish();
-    $this->line("");
-    $this->line(" Transfers complete >>");
-
-}
+}//class
