@@ -103,7 +103,7 @@ class ProcessReports extends Command
             $province = $this->ask('Please enter a province code (e.g. SK)');
         }
 
-        $mode = $this->processReportsMode( $mode_opt );
+        $mode = Utility::processReportsMode( $mode_opt );
 
         $this->output->write(' >> Starting process...');
             $this->line(' testing db connection');
