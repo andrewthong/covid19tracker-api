@@ -20,8 +20,8 @@ class NoteSeeder extends Seeder
             ['High Priority', 'Test D', '2020-12-31', null, 10, 'danger'],
             ['', 'Test E always active', null, null, null, 'info'],
             ['', 'Test F No Description', '2020-09-20', 'demo', null, 'success'],
-            ['Assert IGH 3', 'Test G', '2020-10-10', 'demo', null, 'success'],
-            ['Assert IGH 2', 'Test H', '2020-10-15', 'demo', null, 'success'],
+            ['Assert IGH 2', 'Test G', '2020-10-10', 'demo', null, 'success'],
+            ['Assert IGH 3', 'Test H', '2020-10-15', 'demo', null, 'success'],
             ['Assert IGH 1', 'Test I', '2020-10-05', 'demo', null, 'success'],
             ['Even Higher Priority', 'Test I', '2021-01-01', null, 9, 'success'],
         ];
