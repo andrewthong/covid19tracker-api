@@ -62,6 +62,12 @@ class CaseController extends Controller
             $province = $request->province;
         }
 
+        // hr_uid support
+        $hr_uid = null;
+        if( $request->hr_uid ) {
+            $hr_uid = $request->hr_uid;
+        }
+
         // pagination
         $per_page = 100;
         if( $request->per_page ) {
@@ -79,6 +85,9 @@ class CaseController extends Controller
             ->when( $province, function($query) use ($province) {
                 // if a province is provided; otherwise all
                 return $query->where('province', $province);
+            })
+            ->when( $hr_uid, function($query) use ($hr_uid) {
+                return $query->where('hr_uid', $hr_uid);
             })
             ->orderBy('id', $order)
             ->paginate($per_page);
