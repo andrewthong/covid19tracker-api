@@ -50,4 +50,28 @@ class Utility
         return $result;
     }
 
+    static function processReportMode( $mode = null ) {
+
+        $from_date = null;
+        
+        // check if Y-m-d
+        if( preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $mode) ) {
+            $from_date = $mode;
+        }
+        // check if integer
+        else if( is_int($mode) && $mode >= 1 && $mode <= 90 ) {
+            $from_date = date('Y-m-d', strtotime("-{$mode} days"));
+        }
+        // run on all
+        else if( $mode === 'all' ) {
+            $from_date = false;
+        }
+        // defaults to today
+        else {
+            $from_date = date('Y-m-d');
+        }
+
+        return $from_date;
+    }
+
 }
