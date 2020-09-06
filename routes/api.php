@@ -37,3 +37,6 @@ Route::get('regions/{hr_uid}', 'HealthRegionController@regions')->where('hr_uid'
 Route::get('regions/{hr_uid}/reports', 'ReportController@generateHealthRegion')->where('hr_uid', '[\d]+');
 Route::get('reports/regions', 'ReportController@generateHealthRegion');
 Route::get('reports/regions/{hr_uid}', 'ReportController@generateHealthRegion')->where('hr_uid', '[\d]+');
+
+Route::get('notes', 'NoteController@all');
+Route::get('notes/tag/{tag}', 'NoteController@all')->where('tag', '[A-Za-z_]+');
