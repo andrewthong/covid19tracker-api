@@ -27,8 +27,8 @@ class AddVaccinationsToProcessedReportsTable extends Migration
     public function down()
     {
         Schema::table('processed_reports', function (Blueprint $table) {
-            $table->integer('change_vaccinations')->nullable();
-            $table->integer('total_vaccinations')->nullable();
+            $table->dropColumn('change_vaccinations');
+            $table->dropColumn('total_vaccinations');
             //
         });
     }
