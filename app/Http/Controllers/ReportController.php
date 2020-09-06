@@ -76,16 +76,22 @@ class ReportController extends Controller
             'last_updated' => $last_run,
         ];
     }
+
+    public function generateProvince( Request $request, $province = null ) {
+        return $this->generateReport( $request, 'province', $province );
+    }
+
+    public function generateHealthRegion( Request $request, $hr_uid = null ) {
+        return $this->generateReport( $request, 'healthregion', $hr_uid );
+    }
     
     /*
         produces report with daily and cumulative totals for key attributes
     */
-    public function generate( Request $request, $province = null ) {
+    public function generateReport( Request $request, $type = 'province', $location = null ) {
 
         // setup
         $core_attrs = Common::attributes();
-        $change_attrs = Common::attributes('change');
-        $total_attrs = Common::attributes('total');
         // TODO: migrate to a config
         $change_prefix = 'change_';
         $total_prefix = 'total_';
@@ -100,9 +106,18 @@ class ReportController extends Controller
             }
         }
 
+        // base (province)
+        $location_col = 'province';
+        $processed_table = 'processed_reports';
+
+        if( $type === 'healthregion' ) {
+            $location_col = 'hr_uid';
+            $processed_table = 'processed_hr_reports';
+        }
+
         // check for province request
-        if( $province ) {
-            $where_core[] = "province = '{$province}'";
+        if( $location ) {
+            $where_core[] = "{$location_col} = '{$location}'";
         }
 
         // date
@@ -145,7 +160,7 @@ class ReportController extends Controller
             SELECT
                 {$select_stmt}
             FROM
-                processed_reports
+                {$processed_table}
             {$where_stmt}
             GROUP BY
                 `date`
@@ -167,7 +182,7 @@ class ReportController extends Controller
         }
 
         $response = [
-            'province' => $province ? $province : 'All',
+            $location_col => $location ? $location : 'All',
             'data' => $data,
         ];
 

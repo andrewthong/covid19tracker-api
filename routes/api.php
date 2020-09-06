@@ -23,8 +23,8 @@ Route::get('summary/{split}', 'ReportController@Summary')->where('split', 'split
 
 Route::get('provinces', 'CaseController@Provinces');
 
-Route::get('reports', 'ReportController@generate');
-Route::get('reports/province/{province}', 'ReportController@generate')->where('province', '[A-Za-z_]+');
+Route::get('reports', 'ReportController@generateProvince');
+Route::get('reports/province/{province}', 'ReportController@generateProvince')->where('province', '[A-Za-z_]+');
 
 Route::get('cases', 'CaseController@list');
 Route::get('case/{id}', 'CaseController@get')->where('id', '[\d]+');
@@ -34,4 +34,6 @@ Route::get('fatality/{id}', 'FatalityController@get')->where('id', '[\d]+');
 
 Route::get('regions', 'HealthRegionController@regions');
 Route::get('regions/{hr_uid}', 'HealthRegionController@regions')->where('hr_uid', '[\d]+');
-Route::get('regions/{hr_uid}/reports', 'HealthRegionController@reports')->where('hr_uid', '[\d]+');
+Route::get('regions/{hr_uid}/reports', 'HealthRegionController@generateHealthRegion')->where('hr_uid', '[\d]+');
+Route::get('reports/regions', 'ReportController@generateHealthRegion');
+Route::get('reports/regions/{hr_uid}', 'ReportController@generateHealthRegion')->where('hr_uid', '[\d]+');
