@@ -34,6 +34,6 @@ Route::get('fatality/{id}', 'FatalityController@get')->where('id', '[\d]+');
 
 Route::get('regions', 'HealthRegionController@regions');
 Route::get('regions/{hr_uid}', 'HealthRegionController@regions')->where('hr_uid', '[\d]+');
-Route::get('regions/{hr_uid}/reports', 'HealthRegionController@generateHealthRegion')->where('hr_uid', '[\d]+');
+Route::get('regions/{hr_uid}/reports', 'ReportController@generateHealthRegion')->where('hr_uid', '[\d]+');
 Route::get('reports/regions', 'ReportController@generateHealthRegion');
 Route::get('reports/regions/{hr_uid}', 'ReportController@generateHealthRegion')->where('hr_uid', '[\d]+');
