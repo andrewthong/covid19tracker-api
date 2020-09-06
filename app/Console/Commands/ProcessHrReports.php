@@ -162,11 +162,11 @@ class ProcessHrReports extends Command
                 ->updateOrInsert(
                     [
                         'date' => $report->date,
-                        'hr_uid' => $report->province
+                        'hr_uid' => $report->hr_uid
                     ],
                     [
                         'date' => $report->date,
-                        'hr_uid' => $report->province,
+                        'hr_uid' => $report->hr_uid,
                         'total_cases' => $report->cases,
                         'total_fatalities' => $report->fatalities,
                         'total_tests' => $report->tests,
@@ -196,7 +196,7 @@ class ProcessHrReports extends Command
         // determine date to run on based on mode
         $from_date = $mode;
 
-        // list of provinces
+        // list of health regions
         $hr_codes = Common::getHealthRegionCodes();
         if( in_array($hr_uid, $hr_codes) ) {
             $hr_codes = [$hr_uid];
@@ -244,7 +244,7 @@ class ProcessHrReports extends Command
         $bar = $this->output->createProgressBar( $total_reports );
         $bar->start();
 
-        // loop through each province code
+        // loop through each health region uid
         foreach( $hr_codes as $pc ) {
 
             // retrieve processed reports

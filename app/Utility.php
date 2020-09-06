@@ -50,7 +50,7 @@ class Utility
         return $result;
     }
 
-    static function processReportMode( $mode = null ) {
+    static function processReportsMode( $mode = null ) {
 
         $from_date = null;
         

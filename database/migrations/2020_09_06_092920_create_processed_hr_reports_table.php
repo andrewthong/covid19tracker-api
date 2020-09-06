@@ -24,6 +24,7 @@ class CreateProcessedHrReportsTable extends Migration
             $table->integer('change_criticals')->nullable();
             $table->integer('change_recoveries')->nullable();
             $table->integer('change_fatalities')->nullable();
+            $table->integer('change_vaccinations')->nullable();
             // total (rolling cumulative count)
             $table->integer('total_tests')->nullable();
             $table->integer('total_cases')->nullable();
@@ -31,6 +32,7 @@ class CreateProcessedHrReportsTable extends Migration
             $table->integer('total_criticals')->nullable();
             $table->integer('total_recoveries')->nullable();
             $table->integer('total_fatalities')->nullable();
+            $table->integer('total_vaccinations')->nullable();
             // additional notes
             $table->string('notes')->nullable();
             $table->timestamps();
