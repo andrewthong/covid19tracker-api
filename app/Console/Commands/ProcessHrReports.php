@@ -286,16 +286,18 @@ class ProcessHrReports extends Command
                     $ch_attr = $change_prefix.$attr;
                     $tt_attr = $total_prefix.$attr;
                     // gaps can introduce weird results
+                    // for health regions, ignore null
                     if( is_null($report->{$tt_attr}) ) {
                         // set it to backtrack value so change is 0
-                        $update_arr[ $tt_attr ] = $backtrack->{$tt_attr};
-                        $report->{$tt_attr} = $update_arr[ $tt_attr ];
+                        // $update_arr[ $tt_attr ] = $backtrack->{$tt_attr};
+                        // $report->{$tt_attr} = $update_arr[ $tt_attr ];
+                    } else {
+                        // subtract current total w/ backtrack total
+                        $update_arr[ $ch_attr ] =
+                            $report->{$tt_attr}
+                            - $backtrack->{$tt_attr};
+                        $report->{$ch_attr} = $update_arr[ $ch_attr ];
                     }
-                    // subtract current total w/ backtrack total
-                    $update_arr[ $ch_attr ] =
-                          $report->{$tt_attr}
-                        - $backtrack->{$tt_attr};
-                    $report->{$ch_attr} = $update_arr[ $ch_attr ];
                 }
                 // report is now new backtrack
                 $backtrack = clone $report;
