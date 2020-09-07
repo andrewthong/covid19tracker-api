@@ -18,8 +18,9 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::get('summary', 'ReportController@summary');
-Route::get('summary/{split}', 'ReportController@Summary')->where('split', 'split');
+Route::get('summary', 'ReportController@summaryProvince');
+Route::get('summary/{split}', 'ReportController@SummaryProvince')->where('split', 'split');
+Route::get('summary/split/hr', 'ReportController@SummaryHealthRegion');
 
 Route::get('provinces', 'CaseController@Provinces');
 
