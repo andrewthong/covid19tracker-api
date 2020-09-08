@@ -362,6 +362,9 @@ class ProcessReports extends Command
         // count total
         $total_reports = DB::table( 'processed_reports' )
             ->where( 'date', '>=', $from_date )
+            ->when( $province, function( $query ) use( $province ) {
+                $query->where('province', '=', $province);
+            })
             ->count();
 
         // [artisan]

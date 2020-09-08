@@ -235,6 +235,9 @@ class ProcessHrReports extends Command
         // count total
         $total_reports = DB::table( 'processed_hr_reports' )
             ->where( 'date', '>=', $from_date )
+            ->when( $hr_uid, function( $query ) use( $hr_uid ) {
+                $query->where('hr_uid', '=', $hr_uid);
+            })
             ->count();
 
         // [artisan]
