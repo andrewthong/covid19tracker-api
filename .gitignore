@@ -2,6 +2,7 @@
 /public/hot
 /public/storage
 /public/adminer.php
+/database/seeds/tmp/
 /storage/*.key
 /vendor
 /public/admin

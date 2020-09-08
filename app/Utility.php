@@ -74,4 +74,39 @@ class Utility
         return $from_date;
     }
 
+    /**
+     * rudimentary helper to apply hr_uid data to cases
+     */
+    public static function updateHrUid( $object_type ) {
+        $out = new \Symfony\Component\Console\Output\ConsoleOutput();
+        // some validation
+        if( !in_array($object_type, ['cases', 'fatalities']) ) {
+            $out->writeln( "Invalid Object" );
+            exit();
+        }
+        // load JSON file
+        $json_file = base_path() . '/database/seeds/tmp/'.$object_type.'_hr_uid.json';
+        $json_string = file_get_contents( $json_file );
+        $hr_uids = json_decode($json_string, true);
+        if( $hr_uids !== FALSE ) {
+            foreach( $hr_uids as $hr_uid => $ids ) {
+                $case_hr_uid = (int) $hr_uid;
+                // split into chunks
+                $chunks = array_chunk($ids, 100);
+                $out->writeln( "HR UID: ".$case_hr_uid );
+                $out->write("> Chunk ");
+                foreach( $chunks as $chunk_no => $chunk ) {
+                    $out->write( ($chunk_no+1)." " );
+                    DB::table( $object_type )
+                        ->whereIn('id', $chunk)
+                        ->update(['hr_uid' => $case_hr_uid]);
+                }
+                $out->writeln("");
+            }
+        } else {
+            $out->writeln( "Invalid JSON" );
+        }
+        return true;
+    }
+
 }
