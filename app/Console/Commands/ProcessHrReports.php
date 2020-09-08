@@ -286,7 +286,7 @@ class ProcessHrReports extends Command
                     $ch_attr = $change_prefix.$attr;
                     $tt_attr = $total_prefix.$attr;
                     // gaps can introduce weird results
-                    // for health regions, ignore null
+                    // for health regions, leave null values as-is
                     if( is_null($report->{$tt_attr}) ) {
                         // set it to backtrack value so change is 0
                         // $update_arr[ $tt_attr ] = $backtrack->{$tt_attr};
@@ -302,10 +302,12 @@ class ProcessHrReports extends Command
                 // report is now new backtrack
                 $backtrack = clone $report;
 
-                // update db
-                DB::table('processed_hr_reports')
-                    ->where( 'id', '=', $report->id )
-                    ->update( $update_arr );
+                // check if there are updates (hr may not have changes due to null)
+                if( count($update_arr) > 0 ) {
+                    DB::table('processed_hr_reports')
+                        ->where( 'id', '=', $report->id )
+                        ->update( $update_arr );
+                }
 
                 $bar->advance();
             }
