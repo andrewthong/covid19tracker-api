@@ -221,7 +221,7 @@ class ProcessHrReports extends Command
 
         $change_prefix = 'change_';
         $total_prefix = 'total_';
-        $reset_value = 0;
+        $reset_value = null;
 
         // control, starter to compare to
         $reset_arr = [];
@@ -289,11 +289,13 @@ class ProcessHrReports extends Command
                     $ch_attr = $change_prefix.$attr;
                     $tt_attr = $total_prefix.$attr;
                     // gaps can introduce weird results
-                    // for health regions, leave null values as-is
+                    // for health regions, start with null
                     if( is_null($report->{$tt_attr}) ) {
-                        // set it to backtrack value so change is 0
-                        // $update_arr[ $tt_attr ] = $backtrack->{$tt_attr};
-                        // $report->{$tt_attr} = $update_arr[ $tt_attr ];
+                        // ignore unless backtrack is not null
+                        if( !is_null($backtrack->{$tt_attr}) ) {
+                            $update_arr[ $tt_attr ] = $backtrack->{$tt_attr};
+                            $report->{$tt_attr} = $update_arr[ $tt_attr ];
+                        }
                     } else {
                         // subtract current total w/ backtrack total
                         $update_arr[ $ch_attr ] =
