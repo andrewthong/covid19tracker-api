@@ -46,6 +46,11 @@ class BackfillReports extends Command
     {
         $curr_env = config('app.env');
 
+        // default
+        $choice = 'Reports';
+
+        $choice_hr = 'HR Reports';
+
         $this->line('');
 
         $this->line("     ___  ___  _______ ____________   __ ");
@@ -62,9 +67,20 @@ class BackfillReports extends Command
         $this->line(" # Environment: <fg=yellow>${curr_env}</>");
 
         $report_type = $this->choice('Backfill for', [
-            1 => 'Reports',
-            2 => 'HR Reports',
+            1 => $choice,
+            2 => $choice_hr,
         ], 1);
+
+        // ask if backfill calculate case/fatalities
+        $hr_calc_choices = [
+            1 => 'No',
+            2 => 'Only if new (slow)',
+            3 => 'Recalculate all (slower)',
+        ];
+        if( $report_type === $choice_hr ) {
+            $hr_calc = $this->choice('[HR Reports] calculate Case and Fatality totals?',
+                $hr_calc_choices);
+        }
 
         $start_date = $this->ask('Start date (format: YYYY-MM-DD e.g. 2020-01-15)');
         $end_date = $this->ask('End date (format: YYYY-MM-DD e.g. 2020-02-15)');
@@ -142,16 +158,13 @@ class BackfillReports extends Command
                 ];
                 $row = null;
                 // insert can be null for these missing entries
-                if( $report_type === 'HR Reports' ) {
+                if( $report_type === $choice_hr ) {
                     $row = HrReport::firstOrCreate( $obj );
-                } else {
-                    $row = Report::firstOrCreate( $obj );
-                }
-                // test if row was recently created
-                if( $row->wasRecentlyCreated ) {
-                    $created++;
+
                     // additional backfill of case/fatality data
-                    if( $report_type === 'HR Reports' ) {
+                    // if recalculate_all OR ( only_if_new AND row_recently_created )
+                    if( $hr_calc === $hr_calc_choices[3] || 
+                        ($hr_calc === $hr_calc_choices[2] && $row->wasRecentlyCreated) ) {
                         $records = Utility::countCaseFatality($d, $location, 'hr_uid', '<=');
                         if( isset($records->cases) && isset($records->fatalities) ) {
                             $row->update([
@@ -160,6 +173,13 @@ class BackfillReports extends Command
                             ]);
                         }
                     }
+
+                } else {
+                    $row = Report::firstOrCreate( $obj );
+                }
+                // row was recently created
+                if( $row->wasRecentlyCreated ) {
+                    $created++;
                 }
                 // [artisan]
                 $bar->advance();
