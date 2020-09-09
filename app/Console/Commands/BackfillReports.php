@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use DateTime;
 
 use App\Common;
+use App\Utility;
 use App\Report;
 use App\HrReport;
 
@@ -147,8 +148,19 @@ class BackfillReports extends Command
                     $row = Report::firstOrCreate( $obj );
                 }
                 // test if row was recently created
-                if( $row->wasRecentlyCreated )
+                if( $row->wasRecentlyCreated ) {
                     $created++;
+                    // additional backfill of case/fatality data
+                    if( $report_type === 'HR Reports' ) {
+                        $records = Utility::countCaseFatality($d, $location, 'hr_uid', '<=');
+                        if( isset($records->cases) && isset($records->fatalities) ) {
+                            $row->update([
+                                'cases' => $records->cases,
+                                'fatalities' => $records->fatalities,
+                            ]);
+                        }
+                    }
+                }
                 // [artisan]
                 $bar->advance();
             }  

@@ -109,4 +109,48 @@ class Utility
         return true;
     }
 
+    /**
+     * helper to get case and fatality for a specific date based on province or health region
+     *   date (YYYY-MM-DD)
+     *   location ( the provinde or hr_uid )
+     *   location_col ( province, or hr_uid )
+     *   operand ( '=' for change, '<=' for total )
+     */
+    public static function countCaseFatality($date, $location, $location_col = 'province', $operand = '=') {
+
+        if( $location_col !== 'hr_uid' ) {
+            $location = "'{$location}'";
+        }
+
+        $where_core = [
+            "`date`{$operand}'{$date}'",
+            "`{$location_col}`={$location}",
+        ];
+
+        $where_stmt = "WHERE ".implode(" AND ", $where_core);
+
+        $records = DB::select("
+            SELECT
+                COUNT(c_id) as cases,
+                COUNT(f_id) as fatalities
+            FROM (
+                SELECT
+                    id AS c_id,
+                    null AS f_id
+                FROM 
+                    `cases`
+                {$where_stmt}
+                UNION
+                SELECT
+                    null as c_id,
+                    id AS f_id
+                FROM
+                    `fatalities`
+                {$where_stmt}
+            ) AS un
+        ");
+
+        return $records[0];
+    }
+
 }
