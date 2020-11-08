@@ -41,3 +41,14 @@ Route::get('reports/regions/{hr_uid}', 'ReportController@generateHealthRegion')-
 
 Route::get('notes', 'NoteController@all');
 Route::get('notes/tag/{tag}', 'NoteController@all')->where('tag', '[A-Za-z_]+');
+
+// ADMIN (manage/)
+Route::middleware('guest')->group(function () {
+    Route::post('manage/register', 'AuthController@register')->name('register');
+    Route::post('manage/login', 'AuthController@login')->name('login');
+    Route::post('manage/refresh-token', 'AuthController@refreshToken')->name('refreshToken');
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::post('manage/logout', 'AuthController@logout')->name('logout');
+});
