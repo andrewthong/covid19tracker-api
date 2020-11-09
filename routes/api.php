@@ -23,6 +23,7 @@ Route::get('summary/{split}', 'ReportController@SummaryProvince')->where('split'
 Route::get('summary/split/hr', 'ReportController@SummaryHealthRegion');
 
 Route::get('provinces', 'CaseController@Provinces');
+Route::get('province/{province}/regions', 'CaseController@ProvinceRegions')->where('province', '[A-Za-z_]+');
 
 Route::get('reports', 'ReportController@generateProvince');
 Route::get('reports/province/{province}', 'ReportController@generateProvince')->where('province', '[A-Za-z_]+');
@@ -51,4 +52,6 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::post('manage/logout', 'AuthController@logout')->name('logout');
+    Route::get('manage/test', 'AuthController@test')->name('test');
+    Route::get('manage/report/{province}', 'AuthController@getReport')->where('province', '[A-Za-z_]+');
 });

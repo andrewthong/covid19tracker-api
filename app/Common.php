@@ -81,6 +81,14 @@ class Common {
     }
 
     /**
+     * validates Y-m-d
+     */
+    static function isValidDate($date) {
+        $dt = DateTime::createFromFormat("Y-m-d", $date);
+        return $dt !== false && !array_sum($dt::getLastErrors());
+    }
+
+    /**
      * takes an array of objects(array), then finds and fills any missing dates
      * missing rows will be copy of the earliest known row
      * $data: the array of objects(array); must be sorted earliest-to-newest

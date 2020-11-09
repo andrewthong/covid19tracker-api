@@ -63,7 +63,7 @@ class SetProvinceDataStatus extends Command
         //move to common if needed later
         $status_arr = [
             'Reported',
-            'In Progress',
+            'In progress',
             'Waiting for report',
             'No report expected today',
         ];

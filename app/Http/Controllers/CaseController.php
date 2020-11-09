@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Common;
 use App\Province;
+use App\HealthRegion;
 use App\Cases;
 use App\Fatality;
 
@@ -50,6 +51,10 @@ class CaseController extends Controller
         // return DB::table('provinces')->get();
         $provinces = Province::all();
         return $provinces;
+    }
+
+    public function provinceRegions( Request $request, $province = null ) {
+        return HealthRegion::where( 'province', $province )->get();
     }
 
     /*
