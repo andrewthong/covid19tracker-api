@@ -74,6 +74,14 @@ class Common {
     }
 
     /**
+     * validate province code
+     */
+    static function isValidProvinceCode( $code, $geo_only = true ) {
+        $provinces = self::getProvinceCodes( $geo_only );
+        return in_array( $code, $provinces );
+    }
+
+    /**
      * return an array of hr_uid
      */
     static function getHealthRegionCodes() {

@@ -52,6 +52,11 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::post('manage/logout', 'AuthController@logout')->name('logout');
-    Route::get('manage/test', 'AuthController@test')->name('test');
-    Route::get('manage/report/{province}', 'AuthController@getReport')->where('province', '[A-Za-z_]+');
+    Route::get('manage/user', function (Request $request) {
+        return response([
+            'user' => auth()->guard('api')->user()
+        ], 200);
+    });
+    Route::get('manage/report/{province}', 'ManageController@getReports')->where('province', '[A-Za-z_]+');
+    Route::post('manage/report', 'ManageController@saveReports');
 });
