@@ -5,12 +5,7 @@ namespace App\Http\Controllers;
 use App\Utilities\ProxyRequest;
 use Illuminate\Http\Request;
 
-use App\Common;
 use App\User;
-use App\Province;
-use App\HealthRegion;
-use App\HrReport;
-use App\Report;
 
 class AuthController extends Controller
 {
@@ -63,17 +58,24 @@ class AuthController extends Controller
 
         return response([
             'token' => $resp->access_token,
+            'refresh_token' => $resp->refresh_token,
             'expiresIn' => $resp->expires_in,
             'message' => 'You have been logged in',
+            'user' => $user,
         ], 200);
     }
 
     public function refreshToken()
     {
         $resp = $this->proxy->refreshAccessToken();
+        
+        if( isset($resp->error) ) {
+            abort( 403, $resp->error_description );
+        }
 
         return response([
             'token' => $resp->access_token,
+            'refresh_token' => $resp->refresh_token,
             'expiresIn' => $resp->expires_in,
             'message' => 'Token has been refreshed.',
         ], 200);
@@ -90,40 +92,6 @@ class AuthController extends Controller
         return response([
             'message' => 'You have been successfully logged out',
         ], 200);
-    }
-
-    public function test() {
-        $token = request()->user()->token();
-        return "HEY";
-    }
-
-    public function getReport( Request $request, $province ) {
-        $provinces = Common::getProvinceCodes();
-        $date = $request->date;
-        // ensure valid date
-        if( !Common::isValidDate( $date ) ) {
-            return response([
-            'message' => "Invalid date ({$date}) selected",
-            ], 400);
-        }
-        // ensure valid province
-        if( in_array( $province, $provinces ) ) {
-            $response = [];
-            $response['report'] = Report::firstOrNew([
-                'province' => $province,
-                'date' => $date
-            ]);
-            $regions = HealthRegion::where(['province' => $province]);
-            $hr_uids = $regions->pluck('hr_uid')->toArray();
-            $response['regions'] = $regions->get();
-            $response['hr_reports'] = HrReport::whereIn('hr_uid', $hr_uids)->where([
-                'date' => $date
-            ]);
-            return $response;
-        }
-        return response([
-            'message' => "Invalid province ({$province}) selected",
-        ], 400);
     }
 
 }

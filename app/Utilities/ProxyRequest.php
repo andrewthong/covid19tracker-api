@@ -17,9 +17,9 @@ class ProxyRequest
 
     public function refreshAccessToken()
     {
-        $refreshToken = request()->cookie('refresh_token');
+        $refreshToken = request('refresh_token');
 
-        abort_unless($refreshToken, 403, 'Your refresh token is expired.');
+        abort_unless($refreshToken, 403, 'Missing request token.');
 
         $params = [
             'grant_type' => 'refresh_token',
@@ -40,21 +40,6 @@ class ProxyRequest
         $proxy = \Request::create('oauth/token', 'post', $params);
         $resp = json_decode(app()->handle($proxy)->getContent());
 
-        $this->setHttpOnlyCookie($resp->refresh_token);
-
         return $resp;
-    }
-
-    protected function setHttpOnlyCookie(string $refreshToken)
-    {
-        cookie()->queue(
-            'refresh_token',
-            $refreshToken,
-            14400, // 10 days
-            null,
-            null,
-            false,
-            true // httponly
-        );
     }
 }
