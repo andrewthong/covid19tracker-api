@@ -32,7 +32,7 @@ class ManageController extends Controller
             $response['regions'] = $regions->get();
             $response['hr_reports'] = HrReport::whereIn('hr_uid', $hr_uids)->where([
                 'date' => $date
-            ]);
+            ])->get();
             return $response;
         }
         return response([
