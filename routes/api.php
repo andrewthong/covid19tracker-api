@@ -45,7 +45,6 @@ Route::get('notes/tag/{tag}', 'NoteController@all')->where('tag', '[A-Za-z_]+');
 
 // ADMIN (manage/)
 Route::middleware('guest')->group(function () {
-    Route::post('manage/register', 'AuthController@register')->name('register');
     Route::post('manage/login', 'AuthController@login')->name('login');
     Route::post('manage/refresh-token', 'AuthController@refreshToken')->name('refreshToken');
 });
