@@ -59,3 +59,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('manage/report/{province}', 'ManageController@getReports')->where('province', '[A-Za-z_]+');
     Route::post('manage/report', 'ManageController@saveReports');
 });
+
+Route::middleware(['auth:api', 'role:admin'])->group(function () {
+    Route::get('manage/users', 'ManageController@getUsers');
+});

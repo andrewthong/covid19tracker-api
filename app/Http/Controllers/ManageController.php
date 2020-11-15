@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Common;
+use App\User;
 use App\Province;
 use App\HealthRegion;
 use App\HrReport;
@@ -102,6 +103,10 @@ class ManageController extends Controller
             'date' => $date,
         ], 200);
 
+    }
+
+    static function getUsers( Request $request ) {
+        return User::with('roles')->get();
     }
 
 }
