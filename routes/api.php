@@ -61,5 +61,5 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::middleware(['auth:api', 'role:admin'])->group(function () {
-    Route::get('manage/users', 'ManageController@getUsers');
+    Route::get('manage/users', 'UserController@getUsers');
 });
