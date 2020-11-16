@@ -62,4 +62,6 @@ Route::middleware('auth:api')->group(function () {
 
 Route::middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('manage/users', 'UserController@getUsers');
+    Route::get('manage/users/{id}', 'UserController@getUser')->where('id', '[\d]+');
+    Route::post('manage/users/create', 'UserController@createUser');
 });

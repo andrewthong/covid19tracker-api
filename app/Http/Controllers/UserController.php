@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 use App\Common;
 use App\User;
@@ -11,7 +12,21 @@ class UserController extends Controller
 {
     static function getUsers( Request $request )
     {
-        return User::with('roles')->get();
+        return User::with('roles', 'provinces')->get();
+    }
+
+    static function getUser( $id )
+    {
+        $user = User::with('roles', 'provinces')->find($id);
+        //
+        if( !$user ) {
+            return abort(400, "User does not exist");
+        }
+        // block admin editing
+        if( $user->hasRole('admin') ) {
+            return abort(400, "Admins cannot be modified here");
+        }
+        return $user;
     }
 
     /**
@@ -42,11 +57,15 @@ class UserController extends Controller
         $user = User::create([
             'name' => request('name'),
             'email' => request('email'),
-            'password' => Hash::make( request('password') )
+            'password' => Hash::make( request('password') ),
         ]);
 
         $user->save();
 
+        // sync province assignments (permissions)
+        $user->provinces()->sync( request('provinces') );
+
+        // role
         $user->assignRole($role);
 
         return response([

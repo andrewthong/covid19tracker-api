@@ -4,6 +4,8 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
+use App\Province;
+
 class RolesAndPermissionsSeeder extends Seeder
 {
     /**
@@ -16,13 +18,8 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // create permissions
-        Permission::create(['name' => 'provinces.*']);
-
         // create roles
         $role = Role::create(['name' => 'admin']);
-        $role->givePermissionTo(Permission::all());
-
         $role = Role::create(['name' => 'editor']);
     }
 }
