@@ -44,7 +44,7 @@ class AuthController extends Controller
 
     public function login()
     {
-        $user = User::where('email', request('email'))->first();
+        $user = User::where('email', request('email'))->with(['roles', 'provinces'])->first();
 
         abort_unless($user, 404, 'This combination does not exists.');
         abort_unless(
@@ -56,11 +56,25 @@ class AuthController extends Controller
         $resp = $this->proxy
             ->grantPasswordToken(request('email'), request('password'));
 
+        // single-role mode
+        $user->role = $user->roles->pluck('name')[0];
+
         return response([
             'token' => $resp->access_token,
             'refresh_token' => $resp->refresh_token,
             'expiresIn' => $resp->expires_in,
             'message' => 'You have been logged in',
+            'user' => $user,
+        ], 200);
+    }
+
+    public function user()
+    {
+        $user = auth()->guard('api')->user();
+        $user->load(['roles', 'provinces']);
+        // single-role mode
+        $user->role = $user->roles->pluck('name')[0];
+        return response([
             'user' => $user,
         ], 200);
     }

@@ -51,11 +51,15 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::post('manage/logout', 'AuthController@logout')->name('logout');
-    Route::get('manage/user', function (Request $request) {
-        return response([
-            'user' => auth()->guard('api')->user()
-        ], 200);
-    });
+    Route::get('manage/user', 'AuthController@user');
+    
     Route::get('manage/report/{province}', 'ManageController@getReports')->where('province', '[A-Za-z_]+');
     Route::post('manage/report', 'ManageController@saveReports');
+});
+
+Route::middleware(['auth:api', 'role:admin'])->group(function () {
+    Route::get('manage/users', 'UserController@getUsers');
+    Route::get('manage/users/{id}', 'UserController@getUser')->where('id', '[\d]+');
+    Route::post('manage/users/{id}', 'UserController@updateUser')->where('id', '[\d]+');
+    Route::post('manage/users/create', 'UserController@createUser');
 });
