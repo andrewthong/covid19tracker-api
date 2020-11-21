@@ -54,6 +54,17 @@ class ManageController extends Controller
             abort(400, "Invalid report province");
         }
 
+        // validate permission
+        $user = auth()->guard('api')->user();
+        $user->load(['roles', 'provinces']);
+        // not admin
+        if( $user->roles->pluck('name')[0] !== 'admin') {
+            // doesn't have province assigned
+            if( !in_array($province_code, $user->provinces->pluck('code')->toArray()) ) {
+                abort(400, "You do not have permission for {$province_code}");
+            }
+        }
+
         // core attributes for report model
         $attrs = array_flip( Common::attributes() );
 
