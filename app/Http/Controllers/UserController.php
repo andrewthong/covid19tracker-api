@@ -73,4 +73,47 @@ class UserController extends Controller
             'user' => $user,
         ], 200);
     }
+
+    /**
+     * function to create editors
+     */
+    static function updateUser( $id, Request $request )
+    {
+        $user = User::find($id);
+
+        // check if user
+        if( !$user ) {
+            abort(400, "Invalid user");
+        }
+
+        // check details
+        if( !request('name') || !request('email') ) {
+            abort(400, "Missing name / email");
+        }
+
+        //
+        if( request('password') && strlen( request('password') ) < 12 ) {
+            abort(400, "Password should be at least 12 characters");
+        }
+
+        // update user details
+        $user->name = request('name');
+        $user->email = request('email');
+        $password_updated = false;
+        if( request('password') ) {
+            $user->password = Hash::make( request('password') );
+            $password_updated = true;
+        }
+        // save
+        $user->save();
+
+        // sync province assignments (permissions)
+        $user->provinces()->sync( request('provinces') );
+
+        return response([
+            'message' => "User ${id} updated",
+            'passwordUpdated' => $password_updated,
+        ], 200);
+
+    }
 }
