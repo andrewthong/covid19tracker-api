@@ -8,6 +8,11 @@ class Province extends Model
 {
     protected $table = 'provinces';
 
+    protected $guarded = [
+        'code',
+        'name',
+    ];
+
     public $timestamps = ['updated_at'];
 
     protected $appends = array('density');

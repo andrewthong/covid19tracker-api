@@ -13,19 +13,39 @@ use App\ProcessedReport;
 class ReportController extends Controller
 {
 
+    public function summaryProvince( $split = false ) {
+        return $this->summary( $split );
+    }
+
+    public function summaryHealthRegion( $split = true ) {
+        return $this->summary( $split, 'healthregion' );
+    }
+
     /**
      * summary takes latest reports for each province and aggregates
      *  - $split if true, will not aggregate
      */
-    public function summary( $split = false ) {
+    public function summary( $split = false, $type = 'province' ) {
         // setup
-        $province_codes = Common::getProvinceCodes();
         $core_attrs = Common::attributes();
         $change_prefix = 'change_';
         $total_prefix = 'total_';
 
+        $location_col = 'province';
+        $processed_table = 'processed_reports';
+        $option_last = 'report_hr_last_processed';
+        $location_codes = [];
+
+        if( $type === 'healthregion' ) {
+            $location_col = 'hr_uid';
+            $processed_table = 'processed_hr_reports';
+            $option_last = 'report_last_processed';
+            $location_codes = Common::getHealthRegionCodes();
+        } else {
+            $location_codes = Common::getProvinceCodes();
+        }
+
         // meta
-        $option_last = 'report_last_processed';
         $last_run = Option::get($option_last);
 
         // preparing SQL query
@@ -35,7 +55,7 @@ class ReportController extends Controller
 
         // $split modifiers, we no longer need to group
         if( $split ) {
-            $select_core[] = "province";
+            $select_core[] = $location_col;
             $date_select = "date";
             $stat_select = '%1$s';
         }
@@ -51,12 +71,12 @@ class ReportController extends Controller
         $select_stmt = implode( ",", $select_core );
 
         $subquery_core = [];
-        foreach( $province_codes as $pc ) {
+        foreach( $location_codes as $lc ) {
             $subquery_core[] = "(
                 SELECT *
-                FROM processed_reports
+                FROM {$processed_table}
                 WHERE
-                    province='{$pc}'
+                    {$location_col}='{$lc}'
                 ORDER BY `date` DESC
                 LIMIT 1
             )";
@@ -76,16 +96,22 @@ class ReportController extends Controller
             'last_updated' => $last_run,
         ];
     }
+
+    public function generateProvince( Request $request, $province = null ) {
+        return $this->generateReport( $request, 'province', $province );
+    }
+
+    public function generateHealthRegion( Request $request, $hr_uid = null ) {
+        return $this->generateReport( $request, 'healthregion', $hr_uid );
+    }
     
     /*
         produces report with daily and cumulative totals for key attributes
     */
-    public function generate( Request $request, $province = null ) {
+    public function generateReport( Request $request, $type = 'province', $location = null ) {
 
         // setup
         $core_attrs = Common::attributes();
-        $change_attrs = Common::attributes('change');
-        $total_attrs = Common::attributes('total');
         // TODO: migrate to a config
         $change_prefix = 'change_';
         $total_prefix = 'total_';
@@ -100,9 +126,18 @@ class ReportController extends Controller
             }
         }
 
+        // base (province)
+        $location_col = 'province';
+        $processed_table = 'processed_reports';
+
+        if( $type === 'healthregion' ) {
+            $location_col = 'hr_uid';
+            $processed_table = 'processed_hr_reports';
+        }
+
         // check for province request
-        if( $province ) {
-            $where_core[] = "province = '{$province}'";
+        if( $location ) {
+            $where_core[] = "{$location_col} = '{$location}'";
         }
 
         // date
@@ -145,7 +180,7 @@ class ReportController extends Controller
             SELECT
                 {$select_stmt}
             FROM
-                processed_reports
+                {$processed_table}
             {$where_stmt}
             GROUP BY
                 `date`
@@ -167,7 +202,7 @@ class ReportController extends Controller
         }
 
         $response = [
-            'province' => $province ? $province : 'All',
+            $location_col => $location ? $location : 'All',
             'data' => $data,
         ];
 

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Common;
 use App\Province;
+use App\HealthRegion;
 use App\Cases;
 use App\Fatality;
 
@@ -46,10 +47,16 @@ class CaseController extends Controller
         return all province information
         TODO: move to provinces controller
     */
-    public function provinces() {
+    public function provinces( Request $request ) {
         // return DB::table('provinces')->get();
-        $provinces = Province::all();
-        return $provinces;
+        $provinces = Province::query();
+        if( request('geo_only') )
+            $provinces->where( 'geographic', 1 );
+        return $provinces->get();
+    }
+
+    public function provinceRegions( Request $request, $province = null ) {
+        return HealthRegion::where( 'province', $province )->get();
     }
 
     /*
@@ -60,6 +67,12 @@ class CaseController extends Controller
         // province support
         if( $request->province ) {
             $province = $request->province;
+        }
+
+        // hr_uid support
+        $hr_uid = null;
+        if( $request->hr_uid ) {
+            $hr_uid = $request->hr_uid;
         }
 
         // pagination
@@ -79,6 +92,9 @@ class CaseController extends Controller
             ->when( $province, function($query) use ($province) {
                 // if a province is provided; otherwise all
                 return $query->where('province', $province);
+            })
+            ->when( $hr_uid, function($query) use ($hr_uid) {
+                return $query->where('hr_uid', $hr_uid);
             })
             ->orderBy('id', $order)
             ->paginate($per_page);
