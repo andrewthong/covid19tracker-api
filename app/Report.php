@@ -17,6 +17,7 @@ class Report extends Model
         'hospitalizations',
         'tests',
         'recoveries',
+        'vaccinations'
     ];
 
     // not using eloquent timestamps
