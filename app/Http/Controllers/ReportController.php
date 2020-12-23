@@ -68,28 +68,42 @@ class ReportController extends Controller
             }
         }
 
-        $select_stmt = implode( ",", $select_core );
-
         $subquery_core = [];
-        foreach( $location_codes as $lc ) {
-            $subquery_core[] = "(
-                SELECT *
-                FROM {$processed_table}
-                WHERE
-                    {$location_col}='{$lc}'
-                ORDER BY `date` DESC
-                LIMIT 1
-            )";
-        }
-        $subquery_stmt = implode( " UNION ", $subquery_core );
+        $subquery_stmt = '';
+        $query = '';
 
-        $report = DB::select("
-            SELECT
-                {$select_stmt}
-            FROM (
-                {$subquery_stmt}
-            ) pr
-        ");
+        // 2020-12-22: subquery is bogging down in health_regions
+        if( $type === 'healthregion' ) {
+            $select_core = array_map(function($value) { return 't1.'.$value; }, $select_core);
+            $select_stmt = implode( ",", $select_core );
+            $query = "
+                SELECT {$select_stmt} from {$processed_table} t1 
+                JOIN (SELECT hr_uid, MAX(`date`) as latest_date from {$processed_table} group by `hr_uid`) t2 
+                ON t1.hr_uid = t2.hr_uid AND t1.date = t2.latest_date
+            ";
+        } else {
+            $select_stmt = implode( ",", $select_core );
+            foreach( $location_codes as $lc ) {
+                $subquery_core[] = "(
+                    SELECT *
+                    FROM {$processed_table}
+                    WHERE
+                        {$location_col}='{$lc}'
+                    ORDER BY `date` DESC
+                    LIMIT 1
+                )";
+            }
+            $subquery_stmt = implode( " UNION ", $subquery_core );
+            $query = "
+                SELECT
+                    {$select_stmt}
+                FROM (
+                    {$subquery_stmt}
+                ) pr
+            ";
+        }
+
+        $report = DB::select($query);
 
         return [
             'data' =>  $report,
