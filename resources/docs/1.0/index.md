@@ -5,3 +5,4 @@
     - [Cases](/{{route}}/{{version}}/cases)
     - [Fatalities](/{{route}}/{{version}}/fatalities)
     - [Provinces](/{{route}}/{{version}}/provinces)
+    - [Health Regions](/{{route}}/{{version}}/regions)

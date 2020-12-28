@@ -7,7 +7,9 @@ use Illuminate\Console\Command;
 use DateTime;
 
 use App\Common;
+use App\Utility;
 use App\Report;
+use App\HrReport;
 
 class BackfillReports extends Command
 {
@@ -44,20 +46,41 @@ class BackfillReports extends Command
     {
         $curr_env = config('app.env');
 
-        $this->line('');
+        // default
+        $choice = 'Reports';
 
-        $this->line("     ___  _______  ____  ___ __________");
-        $this->line("    / _ \/ __/ _ \/ __ \/ _ \_  __/ __/");
-        $this->line("   / , _/ _// ___/ /_/ / , _// / _\ \  ");
-        $this->line("  /_/|_/___/_/   \____/_/|_|/_/ /___/  ");
+        $choice_hr = 'HR Reports';
 
         $this->line('');
 
-        $this->line(' # <fg=black;bg=white>Report backfill utility</>');
-        $this->line(' # COVID-19 Tracker API Database v0.7 #');
+        $this->line("     ___  ___  _______ ____________   __ ");
+        $this->line("    / _ )/ _ |/ ___/ //_/ __/  _/ /  / / ");
+        $this->line("   / _  / __ / /__/ ,< / _/_/ // /__/ /__");
+        $this->line("  /____/_/ |_\___/_/|_/_/ /___/____/____/");
+
+        $this->line('');
+
+        $this->line(' # <fg=black;bg=white>Backfill utility (Report/HR Report)</>');
+        $this->line(' # COVID-19 Tracker API Database v1.0 #');
         // $this->line(' # github.com/andrewthong/covid19tracker-api');
         $this->line('');
         $this->line(" # Environment: <fg=yellow>${curr_env}</>");
+
+        $report_type = $this->choice('Backfill for', [
+            1 => $choice,
+            2 => $choice_hr,
+        ], 1);
+
+        // ask if backfill calculate case/fatalities
+        $hr_calc_choices = [
+            1 => 'No',
+            2 => 'Only if new (slow)',
+            3 => 'Recalculate all (slower)',
+        ];
+        if( $report_type === $choice_hr ) {
+            $hr_calc = $this->choice('[HR Reports] calculate Case and Fatality totals?',
+                $hr_calc_choices);
+        }
 
         $start_date = $this->ask('Start date (format: YYYY-MM-DD e.g. 2020-01-15)');
         $end_date = $this->ask('End date (format: YYYY-MM-DD e.g. 2020-02-15)');
@@ -99,13 +122,24 @@ class BackfillReports extends Command
         }
 
         // setup
-        $province_codes = Common::getProvinceCodes();
+        $location_codes = [];
+        $report_singular = 'report';
+        $location_col = 'province';
         $dates = [];
         $created = 0;
 
+        // report type
+        if( $report_type === 'HR Reports' ) {
+            $location_codes = Common::getHealthRegionCodes();
+            $report_singular = 'health region report';
+            $location_col = 'hr_uid';
+        } else {
+            $location_codes = Common::getProvinceCodes();
+        }
+
         // [artisan]
-        $est_total = ($diff->days + 1) * count($province_codes);
-        $this->line(" Finding report entries ({$est_total} expected)");
+        $est_total = ($diff->days + 1) * count($location_codes);
+        $this->line(" Finding {$report_singular} entries ({$est_total} expected)");
         $bar = $this->output->createProgressBar( $est_total );
         $bar->start();
 
@@ -115,18 +149,38 @@ class BackfillReports extends Command
             $dates[] = $d;
             // increment start date
             $start_date->modify('+1 day');
-            foreach( $province_codes as $pc ) {
+            foreach( $location_codes as $location ) {
                 // simple safeguard against blank province or date
-                if( !$pc || !$d ) break;
+                if( !$location || !$d ) break;
                 $obj = [
-                    'province' => $pc,
+                    $location_col => $location,
                     'date' => $d
                 ];
+                $row = null;
                 // insert can be null for these missing entries
-                $row = Report::firstOrCreate( $obj );
-                // test if row was recently created
-                if( $row->wasRecentlyCreated )
+                if( $report_type === $choice_hr ) {
+                    $row = HrReport::firstOrCreate( $obj );
+
+                    // additional backfill of case/fatality data
+                    // if recalculate_all OR ( only_if_new AND row_recently_created )
+                    if( $hr_calc === $hr_calc_choices[3] || 
+                        ($hr_calc === $hr_calc_choices[2] && $row->wasRecentlyCreated) ) {
+                        $records = Utility::countCaseFatality($d, $location, 'hr_uid', '<=');
+                        if( isset($records->cases) && isset($records->fatalities) ) {
+                            $row->update([
+                                'cases' => $records->cases,
+                                'fatalities' => $records->fatalities,
+                            ]);
+                        }
+                    }
+
+                } else {
+                    $row = Report::firstOrCreate( $obj );
+                }
+                // row was recently created
+                if( $row->wasRecentlyCreated ) {
                     $created++;
+                }
                 // [artisan]
                 $bar->advance();
             }  
@@ -138,7 +192,7 @@ class BackfillReports extends Command
         $this->line('');
         $this->line('');
         $this->line(" <fg=green;bg=black>Backfill complete.</>");
-        $this->line(" Added {$created} missing reports within {$d1} – {$d2}");
+        $this->line(" Added {$created} missing {$report_singular} entries within {$d1} – {$d2}");
         $this->line('');
         $this->line(' Have a nice day ツ');
         $this->line('');

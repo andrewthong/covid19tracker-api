@@ -50,4 +50,107 @@ class Utility
         return $result;
     }
 
+    static function processReportsMode( $mode = null ) {
+
+        $from_date = null;
+        
+        // check if Y-m-d
+        if( preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $mode) ) {
+            $from_date = $mode;
+        }
+        // check if integer
+        else if( is_int($mode) && $mode >= 1 && $mode <= 90 ) {
+            $from_date = date('Y-m-d', strtotime("-{$mode} days"));
+        }
+        // run on all
+        else if( $mode === 'all' ) {
+            $from_date = false;
+        }
+        // defaults to today
+        else {
+            $from_date = date('Y-m-d');
+        }
+
+        return $from_date;
+    }
+
+    /**
+     * rudimentary helper to apply hr_uid data to cases
+     */
+    public static function updateHrUid( $object_type ) {
+        $out = new \Symfony\Component\Console\Output\ConsoleOutput();
+        // some validation
+        if( !in_array($object_type, ['cases', 'fatalities']) ) {
+            $out->writeln( "Invalid Object" );
+            exit();
+        }
+        // load JSON file
+        $json_file = base_path() . '/database/seeds/tmp/'.$object_type.'_hr_uid.json';
+        $json_string = file_get_contents( $json_file );
+        $hr_uids = json_decode($json_string, true);
+        if( $hr_uids !== FALSE ) {
+            foreach( $hr_uids as $hr_uid => $ids ) {
+                $case_hr_uid = (int) $hr_uid;
+                // split into chunks
+                $chunks = array_chunk($ids, 100);
+                $out->writeln( "HR UID: ".$case_hr_uid );
+                $out->write("> Chunk ");
+                foreach( $chunks as $chunk_no => $chunk ) {
+                    $out->write( ($chunk_no+1)." " );
+                    DB::table( $object_type )
+                        ->whereIn('id', $chunk)
+                        ->update(['hr_uid' => $case_hr_uid]);
+                }
+                $out->writeln("");
+            }
+        } else {
+            $out->writeln( "Invalid JSON" );
+        }
+        return true;
+    }
+
+    /**
+     * helper to get case and fatality for a specific date based on province or health region
+     *   date (YYYY-MM-DD)
+     *   location ( the provinde or hr_uid )
+     *   location_col ( province, or hr_uid )
+     *   operand ( '=' for change, '<=' for total )
+     */
+    public static function countCaseFatality($date, $location, $location_col = 'province', $operand = '=') {
+
+        if( $location_col !== 'hr_uid' ) {
+            $location = "'{$location}'";
+        }
+
+        $where_core = [
+            "`date`{$operand}'{$date}'",
+            "`{$location_col}`={$location}",
+        ];
+
+        $where_stmt = "WHERE ".implode(" AND ", $where_core);
+
+        $records = DB::select("
+            SELECT
+                COUNT(c_id) as cases,
+                COUNT(f_id) as fatalities
+            FROM (
+                SELECT
+                    id AS c_id,
+                    null AS f_id
+                FROM 
+                    `cases`
+                {$where_stmt}
+                UNION
+                SELECT
+                    null as c_id,
+                    id AS f_id
+                FROM
+                    `fatalities`
+                {$where_stmt}
+            ) AS un
+        ");
+
+        return $records[0];
+    }
+
 }

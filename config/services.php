@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'passport' => [
+        'password_client_id' => env('PASSWORD_CLIENT_ID'),
+        'password_client_secret' => env('PASSWORD_CLIENT_SECRET'),
+    ],
+    
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),

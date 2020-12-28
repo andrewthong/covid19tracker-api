@@ -4,6 +4,7 @@ namespace App;
 
 use DateTime;
 
+use App\HealthRegion;
 use App\Province;
 
 class Common {
@@ -48,7 +49,8 @@ class Common {
             'tests',
             'hospitalizations',
             'criticals',
-            'recoveries'
+            'recoveries',
+            'vaccinations',
         ];
         if( $t === 'change' ) {
             // change_ sourced attributes
@@ -69,6 +71,29 @@ class Common {
         } else {
             return Province::all()->pluck('code')->toArray();
         }
+    }
+
+    /**
+     * validate province code
+     */
+    static function isValidProvinceCode( $code, $geo_only = true ) {
+        $provinces = self::getProvinceCodes( $geo_only );
+        return in_array( $code, $provinces );
+    }
+
+    /**
+     * return an array of hr_uid
+     */
+    static function getHealthRegionCodes() {
+        return HealthRegion::all()->pluck('hr_uid')->toArray();
+    }
+
+    /**
+     * validates Y-m-d
+     */
+    static function isValidDate($date) {
+        $dt = DateTime::createFromFormat("Y-m-d", $date);
+        return $dt !== false && !array_sum($dt::getLastErrors());
     }
 
     /**

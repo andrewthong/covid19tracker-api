@@ -6,6 +6,7 @@
 - [Sample Response](#sample-response)
 - [Parameters](#parameters)
 - [By Province](#by-province)
+- [By Health Region](#by-health-region)
 
 <a name="basic"></a>
 
@@ -33,12 +34,14 @@ By default, this returns a day-to-day rolling summary of stats for all provinces
       "change_hospitalizations": 49,
       "change_criticals": 19,
       "change_recoveries": 74,
+      "change_vaccinations": 0,
       "total_cases": 2806,
       "total_fatalities": 27,
       "total_tests": 110989,
       "total_hospitalizations": 146,
       "total_criticals": 70,
-      "total_recoveries": 186
+      "total_recoveries": 186,
+      "total_vaccinations": 0
     },
     ...
   ]
@@ -85,3 +88,19 @@ Filter the data to the province level by providing a province code e.g. `SK`. Al
 ### Example
 
 `reports/province/ab`
+
+<a name="by-health-region"></a>
+
+## By Health Region
+
+*This feature is under development*
+
+Filter the data to the health region level by providing a Health Region UID (hr_uid) e.g. `3527`. All parameters are supported.
+
+| Method | URI |
+| :- | :- |
+| GET | `reports/regions/:hr_uid` |
+
+### Example
+
+`reports/regions/3527`

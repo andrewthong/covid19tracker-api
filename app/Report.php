@@ -8,6 +8,18 @@ class Report extends Model
 {
     protected $table = 'reports';
 
+    protected $fillable = [
+        'province',
+        'date',
+        'cases',
+        'fatalities',
+        'criticals',
+        'hospitalizations',
+        'tests',
+        'recoveries',
+        'vaccinations'
+    ];
+
     // not using eloquent timestamps
     public $timestamps = false;
 
