@@ -282,7 +282,7 @@ class ProcessReports extends Command
 
         // [artisan]
         $this->line(" Transferring daily totals");
-        $this->line(" (tests, hospitalizations, criticals, recoveries)");
+        $this->line(" (tests, hospitalizations, criticals, recoveries, vaccinations)");
         $bar = $this->output->createProgressBar( count($reports) );
         $bar->start();
 
@@ -302,6 +302,7 @@ class ProcessReports extends Command
                         'total_criticals' => $report->criticals,
                         'total_recoveries' => $report->recoveries,
                         'total_vaccinations' => $report->vaccinations,
+                        'total_vaccines_distributed' => $report->vaccines_distributed,
                         'notes' => $report->notes,
                     ]
                 );
@@ -332,15 +333,7 @@ class ProcessReports extends Command
         }
 
         // core attributes
-        $core_attrs = [
-            'cases',
-            'fatalities',
-            'tests',
-            'hospitalizations',
-            'criticals',
-            'recoveries',
-            'vaccinations',
-        ];
+        $core_attrs = Common::attributes(null, true);
         // attributes where change is expected and total must be calculated
         $change_attrs = array_slice( $core_attrs, 0, 2 );
         // attributes where total is expected and change must be calculated

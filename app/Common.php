@@ -41,8 +41,10 @@ class Common {
      * optional $t (type)
      *  - change: returns attributes where data source is from change_
      *  - total: returns attributes where data source is from total_
+     * optional $p (province)
+     *  - true/"province": adds vaccines_distributed
      */
-    static function attributes( $t = null ) {
+    static function attributes( $t = null, $p = false ) {
         $core_attrs = [
             'cases',
             'fatalities',
@@ -52,6 +54,10 @@ class Common {
             'recoveries',
             'vaccinations',
         ];
+        // province specific fields
+        if( $p === true || $p === 'province' ) {
+            $core_attrs[] = 'vaccines_distributed';
+        }
         if( $t === 'change' ) {
             // change_ sourced attributes
             return array_slice( $core_attrs, 0, 2 );

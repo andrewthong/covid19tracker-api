@@ -25,8 +25,8 @@ class ReportController extends Controller
     /**
      * summary takes latest reports for each province and aggregates
      *  - $split if true, will not aggregate
+     *  - $type province or healthregion
      */
-
     public function summary( $split = false, $type = 'province' ) {
 
         $cache_key = $type."_summary";
@@ -140,7 +140,7 @@ class ReportController extends Controller
     public function generateReport( Request $request, $type = 'province', $location = null ) {
 
         // setup
-        $core_attrs = Common::attributes();
+        $core_attrs = Common::attributes( null, $type );
         // TODO: migrate to a config
         $change_prefix = 'change_';
         $total_prefix = 'total_';
