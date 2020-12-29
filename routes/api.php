@@ -62,4 +62,5 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('manage/users/{id}', 'UserController@getUser')->where('id', '[\d]+');
     Route::post('manage/users/{id}', 'UserController@updateUser')->where('id', '[\d]+');
     Route::post('manage/users/create', 'UserController@createUser');
+    Route::post('manage/cache/clear', 'ManageController@clearCache');
 });
