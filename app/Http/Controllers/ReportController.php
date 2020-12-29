@@ -29,10 +29,9 @@ class ReportController extends Controller
      */
     public function summary( $split = false, $type = 'province' ) {
 
-        $cache_key = $type."_summary";
-        if( $split ) $cache_key .= "_split";
+        $cache_key = \Request::getRequestUri();
 
-        $value = Cache::get( $cache_key, function() use ($split, $type) {
+        $value = Cache::rememberForever( $cache_key, function() use ($split, $type) {
 
           // setup
           $core_attrs = Common::attributes();
@@ -139,103 +138,112 @@ class ReportController extends Controller
     */
     public function generateReport( Request $request, $type = 'province', $location = null ) {
 
-        // setup
-        $core_attrs = Common::attributes( null, $type );
-        // TODO: migrate to a config
-        $change_prefix = 'change_';
-        $total_prefix = 'total_';
-        $reset_value = 0;
+        // cache
+        $cache_key = $request->getRequestUri();
 
-        $where_core = [];
+        $value = Cache::rememberForever( $cache_key, function() use ($request, $type, $location) {
 
-        // query core modifiers
-        foreach( [$change_prefix, $total_prefix] as $prefix ) {
-            foreach( $core_attrs as $attr ) {
-                $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
+            // setup
+            $core_attrs = Common::attributes( null, $type );
+            // TODO: migrate to a config
+            $change_prefix = 'change_';
+            $total_prefix = 'total_';
+            $reset_value = 0;
+
+            $where_core = [];
+
+            // query core modifiers
+            foreach( [$change_prefix, $total_prefix] as $prefix ) {
+                foreach( $core_attrs as $attr ) {
+                    $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
+                }
             }
-        }
 
-        // base (province)
-        $location_col = 'province';
-        $processed_table = 'processed_reports';
+            // base (province)
+            $location_col = 'province';
+            $processed_table = 'processed_reports';
 
-        if( $type === 'healthregion' ) {
-            $location_col = 'hr_uid';
-            $processed_table = 'processed_hr_reports';
-        }
-
-        // check for province request
-        if( $location ) {
-            $where_core[] = "{$location_col} = '{$location}'";
-        }
-
-        // date
-        if( $request->date ) {
-            $where_core[] = "`date` = '{$request->date}'";
-        }
-        // date range (if date is not provided)
-        else if( $request->after ) {
-            $where_core[] = "`date` >= '{$request->after}'";
-            // before defaults to today
-            $date_before = date('Y-m-d');
-            if( $request->before ) {
-                $date_before = $request->before;
+            if( $type === 'healthregion' ) {
+                $location_col = 'hr_uid';
+                $processed_table = 'processed_hr_reports';
             }
-            $where_core[] = "`date` <= '{$date_before}'";
-        }
 
-        // stat
-        // return on single statistic as defined
-        if( $request->stat && in_array( $request->stat, $core_attrs ) ) {
-            $core_attrs = [$request->stat];
-        }
-
-        // build out select list
-        $select_core = ['date'];
-        foreach( [$change_prefix, $total_prefix] as $prefix ) {
-            foreach( $core_attrs as $attr ) {
-                $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
+            // check for province request
+            if( $location ) {
+                $where_core[] = "{$location_col} = '{$location}'";
             }
-        }
-        
-        // prepare SELECT
-        $select_stmt = implode(",", $select_core);
-        $where_stmt = "";
-        if( $where_core ) {
-            $where_stmt = "WHERE " . implode(" AND ", $where_core);
-        }
 
-        $result = DB::select("
-            SELECT
-                {$select_stmt}
-            FROM
-                {$processed_table}
-            {$where_stmt}
-            GROUP BY
-                `date`
-            ORDER BY
-                `date`
-        ");
-
-        // convert DB::select to a basic array
-        $data = json_decode(json_encode($result), true);
-
-        // fill dates (useful for charting)
-        if( $request->fill_dates ) {
-            // prepare a reset array; all change_{stat} must be null
-            $reset_arr = ['fill' => 1];
-            foreach( $core_attrs as $attr ) {
-                $reset_arr["{$change_prefix}{$attr}"] = null;
+            // date
+            if( $request->date ) {
+                $where_core[] = "`date` = '{$request->date}'";
             }
-            $data = Common::fillMissingDates( $data, $reset_arr );
-        }
+            // date range (if date is not provided)
+            else if( $request->after ) {
+                $where_core[] = "`date` >= '{$request->after}'";
+                // before defaults to today
+                $date_before = date('Y-m-d');
+                if( $request->before ) {
+                    $date_before = $request->before;
+                }
+                $where_core[] = "`date` <= '{$date_before}'";
+            }
 
-        $response = [
-            $location_col => $location ? $location : 'All',
-            'data' => $data,
-        ];
+            // stat
+            // return on single statistic as defined
+            if( $request->stat && in_array( $request->stat, $core_attrs ) ) {
+                $core_attrs = [$request->stat];
+            }
 
-        return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
+            // build out select list
+            $select_core = ['date'];
+            foreach( [$change_prefix, $total_prefix] as $prefix ) {
+                foreach( $core_attrs as $attr ) {
+                    $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
+                }
+            }
+            
+            // prepare SELECT
+            $select_stmt = implode(",", $select_core);
+            $where_stmt = "";
+            if( $where_core ) {
+                $where_stmt = "WHERE " . implode(" AND ", $where_core);
+            }
+
+            $result = DB::select("
+                SELECT
+                    {$select_stmt}
+                FROM
+                    {$processed_table}
+                {$where_stmt}
+                GROUP BY
+                    `date`
+                ORDER BY
+                    `date`
+            ");
+
+            // convert DB::select to a basic array
+            $data = json_decode(json_encode($result), true);
+
+            // fill dates (useful for charting)
+            if( $request->fill_dates ) {
+                // prepare a reset array; all change_{stat} must be null
+                $reset_arr = ['fill' => 1];
+                foreach( $core_attrs as $attr ) {
+                    $reset_arr["{$change_prefix}{$attr}"] = null;
+                }
+                $data = Common::fillMissingDates( $data, $reset_arr );
+            }
+
+            $response = [
+                $location_col => $location ? $location : 'All',
+                'data' => $data,
+            ];
+
+            return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
+            
+        });//cache closure
+
+        return $value;
     }
 
 }
