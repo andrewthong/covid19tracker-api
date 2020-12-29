@@ -29,8 +29,8 @@ class ReportController extends Controller
      */
     public function summary( $split = false, $type = 'province' ) {
 
+        // cache
         $cache_key = \Request::getRequestUri();
-
         $value = Cache::rememberForever( $cache_key, function() use ($split, $type) {
 
           // setup
@@ -140,7 +140,6 @@ class ReportController extends Controller
 
         // cache
         $cache_key = $request->getRequestUri();
-
         $value = Cache::rememberForever( $cache_key, function() use ($request, $type, $location) {
 
             // setup
