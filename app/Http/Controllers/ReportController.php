@@ -32,7 +32,7 @@ class ReportController extends Controller
         $cache_key = $type."_summary";
         if( $split ) $cache_key .= "_split";
 
-        $value = Cache::get( $cache_key, function() use ($split) {
+        $value = Cache::get( $cache_key, function() use ($split, $type) {
 
           // setup
           $core_attrs = Common::attributes();
