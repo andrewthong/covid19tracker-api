@@ -66,7 +66,7 @@ class ManageController extends Controller
         }
 
         // core attributes for report model
-        $attrs = array_flip( Common::attributes() );
+        $attrs = array_flip( Common::attributes(null, request('report')) );
 
         // process (province) report
         if( request('report') ) {

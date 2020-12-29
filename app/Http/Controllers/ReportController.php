@@ -27,7 +27,7 @@ class ReportController extends Controller
      */
     public function summary( $split = false, $type = 'province' ) {
         // setup
-        $core_attrs = Common::attributes();
+        $core_attrs = Common::attributes( null, $type );
         $change_prefix = 'change_';
         $total_prefix = 'total_';
 
@@ -125,7 +125,7 @@ class ReportController extends Controller
     public function generateReport( Request $request, $type = 'province', $location = null ) {
 
         // setup
-        $core_attrs = Common::attributes();
+        $core_attrs = Common::attributes( null, $type );
         // TODO: migrate to a config
         $change_prefix = 'change_';
         $total_prefix = 'total_';
