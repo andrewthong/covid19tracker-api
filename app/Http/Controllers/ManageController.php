@@ -65,8 +65,9 @@ class ManageController extends Controller
             }
         }
 
-        // core attributes for report model
-        $attrs = array_flip( Common::attributes(null, request('report')) );
+        // core attributes for report and hr report model
+        $attrs = array_flip( Common::attributes(null, true) );
+        $hr_attrs = array_flip( Common::attributes(null, false) );
 
         // process (province) report
         if( request('report') ) {
@@ -91,7 +92,7 @@ class ManageController extends Controller
                     'date' => $date
                 ];
                 // same as province-wide report
-                $hr_report_values = array_intersect_key( $data, $attrs );
+                $hr_report_values = array_intersect_key( $data, $hr_attrs );
                 // update or create HR
                 HrReport::updateOrCreate(
                     $where_values,
