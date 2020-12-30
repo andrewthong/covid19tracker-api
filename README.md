@@ -39,17 +39,43 @@ cp .env.example .env
 ```
 Modify the .env with the proper database credentials.
 
-#### Generate Key
+#### 4. Generate Key
 
 ```
 php artisan key:generate
 ```
 
-#### Run Migrations
+#### 5. Run Migrations
 
 ```
 php artisan migrate
 ```
+
+#### 6. Data Management Support
+
+Required if you plan to run the [C19T-Manager](https://github.com/andrewthong/covid19tracker-manage) companion as well.
+
+```
+php artisan passport:install
+```
+
+From the resulting output, copy personal access to `PERSONAL_CLIENT_SECRET` and password grant to `PASSWORD_CLIENT_SECRET` in your .env file.
+
+Update `MANAGE_URL` in your .env file with the URL where C19T-Manager is deployed.
+
+Then create your first admin user:
+
+```
+php artisan tinker
+$user = new \App\User
+$user->name = 'Fname';
+$user->email = 'fnamelname@example.net';
+$user->password = Hash::make('some_password_123');
+$user->assignRole('admin');
+$user->save();
+```
+
+Roles are currently simplified to admin and editor. This project uses [laravel-permission](https://github.com/spatie/laravel-permission) to manage roles.
 
 ## Deployment
 
@@ -65,6 +91,14 @@ Running this seed inserts all 13 provinces and territories of Canada.
 
 ```
 php artisan db:seed --class=ProvinceSeeder
+```
+
+### Health Regions
+
+Running this seed inserts health regions in Canada.
+
+```
+php artisan db:seed --class=HealthRegionsSeeder
 ```
 
 ### Reports
@@ -86,7 +120,7 @@ php artisan db:seed --class=FatalitySeeder
 
 ## Data Management
 
-_Admin panel still under consideration._
+[C19T-Manager](https://github.com/andrewthong/covid19tracker-manage) is a companion app to facilitate reporting. There are plans to migrate other functionality here including processing reports.
 
 ## Processing Reports
 
@@ -99,22 +133,19 @@ php artisan report:process
 The prompt should be straightforward. Out-of-box, the processing function:
 
 * Sums the daily **case** and **fatality** totals for each province
-* Calculates the day-to-day change in **tests**, **hospitalizations**, **criticals** (intensive care) and **recoveries** from the `reports`.
+* Calculates the day-to-day change in **tests**, **hospitalizations**, **criticals** (intensive care), **recoveries** and **vaccinations** from the `reports`.
 * Stores this summarized data, which is used by the reports API
 
 ## Built With
 
 * [Laravel](https://laravel.com/) - The web framework used
 
-## Contributing
-
-Feel free to contribute :)
-
 ## Authors
 
 * **Andrew Thong** - *Initial work* - [GitHub](https://github.com/andrewthong)
+* **Noah Little** - *Concept, data consultation*
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also: COVID19Tracker.ca [acknowledgements](https://covid19tracker.ca/acknowledgements.html).
 
 ## License
 
