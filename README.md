@@ -77,6 +77,10 @@ $user->save();
 
 Roles are currently simplified to admin and editor. This project uses [laravel-permission](https://github.com/spatie/laravel-permission) to manage roles.
 
+### 7. Caching
+
+TBD
+
 ## Deployment
 
 You can now launch. Instructions vary depending on your setup (LEMP server, Homestead...). When ready, browse to the URL as configured and you should see the API documentation.
@@ -124,7 +128,7 @@ php artisan db:seed --class=FatalitySeeder
 
 ## Processing Reports
 
-Processing the reports is done through the CLI. Run the following command in the project root:
+Processing reports is done through the CLI. Run the following command in the project root:
 
 ```
 php artisan report:process
@@ -136,6 +140,14 @@ The prompt should be straightforward. Out-of-box, the processing function:
 * Calculates the day-to-day change in **tests**, **hospitalizations**, **criticals** (intensive care), **recoveries** and **vaccinations** from the `reports`.
 * Stores this summarized data, which is used by the reports API
 
+### Health Region (HR) Reports
+
+Support for health regions was added in late 2020. Health regions have a separate reports table (`hr_reports`) and can be processed from the CLI as well:
+
+```
+php artisan report:processhr
+```
+
 ## Built With
 
 * [Laravel](https://laravel.com/) - The web framework used
@@ -145,7 +157,7 @@ The prompt should be straightforward. Out-of-box, the processing function:
 * **Andrew Thong** - *Initial work* - [GitHub](https://github.com/andrewthong)
 * **Noah Little** - *Concept, data consultation*
 
-See also: COVID19Tracker.ca [acknowledgements](https://covid19tracker.ca/acknowledgements.html).
+See also: [COVID19Tracker.ca acknowledgements](https://covid19tracker.ca/acknowledgements.html).
 
 ## License
 
@@ -156,4 +168,3 @@ This project is licensed under the MIT License.
 * [COVID-19 Tracker Canada](https://covid19tracker.ca) - the tracker that inspired this project
 * [Adminer](https://www.adminer.org) - convenient single-line database administration
 * [DigitalOcean Hub for Good](https://www.digitalocean.com/community/pages/covid-19) - infrastructure
-
