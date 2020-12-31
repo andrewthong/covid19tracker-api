@@ -114,7 +114,7 @@ Feel free to contribute :)
 
 * **Andrew Thong** - *Initial work* - [GitHub](https://github.com/andrewthong)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/andrewthong/covid19tracker-api/contributors/) who participated in this project.
 
 ## License
 
