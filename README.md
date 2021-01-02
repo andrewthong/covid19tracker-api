@@ -40,13 +40,11 @@ cp .env.example .env
 Modify the .env with the proper database credentials.
 
 #### 4. Generate Key
-
 ```
 php artisan key:generate
 ```
 
 #### 5. Run Migrations
-
 ```
 php artisan migrate
 ```
@@ -137,7 +135,7 @@ php artisan report:process
 The prompt should be straightforward. Out-of-box, the processing function:
 
 * Sums the daily **case** and **fatality** totals for each province
-* Calculates the day-to-day change in **tests**, **hospitalizations**, **criticals** (intensive care), **recoveries** and **vaccinations** from the `reports`.
+* Calculates the day-to-day change in **tests**, **hospitalizations**, **criticals** (intensive care), **recoveries** and **vaccinations** from the `reports` table.
 * Stores this summarized data, which is used by the reports API
 
 ### Health Region (HR) Reports
@@ -147,6 +145,8 @@ Support for health regions was added in late 2020. Health regions have a separat
 ```
 php artisan report:processhr
 ```
+
+* unlike standard reports, health region reports calculates **case** and **fatality** from the `hr_reports` table.
 
 ## Built With
 
