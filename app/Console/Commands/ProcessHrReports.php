@@ -117,6 +117,8 @@ class ProcessHrReports extends Command
 
         $this->line(' Finising up...');
 
+        Utility::clearCache();
+
         Option::set( $option_last, date('Y-m-d H:i:s') );
 
         $this->line(" <fg=green;bg=black>Processing complete. Health Region Reports up to date.</>");
