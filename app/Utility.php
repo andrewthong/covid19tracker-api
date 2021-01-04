@@ -12,10 +12,16 @@ class Utility
 {
 
     static function clearCache( $key = null ) {
+        $response = [
+            'all' => $key ? false : true,
+            'key' => $key,
+        ];
         if( $key ) {
             Cache::forget( $key );
+        } else {
+            Cache::flush();
         }
-        Cache::flush();
+        return $response;
     }
 
     /**

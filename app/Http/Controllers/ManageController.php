@@ -118,7 +118,7 @@ class ManageController extends Controller
     }
 
     public function clearCache() {
-        Utility::clearCache();
+        return Utility::clearCache();
     }
 
 }
