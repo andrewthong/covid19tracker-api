@@ -34,7 +34,7 @@ class ReportController extends Controller
         $value = Cache::rememberForever( $cache_key, function() use ($split, $type) {
 
           // setup
-          $core_attrs = Common::attributes();
+          $core_attrs = Common::attributes( null, $type );
           $change_prefix = 'change_';
           $total_prefix = 'total_';
 
