@@ -123,6 +123,8 @@ class ProcessReports extends Command
 
         $this->line(' Finising up...');
 
+        Utility::clearCache();
+
         Option::set( $option_last, date('Y-m-d H:i:s') );
 
         $this->line(" <fg=green;bg=black>Processing complete. Reports up to date.</>");

@@ -44,22 +44,6 @@ class CaseController extends Controller
     }
 
     /*
-        return all province information
-        TODO: move to provinces controller
-    */
-    public function provinces( Request $request ) {
-        // return DB::table('provinces')->get();
-        $provinces = Province::query();
-        if( request('geo_only') )
-            $provinces->where( 'geographic', 1 );
-        return $provinces->get();
-    }
-
-    public function provinceRegions( Request $request, $province = null ) {
-        return HealthRegion::where( 'province', $province )->get();
-    }
-
-    /*
     cases
      */
     public function list(Request $request, $province = null) {
