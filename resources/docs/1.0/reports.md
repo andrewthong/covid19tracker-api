@@ -35,13 +35,15 @@ By default, this returns a day-to-day rolling summary of stats for all provinces
       "change_criticals": 19,
       "change_recoveries": 74,
       "change_vaccinations": 0,
+      "change_vaccines_distributed": 0,
       "total_cases": 2806,
       "total_fatalities": 27,
       "total_tests": 110989,
       "total_hospitalizations": 146,
       "total_criticals": 70,
       "total_recoveries": 186,
-      "total_vaccinations": 0
+      "total_vaccinations": 0,
+      "total_vaccines_distributed": 0,
     },
     ...
   ]
