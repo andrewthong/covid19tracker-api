@@ -47,7 +47,7 @@ Returns a single health region record by Health Region UID (hr_uid)
 `/regions/3553`
 
 <a name="by-province"></a>
-## By Province
+## Regions by Province
 
 Returns all Health Regions assigned to a Province.
 
