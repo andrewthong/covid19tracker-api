@@ -3,12 +3,26 @@
 namespace App;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 use App\Common;
 use App\Province;
 
 class Utility
 {
+
+    static function clearCache( $key = null ) {
+        $response = [
+            'all' => $key ? false : true,
+            'key' => $key,
+        ];
+        if( $key ) {
+            Cache::forget( $key );
+        } else {
+            Cache::flush();
+        }
+        return $response;
+    }
 
     /**
      * utility function to convert provinces attribute in defined tables

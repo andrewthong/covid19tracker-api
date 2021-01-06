@@ -22,8 +22,8 @@ Route::get('summary', 'ReportController@summaryProvince');
 Route::get('summary/{split}', 'ReportController@SummaryProvince')->where('split', 'split');
 Route::get('summary/split/hr', 'ReportController@SummaryHealthRegion');
 
-Route::get('provinces', 'CaseController@Provinces');
-Route::get('province/{province}/regions', 'CaseController@ProvinceRegions')->where('province', '[A-Za-z_]+');
+Route::get('provinces', 'ProvinceController@list');
+Route::get('province/{province}/regions', 'ProvinceController@healthRegions')->where('province', '[A-Za-z_]+');
 
 Route::get('reports', 'ReportController@generateProvince');
 Route::get('reports/province/{province}', 'ReportController@generateProvince')->where('province', '[A-Za-z_]+');
@@ -62,4 +62,5 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
     Route::get('manage/users/{id}', 'UserController@getUser')->where('id', '[\d]+');
     Route::post('manage/users/{id}', 'UserController@updateUser')->where('id', '[\d]+');
     Route::post('manage/users/create', 'UserController@createUser');
+    Route::post('manage/cache/clear', 'ManageController@clearCache');
 });

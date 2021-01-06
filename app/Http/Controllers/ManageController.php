@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Common;
+use App\Utility;
 use App\Province;
 use App\HealthRegion;
 use App\HrReport;
@@ -114,6 +115,10 @@ class ManageController extends Controller
             'date' => $date,
         ], 200);
 
+    }
+
+    public function clearCache() {
+        return Utility::clearCache();
     }
 
 }
