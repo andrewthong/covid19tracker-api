@@ -27,8 +27,19 @@ Returns a list of provinces.
     "population": 14711827,
     "area": 917741,
     "gdp": 857384,
+    "geographic": 1,
+    "data_status": "Reported",
+    "created_at": null,
+    "updated_at": "2021-01-06T22:38:43.000000Z",
     "density": 16.030478097851137
   },
   ...
 ]
 ```
+
+<a name="parameters"></a>
+## Parameters
+
+| Parameter | Type | Description |
+| :- | :- | :- |
+| geo_only | Boolean | If true, only provinces marked as geographic will be returned |
