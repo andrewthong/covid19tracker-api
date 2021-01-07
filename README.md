@@ -14,6 +14,10 @@ A hosting environment configured for Laravel 7.x should have no issues. Please s
 
 Data is stored in a MySQL database. You will need to create one for this project to use.
 
+#### Cache
+
+A few routes use [caching](https://laravel.com/docs/7.x/cache) and has been tested with `file` and `redis` cache drivers.
+
 #### Homestead
 
 [Laravel Homestead](https://laravel.com/docs/7.x/homestead) is also supported out of box for local development.
@@ -40,13 +44,11 @@ cp .env.example .env
 Modify the .env with the proper database credentials.
 
 #### 4. Generate Key
-
 ```
 php artisan key:generate
 ```
 
 #### 5. Run Migrations
-
 ```
 php artisan migrate
 ```
@@ -76,10 +78,6 @@ $user->save();
 ```
 
 Roles are currently simplified to admin and editor. This project uses [laravel-permission](https://github.com/spatie/laravel-permission) to manage roles.
-
-### 7. Caching
-
-TBD
 
 ## Deployment
 
@@ -137,7 +135,7 @@ php artisan report:process
 The prompt should be straightforward. Out-of-box, the processing function:
 
 * Sums the daily **case** and **fatality** totals for each province
-* Calculates the day-to-day change in **tests**, **hospitalizations**, **criticals** (intensive care), **recoveries** and **vaccinations** from the `reports`.
+* Calculates the day-to-day change in **tests**, **hospitalizations**, **criticals** (intensive care), **recoveries** and **vaccinations** from the `reports` table.
 * Stores this summarized data, which is used by the reports API
 
 ### Health Region (HR) Reports
@@ -148,13 +146,21 @@ Support for health regions was added in late 2020. Health regions have a separat
 php artisan report:processhr
 ```
 
+* unlike standard reports, health region reports calculates **case** and **fatality** from the `hr_reports` table.
+
+## Caching
+
+A few select routes have caching enabled to minimize database load and speed performance of the API.
+
+The cache is flushed when a report processing operation finishes. The cache can also be manually flushed from the C19T-Manager companion app.
+
 ## Built With
 
 * [Laravel](https://laravel.com/) - The web framework used
 
 ## Authors
 
-* **Andrew Thong** - *Initial work* - [GitHub](https://github.com/andrewthong)
+* **Andrew Thong** - *Initial work*
 * **Noah Little** - *Concept, data consultation*
 
 See also: [COVID19Tracker.ca acknowledgements](https://covid19tracker.ca/acknowledgements.html).
