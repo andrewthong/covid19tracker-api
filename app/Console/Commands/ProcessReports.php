@@ -16,7 +16,9 @@ class ProcessReports extends Command
      *
      * @var string
      */
-    protected $signature = 'report:process';
+    protected $signature = 'report:process
+                            {--province= : province code}
+                            {--date= : Y-m-d format}';
 
     /**
      * The console command description.
@@ -43,6 +45,11 @@ class ProcessReports extends Command
     public function handle()
     {
 
+        // options support
+        $options = $this->options();
+        $province = null;
+        $mode_opt = null; // aka date
+
         $option_last = 'report_last_processed';
         $last_run = Option::get($option_last);
         $curr_env = config('app.env');
@@ -64,45 +71,54 @@ class ProcessReports extends Command
         $this->line(" # Environment: <fg=yellow>${curr_env}</>");
         $this->line(" # Last Run: <fg=yellow>${last_run}</>");//${last_run}");
 
-        // prompt
-        $mode_from = $this->choice('Process reports starting from', [
-            1 => 'Today',
-            2 => 'Yesterday',
-            3 => 'Last week',
-            4 => 'Custom date',
-            0 => 'The beginning',
-        ], 2);
+        if( $options['date'] ) {
+            $mode_opt = $options['date'];
+        } else {
+            // prompt for date
+            $mode_from = $this->choice('Process reports starting from', [
+                1 => 'Today',
+                2 => 'Yesterday',
+                3 => 'Last week',
+                4 => 'Custom date',
+                0 => 'The beginning',
+            ], 2);
 
-        $mode_opt = null;
-        switch ($mode_from) {
-            case 'Yesterday':
-                $mode_opt = 1;
-                break;
-            case 'Last week':
-                $mode_opt = 7;
-                break;
-            case 'Custom date':
-                $mode_opt = $this->ask('Please provide date (format: YYYY-MM-DD e.g. 2020-01-15)');
-                break;
-            case 'The beginning':
-                $mode_opt = 'all';
-                break;
-            default: // today
-                $mode_opt = null;
-                break;
+            // set mode_opt based on user's choice
+            switch ($mode_from) {
+                case 'Yesterday':
+                    $mode_opt = 1;
+                    break;
+                case 'Last week':
+                    $mode_opt = 7;
+                    break;
+                case 'Custom date':
+                    $mode_opt = $this->ask('Please provide date (format: YYYY-MM-DD e.g. 2020-01-15)');
+                    break;
+                case 'The beginning':
+                    $mode_opt = 'all';
+                    break;
+                default: // today
+                    $mode_opt = null;
+                    break;
+            }
         }
 
         // province
-        $province = null;
-        $choice_province = $this->choice('Would you like to process all Provinces?', [
-            1 => 'Yes',
-            2 => 'No',
-        ], 1);
+        if( $options['province'] ) {
+            $province = $options['province'];
+        } else {
+            // prompt for province
+            $choice_province = $this->choice('Would you like to process all Provinces?', [
+                1 => 'Yes',
+                2 => 'No',
+            ], 1);
 
-        if( $choice_province !== 'Yes' ) {
-            $province = $this->ask('Please enter a province code (e.g. SK)');
+            if( $choice_province !== 'Yes' ) {
+                $province = $this->ask('Please enter a province code (e.g. SK)');
+            }
         }
 
+        // convert mode_opt to date if necessary
         $mode = Utility::processReportsMode( $mode_opt );
 
         $this->output->write(' >> Starting process...');
