@@ -104,6 +104,7 @@ class ManageController extends Controller
 
         // save province status
         $new_status = request('status');
+        if(!$new_status) $new_status = "";
         $province = Province::firstWhere('code', $province_code);
         $province->data_status = $new_status;
         $province->save();
