@@ -47,4 +47,13 @@ class ProcessQueue extends Model
             return "{$province_code} added to queue";
         }
     }
+
+    /**
+     * returns all queue items that have not been processed
+     */
+    public static function getLine() {
+        return self::where([
+            'processed' => false,
+        ])->get();
+    }
 }
