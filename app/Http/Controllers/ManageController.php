@@ -10,6 +10,7 @@ use App\Province;
 use App\HealthRegion;
 use App\HrReport;
 use App\Report;
+use App\ProcessQueue;
 
 class ManageController extends Controller
 {
@@ -108,11 +109,15 @@ class ManageController extends Controller
         $province->data_status = $new_status;
         $province->save();
 
+        // store in queue
+        $queue_status = ProcessQueue::lineUp($province_code, $date);
+
         // response
         return response([
             'message' => 'Report saved',
             'province' => $province_code,
             'date' => $date,
+            'queue_status' => $queue_status,
         ], 200);
 
     }
