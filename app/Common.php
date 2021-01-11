@@ -89,9 +89,16 @@ class Common {
 
     /**
      * return an array of hr_uid
+     *   province: code to retrieve hr_uid of particular province
      */
-    static function getHealthRegionCodes() {
-        return HealthRegion::all()->pluck('hr_uid')->toArray();
+    static function getHealthRegionCodes($province = null) {
+        $health_regions = null;
+        if( $province ) {
+            $health_regions = HealthRegion::where('province', $province);
+        } else {
+            $health_regions = HealthRegion::all();
+        }
+        return $health_regions->pluck('hr_uid')->toArray();
     }
 
     /**
