@@ -305,6 +305,7 @@ class ProcessReports extends Command
                         'total_recoveries' => $report->recoveries,
                         'total_vaccinations' => $report->vaccinations,
                         'total_vaccines_distributed' => $report->vaccines_distributed,
+                        'total_vaccinated' => $report->vaccinated,
                         'notes' => $report->notes,
                     ]
                 );

@@ -57,6 +57,7 @@ class Common {
         // province specific fields
         if( $p === true || $p === 'province' ) {
             $core_attrs[] = 'vaccines_distributed';
+            $core_attrs[] = 'vaccinated';
         }
         if( $t === 'change' ) {
             // change_ sourced attributes
