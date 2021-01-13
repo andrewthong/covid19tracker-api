@@ -18,7 +18,8 @@ class Report extends Model
         'tests',
         'recoveries',
         'vaccinations',
-        'vaccines_distributed'
+        'vaccines_distributed',
+        'vaccinated'
     ];
 
     // not using eloquent timestamps
