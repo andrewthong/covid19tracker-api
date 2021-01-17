@@ -28,21 +28,33 @@ class Utility
     }
 
     static function processQueue() {
+        $processed_ids = [];
         // retrieve items awaiting processing
         $items = ProcessQueue::getLine();
         if( $items ) {
             // loop
             foreach( $items as $item ) {
+                // run processing for province
                 $exit_code = Artisan::call('report:process', [
                     '--province' => $item->province,
                     '--date' => $item->date
                 ]);
+                // run processing for each health region
                 $exit_code_hr = Artisan::call('report:processhr', [
                     '--province' => $item->province,
                     '--date' => $item->date
                 ]);
+                // store id to update later
+                $processed_ids[] = $item->id;
             }
+            // mark queue items as processed
+            ProcessQueue::whereIn('id', $processed_ids)
+                ->update([
+                    'processed' => true
+                ]);
         }
+        // add log entry
+        self::log('process_queue', count($items), $processed_ids);
     }
 
     /**
