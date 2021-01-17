@@ -139,7 +139,11 @@ class ProcessHrReports extends Command
 
         Utility::clearCache();
 
-        Option::set( $option_last, date('Y-m-d H:i:s') );
+        $now = date('Y-m-d H:i:s');
+
+        Option::set( $option_last, $now );
+
+        Utility::log( 'report:processhr', $mode, $hr_uid, $now );
 
         $this->line(" <fg=green;bg=black>Processing complete. Health Region Reports up to date.</>");
         $this->line('');

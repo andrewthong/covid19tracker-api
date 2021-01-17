@@ -2,11 +2,14 @@
 
 namespace App;
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 use App\Common;
 use App\Province;
+use App\processQueue;
 
 class Utility
 {
@@ -22,6 +25,40 @@ class Utility
             Cache::flush();
         }
         return $response;
+    }
+
+    static function processQueue() {
+        // retrieve items awaiting processing
+        $items = ProcessQueue::getLine();
+        if( $items ) {
+            // loop
+            foreach( $items as $item ) {
+                $exit_code = Artisan::call('report:process', [
+                    '--province' => $item->province,
+                    '--date' => $item->date
+                ]);
+                $exit_code_hr = Artisan::call('report:processhr', [
+                    '--province' => $item->province,
+                    '--date' => $item->date
+                ]);
+            }
+        }
+    }
+
+    /**
+     * helper to send a log/info call
+     * $items: mixed value pieces to include in the log entry
+     */
+    static function log(...$items) {
+        $parts = [];
+        foreach( $items as $item ) {
+            try {
+                $parts[] = json_encode( $item );
+            } catch(Exception $e) {
+            }
+        }
+        $message = implode( "\t", $parts );
+        Log::info( $message );
     }
 
     /**
