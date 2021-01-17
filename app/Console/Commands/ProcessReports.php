@@ -18,7 +18,9 @@ class ProcessReports extends Command
      */
     protected $signature = 'report:process
                             {--province= : province code}
-                            {--date= : Y-m-d format}';
+                            {--date= : Y-m-d format}
+                            {--noclear}
+                            {--nolast}';
 
     /**
      * The console command description.
@@ -139,9 +141,18 @@ class ProcessReports extends Command
 
         $this->line(' Finising up...');
 
-        Utility::clearCache();
+        // if --noclear, the cache won't be cleared
+        if( !$options['noclear'] ) {
+            Utility::clearCache();
+        }
 
-        Option::set( $option_last, date('Y-m-d H:i:s') );
+        // if --nolast, global last updated will not be used
+        if( !$options['nolast'] ) {
+            $now = date('Y-m-d H:i:s');
+            Option::set( $option_last, $now );
+        }
+
+        Utility::log( 'report:process', $mode, $province );
 
         $this->line(" <fg=green;bg=black>Processing complete. Reports up to date.</>");
         $this->line('');
