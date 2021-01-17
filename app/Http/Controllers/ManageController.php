@@ -127,4 +127,8 @@ class ManageController extends Controller
         return Utility::clearCache();
     }
 
+    public function processQueue() {
+        return Utility::processQueue();
+    }
+
 }
