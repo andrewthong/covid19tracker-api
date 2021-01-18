@@ -2,9 +2,13 @@
 
 namespace App;
 
-use DateTime;
-
 use Illuminate\Database\Eloquent\Model;
+
+use DateTime;
+use Illuminate\Support\Facades\Artisan;
+
+use App\Utility;
+use App\Option;
 
 class ProcessQueue extends Model
 {
@@ -55,5 +59,46 @@ class ProcessQueue extends Model
         return self::where([
             'processed' => false,
         ])->get();
+    }
+
+    /**
+     * processes all items in the queue
+     */
+    static function process() {
+        $processed_ids = [];
+        // retrieve items awaiting processing
+        $items = self::getLine();
+        if( $items ) {
+            // loop
+            foreach( $items as $item ) {
+                $params = [
+                    '--province' => $item->province,
+                    '--date' => $item->date,
+                    '--noclear' => true,
+                    '--nolast' => true
+                ];
+                // run processing for province
+                $exit_code = Artisan::call('report:process', $params);
+                // run processing for each health region
+                $exit_code_hr = Artisan::call('report:processhr', $params);
+                // store id to update later
+                $processed_ids[] = $item->id;
+            }
+            // mark queue items as processed
+            self::whereIn('id', $processed_ids)
+                ->update([
+                    'processed' => true
+                ]);
+            // clear cache
+            Utility::clearCache();
+            // modify global last updated
+            Option::set( 'report_last_processed', date('Y-m-d H:i:s') );
+            // add log entry
+            Utility::log('process_queue', count($items), $processed_ids);
+        }
+
+        return [
+            'processed' => $processed_ids
+        ];
     }
 }

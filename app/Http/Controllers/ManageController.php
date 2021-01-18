@@ -127,8 +127,23 @@ class ManageController extends Controller
         return Utility::clearCache();
     }
 
+    public function queueStatus() {
+        $waiting = ProcessQueue::orderBy('created_at', 'desc')
+            ->where('processed', false)
+            ->take(30)
+            ->get();
+        $processed = ProcessQueue::orderBy('created_at', 'desc')
+            ->where('processed', true)
+            ->take(30)
+            ->get();
+        return [
+            'waiting' => $waiting,
+            'processed' => $processed,
+        ];
+    }
+
     public function processQueue() {
-        return Utility::processQueue();
+        return ProcessQueue::process();
     }
 
 }
