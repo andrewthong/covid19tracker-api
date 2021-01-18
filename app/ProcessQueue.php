@@ -68,7 +68,7 @@ class ProcessQueue extends Model
         $processed_ids = [];
         // retrieve items awaiting processing
         $items = self::getLine();
-        if( $items ) {
+        if( count($items) ) {
             // loop
             foreach( $items as $item ) {
                 $params = [
