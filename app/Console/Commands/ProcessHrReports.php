@@ -111,6 +111,12 @@ class ProcessHrReports extends Command
             $province = $options['province'];
             // get hr_uids of that province
             $hr_uid = Common::getHealthRegionCodes($province);
+            if( count($hr_uid) < 1) {
+                // no need to proceed if province has no hr_uid
+                $this->line(" Province (${province}) has no health regions listed");
+                $this->line('');
+                return;
+            }
         } else {
             // prompt for health region
             $choice_region = $this->choice('Would you like to process all Health Regions?', [
