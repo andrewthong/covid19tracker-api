@@ -16,7 +16,7 @@ class ManageController extends Controller
 {
 
     public function getReports( Request $request, $province ) {
-        $provinces = Common::getProvinceCodes();
+        $provinces = Common::getProvinceCodes( false );
         $date = $request->date;
         // ensure valid date
         if( !Common::isValidDate( $date ) ) {
@@ -52,7 +52,7 @@ class ManageController extends Controller
 
         // validate province
         $province_code = request('province');
-        if( !Common::isValidProvinceCode( $province_code, true ) ) {
+        if( !Common::isValidProvinceCode( $province_code, false ) ) {
             abort(400, "Invalid report province");
         }
 
