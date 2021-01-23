@@ -10,12 +10,13 @@ use App\Province;
 use App\HealthRegion;
 use App\HrReport;
 use App\Report;
+use App\ProcessQueue;
 
 class ManageController extends Controller
 {
 
     public function getReports( Request $request, $province ) {
-        $provinces = Common::getProvinceCodes();
+        $provinces = Common::getProvinceCodes( false );
         $date = $request->date;
         // ensure valid date
         if( !Common::isValidDate( $date ) ) {
@@ -51,7 +52,7 @@ class ManageController extends Controller
 
         // validate province
         $province_code = request('province');
-        if( !Common::isValidProvinceCode( $province_code, true ) ) {
+        if( !Common::isValidProvinceCode( $province_code, false ) ) {
             abort(400, "Invalid report province");
         }
 
@@ -109,17 +110,40 @@ class ManageController extends Controller
         $province->data_status = $new_status;
         $province->save();
 
+        // store in queue
+        $queue_status = ProcessQueue::lineUp($province_code, $date);
+
         // response
         return response([
             'message' => 'Report saved',
             'province' => $province_code,
             'date' => $date,
+            'queue_status' => $queue_status,
         ], 200);
 
     }
 
     public function clearCache() {
         return Utility::clearCache();
+    }
+
+    public function queueStatus() {
+        $waiting = ProcessQueue::orderBy('created_at', 'desc')
+            ->where('processed', false)
+            ->take(30)
+            ->get();
+        $processed = ProcessQueue::orderBy('created_at', 'desc')
+            ->where('processed', true)
+            ->take(30)
+            ->get();
+        return [
+            'waiting' => $waiting,
+            'processed' => $processed,
+        ];
+    }
+
+    public function processQueue() {
+        return ProcessQueue::process();
     }
 
 }

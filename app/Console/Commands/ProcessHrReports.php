@@ -16,7 +16,11 @@ class ProcessHrReports extends Command
      *
      * @var string
      */
-    protected $signature = 'report:processhr';
+    protected $signature = 'report:processhr
+                            {--province= : province code}
+                            {--date= : Y-m-d format}
+                            {--noclear}
+                            {--nolast}';
 
     /**
      * The console command description.
@@ -42,6 +46,13 @@ class ProcessHrReports extends Command
      */
     public function handle()
     {
+
+        // options support
+        $options = $this->options();
+        $province = null;
+        $hr_uid = null;
+        $mode_opt = null; // aka date
+
         $option_last = 'report_hr_last_processed';
         $last_run = Option::get($option_last);
         $curr_env = config('app.env');
@@ -62,45 +73,62 @@ class ProcessHrReports extends Command
         $this->line(" # Environment: <fg=yellow>${curr_env}</>");
         $this->line(" # Last Run: <fg=yellow>${last_run}</>");
 
-        // prompt
-        $mode_from = $this->choice('Process reports starting from', [
-            1 => 'Today',
-            2 => 'Yesterday',
-            3 => 'Last week',
-            4 => 'Custom date',
-            0 => 'The beginning',
-        ], 2);
+        if( $options['date'] ) {
+            $mode_opt = $options['date'];
+        } else {
+            // prompt for date
+            $mode_from = $this->choice('Process reports starting from', [
+                1 => 'Today',
+                2 => 'Yesterday',
+                3 => 'Last week',
+                4 => 'Custom date',
+                0 => 'The beginning',
+            ], 2);
 
-        $mode_opt = null;
-        switch ($mode_from) {
-            case 'Yesterday':
-                $mode_opt = 1;
-                break;
-            case 'Last week':
-                $mode_opt = 7;
-                break;
-            case 'Custom date':
-                $mode_opt = $this->ask('Please provide date (format: YYYY-MM-DD e.g. 2020-01-15)');
-                break;
-            case 'The beginning':
-                $mode_opt = 'all';
-                break;
-            default: // today
-                $mode_opt = null;
-                break;
+            $mode_opt = null;
+            switch ($mode_from) {
+                case 'Yesterday':
+                    $mode_opt = 1;
+                    break;
+                case 'Last week':
+                    $mode_opt = 7;
+                    break;
+                case 'Custom date':
+                    $mode_opt = $this->ask('Please provide date (format: YYYY-MM-DD e.g. 2020-01-15)');
+                    break;
+                case 'The beginning':
+                    $mode_opt = 'all';
+                    break;
+                default: // today
+                    $mode_opt = null;
+                    break;
+            }
         }
 
-        // health region
-        $hr_uid = null;
-        $choice_region = $this->choice('Would you like to process all Health Regions?', [
-            1 => 'Yes',
-            2 => 'No',
-        ], 1);
 
-        if( $choice_region !== 'Yes' ) {
-            $hr_uid = $this->ask('Please enter the Health Region UID');
+        // province
+        if( $options['province'] ) {
+            $province = $options['province'];
+            // get hr_uids of that province
+            $hr_uid = Common::getHealthRegionCodes($province);
+            if( count($hr_uid) < 1) {
+                // no need to proceed if province has no hr_uid
+                $this->line(" Province (${province}) has no health regions listed");
+                $this->line('');
+                return;
+            }
+        } else {
+            // prompt for health region
+            $choice_region = $this->choice('Would you like to process all Health Regions?', [
+                1 => 'Yes',
+                2 => 'No',
+            ], 1);
+            if( $choice_region !== 'Yes' ) {
+                $hr_uid = $this->ask('Please enter the Health Region UID');
+            }
         }
 
+        // convert mode_opt to date if necessary
         $mode = Utility::processReportsMode( $mode_opt );
 
         $this->output->write(' >> Starting process...');
@@ -117,9 +145,18 @@ class ProcessHrReports extends Command
 
         $this->line(' Finising up...');
 
-        Utility::clearCache();
+        // if --noclear, the cache won't be cleared
+        if( !$options['noclear'] ) {
+            Utility::clearCache();
+        }
 
-        Option::set( $option_last, date('Y-m-d H:i:s') );
+        // if --nolast, global last updated will not be used
+        if( !$options['nolast'] ) {
+            $now = date('Y-m-d H:i:s');
+            Option::set( $option_last, $now );
+        }
+
+        Utility::log( 'report:processhr', $mode, $hr_uid );
 
         $this->line(" <fg=green;bg=black>Processing complete. Health Region Reports up to date.</>");
         $this->line('');
@@ -137,10 +174,16 @@ class ProcessHrReports extends Command
         // determine date to run on based on mode
         $from_date = $mode;
 
-        // only for registered provinces
+        // defaults to all health regions
         $hr_uid_codes = Common::getHealthRegionCodes();
-        if( in_array($hr_uid, $hr_uid_codes) ) {
-            $hr_uid_codes = [$hr_uid];
+        // if hr_uid is specified
+        if( $hr_uid ) {
+            // wrap hr_uid in array if it is a single id
+            if( !is_array($hr_uid) ) {
+                $hr_uid = [ $hr_uid ];
+            }
+            // intersect to validate
+            $hr_uid_codes = array_intersect( $hr_uid, $hr_uid_codes );
         }
 
         // retrieve reports
@@ -197,11 +240,17 @@ class ProcessHrReports extends Command
 
         // determine date to run on based on mode
         $from_date = $mode;
-
-        // list of health regions
-        $hr_codes = Common::getHealthRegionCodes();
-        if( in_array($hr_uid, $hr_codes) ) {
-            $hr_codes = [$hr_uid];
+        
+        // defaults to all health regions
+        $hr_uid_codes = Common::getHealthRegionCodes();
+        // if hr_uid is specified
+        if( $hr_uid ) {
+            // wrap hr_uid in array if it is a single id
+            if( !is_array($hr_uid) ) {
+                $hr_uid = [ $hr_uid ];
+            }
+            // intersect to validate
+            $hr_uid_codes = array_intersect( $hr_uid, $hr_uid_codes );
         }
 
         // core attributes
@@ -250,7 +299,7 @@ class ProcessHrReports extends Command
         $bar->start();
 
         // loop through each health region uid
-        foreach( $hr_codes as $pc ) {
+        foreach( $hr_uid_codes as $pc ) {
 
             // retrieve processed reports
             $reports = DB::table( 'processed_hr_reports' )
