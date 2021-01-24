@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5bc4f9d63094e5abac96924ecf264d2b",
+    "content-hash": "e2f0b0ab68d85ab6af0c8c486b750b46",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1419,33 +1419,34 @@
         },
         {
             "name": "laravel/passport",
-            "version": "v10.0.0",
+            "version": "v10.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/passport.git",
-                "reference": "71d1a70a920f991e4f459f4896b9a32fefb3f5d5"
+                "reference": "c2b93a7d8d93cf303bb1eefbfa5610f084f9bdd4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/passport/zipball/71d1a70a920f991e4f459f4896b9a32fefb3f5d5",
-                "reference": "71d1a70a920f991e4f459f4896b9a32fefb3f5d5",
+                "url": "https://api.github.com/repos/laravel/passport/zipball/c2b93a7d8d93cf303bb1eefbfa5610f084f9bdd4",
+                "reference": "c2b93a7d8d93cf303bb1eefbfa5610f084f9bdd4",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "firebase/php-jwt": "^5.0",
-                "illuminate/auth": "^8.0",
-                "illuminate/console": "^8.0",
-                "illuminate/container": "^8.0",
-                "illuminate/contracts": "^8.0",
-                "illuminate/cookie": "^8.0",
-                "illuminate/database": "^8.0",
-                "illuminate/encryption": "^8.0",
-                "illuminate/http": "^8.0",
-                "illuminate/support": "^8.0",
-                "league/oauth2-server": "^8.1",
+                "illuminate/auth": "^8.2",
+                "illuminate/console": "^8.2",
+                "illuminate/container": "^8.2",
+                "illuminate/contracts": "^8.2",
+                "illuminate/cookie": "^8.2",
+                "illuminate/database": "^8.2",
+                "illuminate/encryption": "^8.2",
+                "illuminate/http": "^8.2",
+                "illuminate/support": "^8.2",
+                "lcobucci/jwt": "^3.4|^4.0",
+                "league/oauth2-server": "^8.2",
                 "nyholm/psr7": "^1.3",
-                "php": "^7.3",
+                "php": "^7.3|^8.0",
                 "phpseclib/phpseclib": "^2.0",
                 "symfony/psr-http-message-bridge": "^2.0"
             },
@@ -1491,7 +1492,7 @@
                 "issues": "https://github.com/laravel/passport/issues",
                 "source": "https://github.com/laravel/passport"
             },
-            "time": "2020-09-08T15:27:48+00:00"
+            "time": "2020-11-26T07:57:30+00:00"
         },
         {
             "name": "laravel/tinker",
