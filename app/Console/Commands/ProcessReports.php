@@ -127,11 +127,7 @@ class ProcessReports extends Command
             $this->line(' testing db connection');
         $this->line('');
 
-        // process change_{stat}s (cases, fatalities)
-        $this->processReportChanges( $mode, $province );
-        $this->line('');
-
-        // process total_{stat}s (tests, hospitalizations, criticals, recoveries)
+        // process total_{stat}s
         $this->processReportTotals( $mode, $province );
         $this->line('');
 
@@ -311,7 +307,6 @@ class ProcessReports extends Command
 
         // [artisan]
         $this->line(" Transferring daily totals");
-        $this->line(" (tests, hospitalizations, criticals, recoveries, vaccinations)");
         $bar = $this->output->createProgressBar( count($reports) );
         $bar->start();
 
@@ -326,6 +321,8 @@ class ProcessReports extends Command
                     [
                         'date' => $report->date,
                         'province' => $report->province,
+                        'total_cases' => $report->cases,
+                        'total_fatalities' => $report->fatalities,
                         'total_tests' => $report->tests,
                         'total_hospitalizations' => $report->hospitalizations,
                         'total_criticals' => $report->criticals,
@@ -365,9 +362,11 @@ class ProcessReports extends Command
         // core attributes
         $core_attrs = Common::attributes(null, true);
         // attributes where change is expected and total must be calculated
-        $change_attrs = array_slice( $core_attrs, 0, 2 );
+        // $change_attrs = array_slice( $core_attrs, 0, 2 );
+        $change_attrs = [];
         // attributes where total is expected and change must be calculated
-        $total_attrs = array_slice( $core_attrs, 2 );
+        // $total_attrs = array_slice( $core_attrs, 2 );
+        $total_attrs = $core_attrs;
 
         $change_prefix = 'change_';
         $total_prefix = 'total_';
