@@ -1,9 +1,11 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use Flynsarmy\CsvSeeder\CsvSeeder;
 
-class ReportSeeder extends Seeder
+class ProvinceSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -12,13 +14,13 @@ class ReportSeeder extends Seeder
      */
     public function run()
     {
-        $table = 'reports';
+        $table = 'provinces';
 
         // truncate: comment out if using to add data
         DB::table($table)->truncate();
 
         // use csv to seed database
-        $seed_csv = base_path()."/database/seeds/csv/{$table}.csv";
+        $seed_csv = base_path()."/database/seeders/csv/{$table}.csv";
         if( file_exists( $seed_csv ) ) {
             $seeder = new \Flynsarmy\CsvSeeder\CsvSeeder;
             $seeder->table = $table;
