@@ -60,14 +60,26 @@ class TransferCaseFatality extends Command
         foreach( $processed_reports as $pr ) {
             if( $pr->province && $pr->date ) {
                 $affected = DB::table('reports')
-                    ->where( 'province', $pr->province )
-                    ->where( 'date', $pr->date )
+                    ->where([
+                        ['province', '=', $pr->province],
+                        ['date', '=', $pr->date]
+                    ])
                     ->update([
                         'cases' => $pr->total_cases,
                         'fatalities' => $pr->total_fatalities,
                     ]);
                 if( $affected === 0 ) {
-                    $this->line(" # No matching record in ID {$pr->id}");
+                    // update won't count if values are the same
+                    // only trigger warning when there is no corresponding row
+                    $check = DB::table('reports')
+                        ->where([
+                            ['province', '=', $pr->province],
+                            ['date', '=', $pr->date]
+                        ])
+                        ->get();
+                    if( $check->isEmpty() ) {
+                        $this->line(" # No matching record in ID {$pr->id}");
+                    }
                 }
             } else {
                 $this->line(" # Invalid province/date in ID {$pr->id}");
