@@ -197,7 +197,6 @@ class ProcessHrReports extends Command
 
         // [artisan]
         $this->line(" Transferring daily totals");
-        $this->line(" (cases, fatalities, tests, hospitalizations, criticals, recoveries, vaccinations)");
         $bar = $this->output->createProgressBar( count($reports) );
         $bar->start();
 
