@@ -92,7 +92,9 @@ class ProcessQueue extends Model
             // clear cache
             Utility::clearCache();
             // modify global last updated
-            Option::set( 'report_last_processed', date('Y-m-d H:i:s') );
+            $updated_timestamp = date('Y-m-d H:i:s');
+            Option::set( 'report_last_processed', $updated_timestamp );
+            Option::set( 'report_hr_last_processed', $updated_timestamp );
             // add log entry
             Utility::log('process_queue', count($items), $processed_ids);
         }
