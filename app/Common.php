@@ -53,12 +53,12 @@ class Common {
             'criticals',
             'recoveries',
             'vaccinations',
+            'vaccinated',
         ];
         // province specific fields
         if( $p === true || $p === 'province' ) {
             $core_attrs = array_merge($core_attrs, [
                 'vaccines_distributed',
-                'vaccinated',
             ]);
         }
         if( $t === 'change' ) {
