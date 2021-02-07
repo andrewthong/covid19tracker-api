@@ -24,6 +24,14 @@ class ProvinceController extends Controller
         return $value;
     }
 
+    public function get( Request $request, $province = null ) {
+        $cache_key = $request->getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use ($request, $province) {
+            return Province::where( 'code', $province )->get();
+        });
+        return $value;
+    }
+
     /*
         return health regions in a given province
     */

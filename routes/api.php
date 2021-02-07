@@ -23,6 +23,7 @@ Route::get('summary/{split}', 'ReportController@SummaryProvince')->where('split'
 Route::get('summary/split/hr', 'ReportController@SummaryHealthRegion');
 
 Route::get('provinces', 'ProvinceController@list');
+Route::get('province/{province}', 'ProvinceController@get')->where('province', '[A-Za-z_]+');
 Route::get('province/{province}/regions', 'ProvinceController@healthRegions')->where('province', '[A-Za-z_]+');
 
 Route::get('reports', 'ReportController@generateProvince');

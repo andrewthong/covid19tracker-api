@@ -25,6 +25,7 @@ class ManageController extends Controller
         // ensure valid province
         if( in_array( $province, $provinces ) ) {
             $response = [];
+            $response['province'] = Province::where('code', $province)->first();
             $response['report'] = Report::firstOrNew([
                 'province' => $province,
                 'date' => $date
@@ -107,8 +108,14 @@ class ManageController extends Controller
         $new_status = request('status');
         if(!$new_status) $new_status = "";
         $province = Province::firstWhere('code', $province_code);
-        $province->data_status = $new_status;
-        $province->save();
+        // compare new status
+        if( $province->data_status === $new_status ) {
+            // update updated_at
+            $province->touch();
+        } else {
+            $province->data_status = $new_status;
+            $province->save();
+        }
 
         // store in queue
         $queue_status = ProcessQueue::lineUp($province_code, $date);
