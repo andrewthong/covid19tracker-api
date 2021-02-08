@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Flynsarmy\CsvSeeder\CsvSeeder;
 
+use DB;
+
 class ProvinceSeeder extends Seeder
 {
     /**
