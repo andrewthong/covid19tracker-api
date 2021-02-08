@@ -19,7 +19,7 @@ class HealthRegionsSeeder extends Seeder
         $table = 'health_regions';
 
         // truncate: comment out if using to add data
-        DB::table($table)->truncate();
+        // DB::table($table)->truncate();
 
         // use csv to seed database
         $seed_csv = base_path()."/database/seeders/csv/{$table}.csv";
