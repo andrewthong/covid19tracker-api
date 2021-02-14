@@ -6,6 +6,7 @@ use DateTime;
 
 use App\HealthRegion;
 use App\Province;
+use App\Option;
 
 class Common {
     
@@ -110,6 +111,27 @@ class Common {
     static function isValidDate($date) {
         $dt = DateTime::createFromFormat("Y-m-d", $date);
         return $dt !== false && !array_sum($dt::getLastErrors());
+    }
+
+    /**
+     * helper to get updated_at
+     *  $location: code for province (or 'healthregion')
+     * falls back to last_processed for province/healthregion
+     */
+    static function getLastUpdated( $location = null ) {
+        $option_last = 'report_last_processed';
+        // health region specific
+        if( $location === 'healthregion' ) {
+            $option_last = 'report_hr_last_processed';
+        }
+        if( $location === 'healthregion' || $location === 'province' ) {
+            // null to fallback to option
+            $location = null;
+        }
+        if( $location ) {
+            return Province::where('code', $location)->first()->updated_at->format('Y-m-d H:i:s');
+        }
+        return Option::get($option_last);
     }
 
     /**

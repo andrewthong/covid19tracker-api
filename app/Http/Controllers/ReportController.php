@@ -33,92 +33,90 @@ class ReportController extends Controller
         $cache_key = \Request::getRequestUri();
         $value = Cache::rememberForever( $cache_key, function() use ($split, $type) {
 
-          // setup
-          $core_attrs = Common::attributes( null, $type );
-          $change_prefix = 'change_';
-          $total_prefix = 'total_';
+            // setup
+            $core_attrs = Common::attributes( null, $type );
+            $change_prefix = 'change_';
+            $total_prefix = 'total_';
 
-          $location_col = 'province';
-          $processed_table = 'processed_reports';
-          $option_last = 'report_hr_last_processed';
-          $location_codes = [];
+            $location_col = 'province';
+            $processed_table = 'processed_reports';
+            $location_codes = [];
 
-          if( $type === 'healthregion' ) {
-              $location_col = 'hr_uid';
-              $processed_table = 'processed_hr_reports';
-              $option_last = 'report_last_processed';
-              $location_codes = Common::getHealthRegionCodes();
-          } else {
-              $location_codes = Common::getProvinceCodes();
-          }
+            if( $type === 'healthregion' ) {
+                $location_col = 'hr_uid';
+                $processed_table = 'processed_hr_reports';
+                $location_codes = Common::getHealthRegionCodes();
+            } else {
+                $location_codes = Common::getProvinceCodes();
+            }
 
-          // meta
-          $last_run = Option::get($option_last);
+            // meta
+            $last_run = Common::getLastUpdated( $type );
 
-          // preparing SQL query
-          $select_core = [];
-          $date_select = "MAX(date) AS latest_date";
-          $stat_select = 'SUM(%1$s) AS %1$s';
+            // preparing SQL query
+            $select_core = [];
+            $date_select = "MAX(date) AS latest_date";
+            $stat_select = 'SUM(%1$s) AS %1$s';
 
-          // $split modifiers, we no longer need to group
-          if( $split ) {
-              $select_core[] = $location_col;
-              $date_select = "date";
-              $stat_select = '%1$s';
-          }
+            // $split modifiers, we no longer need to group
+            if( $split ) {
+                $select_core[] = $location_col;
+                $date_select = "date";
+                $stat_select = '%1$s';
+            }
 
-          $select_core[] = $date_select;
-          foreach( [$change_prefix, $total_prefix] as $prefix ) {
-              foreach( $core_attrs as $attr ) {
-                  // $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
-                  $select_core[] = sprintf( $stat_select, "{$prefix}{$attr}" );
-              }
-          }
+            $select_core[] = $date_select;
+            foreach( [$change_prefix, $total_prefix] as $prefix ) {
+                foreach( $core_attrs as $attr ) {
+                    // $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
+                    $select_core[] = sprintf( $stat_select, "{$prefix}{$attr}" );
+                }
+            }
 
-          $subquery_core = [];
-          $subquery_stmt = '';
-          $query = '';
+            $subquery_core = [];
+            $subquery_stmt = '';
+            $query = '';
 
-          // 2020-12-22: subquery is bogging down in health_regions
-          if( $type === 'healthregion' ) {
-              $select_core = array_map(function($value) { return 't1.'.$value; }, $select_core);
-              $select_stmt = implode( ",", $select_core );
-              $query = "
-                  SELECT {$select_stmt} from {$processed_table} t1 
-                  JOIN (SELECT hr_uid, MAX(`date`) as latest_date from {$processed_table} group by `hr_uid`) t2 
-                  ON t1.hr_uid = t2.hr_uid AND t1.date = t2.latest_date
-              ";
-          } else {
-              $select_stmt = implode( ",", $select_core );
-              foreach( $location_codes as $lc ) {
-                  $subquery_core[] = "(
-                      SELECT *
-                      FROM {$processed_table}
-                      WHERE
-                          {$location_col}='{$lc}'
-                      ORDER BY `date` DESC
-                      LIMIT 1
-                  )";
-              }
-              $subquery_stmt = implode( " UNION ", $subquery_core );
-              $query = "
-                  SELECT
-                      {$select_stmt}
-                  FROM (
-                      {$subquery_stmt}
-                  ) pr
-              ";
-          }
+            // 2020-12-22: subquery is bogging down in health_regions
+            if( $type === 'healthregion' ) {
+                $select_core = array_map(function($value) { return 't1.'.$value; }, $select_core);
+                $select_stmt = implode( ",", $select_core );
+                $query = "
+                    SELECT {$select_stmt} from {$processed_table} t1 
+                    JOIN (SELECT hr_uid, MAX(`date`) as latest_date from {$processed_table} group by `hr_uid`) t2 
+                    ON t1.hr_uid = t2.hr_uid AND t1.date = t2.latest_date
+                ";
+            } else {
+                $select_stmt = implode( ",", $select_core );
+                foreach( $location_codes as $lc ) {
+                    $subquery_core[] = "(
+                        SELECT *
+                        FROM {$processed_table}
+                        WHERE
+                            {$location_col}='{$lc}'
+                        ORDER BY `date` DESC
+                        LIMIT 1
+                    )";
+                }
+                $subquery_stmt = implode( " UNION ", $subquery_core );
+                $query = "
+                    SELECT
+                        {$select_stmt}
+                    FROM (
+                        {$subquery_stmt}
+                    ) pr
+                ";
+            }
 
-          $report = DB::select($query);
+            $report = DB::select($query);
 
-          $response = [
-              'data' =>  $report,
-              'last_updated' => $last_run,
-          ];
+            $response = [
+                'data' =>  $report,
+                'last_updated' => $last_run,
+            ];
 
-          // return to be stored in
-          return $response;
+            // return to be stored in
+            return $response;
             
         });//cache closure
 
@@ -233,8 +231,12 @@ class ReportController extends Controller
                 $data = Common::fillMissingDates( $data, $reset_arr );
             }
 
+            // timestamp
+            $last_run = Common::getLastUpdated( $location ? $location : $type );
+
             $response = [
                 $location_col => $location ? $location : 'All',
+                'last_updated' => $last_run,
                 'data' => $data,
             ];
 
