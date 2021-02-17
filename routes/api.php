@@ -29,6 +29,8 @@ Route::get('province/{province}/regions', 'ProvinceController@healthRegions')->w
 Route::get('reports', 'ReportController@generateProvince');
 Route::get('reports/province/{province}', 'ReportController@generateProvince')->where('province', '[A-Za-z_]+');
 
+Route::get('reports/province/{province}/regions', 'ReportController@generateProvinceHealthRegion')->where('province', '[A-Za-z_]+');
+
 Route::get('cases', 'CaseController@list');
 Route::get('case/{id}', 'CaseController@get')->where('id', '[\d]+');
 

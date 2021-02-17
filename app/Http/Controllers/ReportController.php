@@ -123,16 +123,38 @@ class ReportController extends Controller
         return $value;
     }
 
+    
+    /*
+        produces province report
+            $province: optional province code (defaults to all provinces)
+    */
     public function generateProvince( Request $request, $province = null ) {
         return $this->generateReport( $request, 'province', $province );
     }
 
+    
+    /*
+        produces health region report based on province (grouped)
+            $hr_uid: optional health region uid (defaults to all health regions)
+    */
     public function generateHealthRegion( Request $request, $hr_uid = null ) {
         return $this->generateReport( $request, 'healthregion', $hr_uid );
     }
     
     /*
+        produces health region report based on province (grouped)
+            $province: required province code
+    */
+    public function generateProvinceHealthRegion( Request $request, $province ) {
+        // set this value to be read by generate function
+        $request->merge( ['group_by_province' => true] );
+        return $this->generateReport( $request, 'healthregion', $province );
+    }
+    
+    /*
         produces report with daily and cumulative totals for key attributes
+            $type: optional province(default)|healthregion
+            $location: optional province code or hr_uid
     */
     public function generateReport( Request $request, $type = 'province', $location = null ) {
 
@@ -140,14 +162,25 @@ class ReportController extends Controller
         $cache_key = $request->getRequestUri();
         $value = Cache::rememberForever( $cache_key, function() use ($request, $type, $location) {
 
-            // setup
+            // setup; get attributes based on type
             $core_attrs = Common::attributes( null, $type );
             // TODO: migrate to a config
+            $date_col = 'date';
             $change_prefix = 'change_';
             $total_prefix = 'total_';
             $reset_value = 0;
+            // used for grouping by province
+            $hr_uids = [];
 
+            // base arrays to build various pieces of the db query with
+            $select_core = [$date_col];
             $where_core = [];
+
+            // default group by
+            $groupby_core = [$date_col];
+
+            // default order by
+            $orderby_core = [$date_col];
 
             // query core modifiers
             foreach( [$change_prefix, $total_prefix] as $prefix ) {
@@ -160,13 +193,26 @@ class ReportController extends Controller
             $location_col = 'province';
             $processed_table = 'processed_reports';
 
+            // health region
             if( $type === 'healthregion' ) {
                 $location_col = 'hr_uid';
                 $processed_table = 'processed_hr_reports';
+                // check if grouping by province
+                if( $request->group_by_province ) {
+                    // get hr_uids of the province, then glue for IN stmt
+                    $hr_uids = implode( ',', Common::getHealthRegionCodes($location) );
+                    // add location where as IN stmt
+                    $where_core[] = "{$location_col} IN ({$hr_uids})";
+                    // additional hr_uid to select, group and order to include in query
+                    $select_core[] = $location_col;
+                    $groupby_core[] = $location_col;
+                    $orderby_core[] = $location_col;
+                }
             }
 
-            // check for province request
-            if( $location ) {
+            // specific province/health region request
+            // if where_core is not empty, then it has hr_uid IN for location
+            if( $location && empty($where_core) ) {
                 $where_core[] = "{$location_col} = '{$location}'";
             }
 
@@ -192,7 +238,6 @@ class ReportController extends Controller
             }
 
             // build out select list
-            $select_core = ['date'];
             foreach( [$change_prefix, $total_prefix] as $prefix ) {
                 foreach( $core_attrs as $attr ) {
                     $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
@@ -206,6 +251,12 @@ class ReportController extends Controller
                 $where_stmt = "WHERE " . implode(" AND ", $where_core);
             }
 
+            // prepare GROUP BY
+            $groupby_stmt = implode( ',', $groupby_core );
+
+            // prepare ORDER BY
+            $orderby_stmt = implode( ',', $orderby_core );
+
             $result = DB::select("
                 SELECT
                     {$select_stmt}
@@ -213,9 +264,9 @@ class ReportController extends Controller
                     {$processed_table}
                 {$where_stmt}
                 GROUP BY
-                    `date`
+                    {$groupby_stmt}
                 ORDER BY
-                    `date`
+                    {$orderby_stmt}
             ");
 
             // convert DB::select to a basic array
@@ -231,14 +282,33 @@ class ReportController extends Controller
                 $data = Common::fillMissingDates( $data, $reset_arr );
             }
 
-            // timestamp
-            $last_run = Common::getLastUpdated( $location && $type === 'province' ? $location : $type );
+            // response
+            $response = [];
 
-            $response = [
-                $location_col => $location ? $location : 'All',
-                'last_updated' => $last_run,
-                'data' => $data,
-            ];
+            // specific response handling for grouped health regions
+            if( $request->group_by_province ) {
+                $response['province'] = $location;
+                $response['hr_uid'] = 'All';
+                $response['last_updated'] = Common::getLastUpdated( $location );
+                // reformat data
+                $grouped_data = [];
+                foreach( $data as $row ) {
+                    $key = $row['hr_uid'];
+                    // create blank entry for each unique hr_uid
+                    if( !array_key_exists($key, $grouped_data) ) {
+                        $grouped_data[$key] = [];
+                    }
+                    // remove hr_uid
+                    unset($row['hr_uid']);
+                    // append to data
+                    $grouped_data[$key][] = $row;
+                } 
+                $response['data'] = $grouped_data;
+            } else {
+                $response[$location_col] = $location ? $location : 'All';
+                $response['last_updated'] = Common::getLastUpdated( $location && $type === 'province' ? $location : $type );
+                $response['data'] = $data;
+            }
 
             return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
             
