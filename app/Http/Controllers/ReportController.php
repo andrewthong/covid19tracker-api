@@ -18,8 +18,8 @@ class ReportController extends Controller
         return $this->summary( $split );
     }
 
-    public function summaryHealthRegion( $split = true ) {
-        return $this->summary( $split, 'healthregion' );
+    public function summaryHealthRegion() {
+        return $this->summary( true, 'healthregion' );
     }
 
     /**
@@ -78,6 +78,7 @@ class ReportController extends Controller
             $query = '';
 
             // 2020-12-22: subquery is bogging down in health_regions
+            // query looks for the latest date for each health region
             if( $type === 'healthregion' ) {
                 $select_core = array_map(function($value) { return 't1.'.$value; }, $select_core);
                 $select_stmt = implode( ",", $select_core );
@@ -87,6 +88,7 @@ class ReportController extends Controller
                     ON t1.hr_uid = t2.hr_uid AND t1.date = t2.latest_date
                 ";
             } else {
+                // subquery (method)
                 $select_stmt = implode( ",", $select_core );
                 foreach( $location_codes as $lc ) {
                     $subquery_core[] = "(
@@ -199,11 +201,11 @@ class ReportController extends Controller
                 $processed_table = 'processed_hr_reports';
                 // check if grouping by province
                 if( $request->group_by_province ) {
-                    // get hr_uids of the province, then glue for IN stmt
+                    // get hr_uids of the province, then glue for IN statement
                     $hr_uids = implode( ',', Common::getHealthRegionCodes($location) );
-                    // add location where as IN stmt
+                    // add location where as hr_uid IN statement
                     $where_core[] = "{$location_col} IN ({$hr_uids})";
-                    // additional hr_uid to select, group and order to include in query
+                    // add hr_uid to select, group and order to include in query
                     $select_core[] = $location_col;
                     $groupby_core[] = $location_col;
                     $orderby_core[] = $location_col;
@@ -211,7 +213,7 @@ class ReportController extends Controller
             }
 
             // specific province/health region request
-            // if where_core is not empty, then it has hr_uid IN for location
+            // if where_core is not empty, then it has the hr_uid IN statement
             if( $location && empty($where_core) ) {
                 $where_core[] = "{$location_col} = '{$location}'";
             }
@@ -257,6 +259,7 @@ class ReportController extends Controller
             // prepare ORDER BY
             $orderby_stmt = implode( ',', $orderby_core );
 
+            // put it all together and execute
             $result = DB::select("
                 SELECT
                     {$select_stmt}
@@ -287,6 +290,7 @@ class ReportController extends Controller
 
             // specific response handling for grouped health regions
             if( $request->group_by_province ) {
+                // use province but note hr_uid is all
                 $response['province'] = $location;
                 $response['hr_uid'] = 'All';
                 $response['last_updated'] = Common::getLastUpdated( $location );
