@@ -232,7 +232,7 @@ class ReportController extends Controller
             }
 
             // timestamp
-            $last_run = Common::getLastUpdated( $location ? $location : $type );
+            $last_run = Common::getLastUpdated( $location && $type === 'province' ? $location : $type );
 
             $response = [
                 $location_col => $location ? $location : 'All',

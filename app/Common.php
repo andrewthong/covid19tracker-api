@@ -129,7 +129,10 @@ class Common {
             $location = null;
         }
         if( $location ) {
-            return Province::where('code', $location)->first()->updated_at->format('Y-m-d H:i:s');
+            $province = Province::where('code', $location)->first();
+            if( $province ) {
+                return $province->updated_at->format('Y-m-d H:i:s');
+            }
         }
         return Option::get($option_last);
     }
