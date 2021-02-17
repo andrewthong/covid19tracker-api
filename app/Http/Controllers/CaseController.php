@@ -14,9 +14,10 @@ use App\Fatality;
 class CaseController extends Controller
 {
 
-    /*
-        summary of cases
-    */
+    /**
+     * old function to get summary of all provinces
+     * this has been superceded by ReportController@summaryProvince
+     */
     public function summary() {
         $result = [
             'total_cases' => Cases::count(),
@@ -25,9 +26,10 @@ class CaseController extends Controller
         return $result;
     }
 
-    /*
-        return count of cases by province
-    */
+    /**
+     * old function to get summary split into provinces
+     * this has been superceded by ReportController@summaryProvince
+     */
     public function summaryProvince() {
         $fatalities = DB::table('fatalities')
             ->selectRAW('fatalities.province, count(fatalities.province) as total_fatalities')
@@ -43,8 +45,9 @@ class CaseController extends Controller
         return $result;
     }
 
-    /*
-    cases
+    /**
+     * get list of cases
+     *  - $province: optional province code
      */
     public function list(Request $request, $province = null) {
 
@@ -86,8 +89,8 @@ class CaseController extends Controller
         return $cases;
     }
 
-    /*
-    get specific case
+    /**
+     * get specific case by id
      */
     public function get($id) {
         return Cases::find($id);

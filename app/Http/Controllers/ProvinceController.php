@@ -10,10 +10,11 @@ use App\HealthRegion;
 
 class ProvinceController extends Controller
 {
-    /*
-        return all province information
-    */
+    /**
+     * get all provinces
+     */
     public function list( Request $request ) {
+        // cache
         $cache_key = $request->getRequestUri();
         $value = Cache::rememberForever( $cache_key, function() use ($request) {
             $provinces = Province::query();
@@ -24,7 +25,12 @@ class ProvinceController extends Controller
         return $value;
     }
 
+    /**
+     * get a specific province
+     *  - $province: code e.g. SK
+     */
     public function get( Request $request, $province = null ) {
+        // cache
         $cache_key = $request->getRequestUri();
         $value = Cache::rememberForever( $cache_key, function() use ($request, $province) {
             return Province::where( 'code', $province )->get();
@@ -32,9 +38,10 @@ class ProvinceController extends Controller
         return $value;
     }
 
-    /*
-        return health regions in a given province
-    */
+    /**
+     * return health regions in a given province
+     *  - $province: code e.g. SK
+     */
     public function healthRegions( Request $request, $province = null ) {
         $cache_key = $request->getRequestUri();
         $value = Cache::rememberForever( $cache_key, function() use ($request, $province) {

@@ -11,11 +11,11 @@ class NoteController extends Controller
 {
     /**
      * retrieve all notes
-     * tag (optional)
-     * 
+     *  - $tag (optional)
      */
     public function all( Request $request, $tag = null ) {
 
+        // by default expired notes are excluded
         $get_expired = false;
         if( $request->expired ) $get_expired = true;
 

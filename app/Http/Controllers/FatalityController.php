@@ -9,8 +9,9 @@ use App\Fatality;
 
 class FatalityController extends Controller
 {
-    /*
-    fatalities list
+    /**
+     * get list of fatalities
+     *  - $province: optional province code
      */
     public function list(Request $request, $province = null) {
 
@@ -52,8 +53,8 @@ class FatalityController extends Controller
         return $cases;
     }
 
-    /*
-    get specific fatality
+    /**
+     * get specific fatality record
      */
     public function get($id) {
         return Fatality::find($id);

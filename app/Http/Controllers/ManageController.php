@@ -14,7 +14,11 @@ use App\ProcessQueue;
 
 class ManageController extends Controller
 {
-
+    /**
+     * retrieves a report for a province given a date for manage utility
+     * includes province report and health regions hr_report
+     *  - $province: code e.g. SK
+     */
     public function getReports( Request $request, $province ) {
         $provinces = Common::getProvinceCodes( false );
         $date = $request->date;
@@ -43,6 +47,9 @@ class ManageController extends Controller
         ], 400);
     }
 
+    /**
+     * saves report for a province, and hr_reports for its health regions
+     */
     public function saveReports( Request $request ) {
 
         // validate date
@@ -57,7 +64,7 @@ class ManageController extends Controller
             abort(400, "Invalid report province");
         }
 
-        // validate permission
+        // validate if user has permission to edit this province
         $user = auth()->guard('api')->user();
         $user->load(['roles', 'provinces']);
         // not admin
@@ -130,10 +137,17 @@ class ManageController extends Controller
 
     }
 
+    /**
+     * helper to clear cache from manage utility
+     */
     public function clearCache() {
         return Utility::clearCache();
     }
 
+    /**
+     * retrieves current queue status
+     * arbitrarily limiting to 30 records for each state
+     */
     public function queueStatus() {
         $waiting = ProcessQueue::orderBy('created_at', 'desc')
             ->where('processed', false)
@@ -149,6 +163,9 @@ class ManageController extends Controller
         ];
     }
 
+    /**
+     * [future] helper to manually run queue process
+     */
     public function processQueue() {
         return ProcessQueue::process();
     }

@@ -11,17 +11,10 @@ use App\HrReport;
 
 class HealthRegionController extends Controller
 {
-    //
-    public function reports( $hr_uid ) {
-        $reports = HrReport::with('healthRegion:hr_uid,province,engname,frename')
-            ->where('hr_uid', $hr_uid)
-            ->get();
-
-        return [
-            'data' => $reports,
-        ];
-    }
-
+    /**
+     * retrieve all health regions or a specific one
+     *  - $hr_uid: optional hr_uid to return single health region
+     */
     public function regions( $hr_uid = null ) {
         $regions = [];
         if( $hr_uid ) {

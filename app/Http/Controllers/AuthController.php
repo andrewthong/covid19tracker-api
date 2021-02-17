@@ -16,6 +16,10 @@ class AuthController extends Controller
         $this->proxy = $proxy;
     }
 
+    /**
+     * [unused] registration
+     * unlikely if project will ever need
+     */
     public function register()
     {
         $this->validate(request(), [
@@ -42,6 +46,9 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * login
+     */
     public function login()
     {
         $user = User::where('email', request('email'))->with(['roles', 'provinces'])->first();
@@ -57,6 +64,7 @@ class AuthController extends Controller
             ->grantPasswordToken(request('email'), request('password'));
 
         // single-role mode
+        // at this stage we don't use multi-role
         $user->role = $user->roles->pluck('name')[0];
 
         return response([
@@ -68,6 +76,9 @@ class AuthController extends Controller
         ], 200);
     }
 
+    /**
+     * get current user
+     */
     public function user()
     {
         $user = auth()->guard('api')->user();
@@ -79,6 +90,9 @@ class AuthController extends Controller
         ], 200);
     }
 
+    /**
+     * refresh access token (to maintain session)
+     */
     public function refreshToken()
     {
         $resp = $this->proxy->refreshAccessToken();
@@ -95,6 +109,9 @@ class AuthController extends Controller
         ], 200);
     }
 
+    /**
+     * logout
+     */
     public function logout()
     {
         $token = request()->user()->token();

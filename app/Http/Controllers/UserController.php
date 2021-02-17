@@ -10,11 +10,17 @@ use App\User;
 
 class UserController extends Controller
 {
+    /**
+     * get all users
+     */
     static function getUsers( Request $request )
     {
         return User::with('roles', 'provinces')->get();
     }
 
+    /**
+     * helper to retrieve a user w/ role and province
+     */
     static function getUser( $id )
     {
         $user = User::with('roles', 'provinces')->find($id);
@@ -75,7 +81,7 @@ class UserController extends Controller
     }
 
     /**
-     * function to create editors
+     * function to update editors
      */
     static function updateUser( $id, Request $request )
     {

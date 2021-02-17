@@ -14,16 +14,23 @@ use App\ProcessedReport;
 class ReportController extends Controller
 {
 
+    /**
+     * summary for provinces
+     *  - $split boolean to pass to summary method
+     */
     public function summaryProvince( $split = false ) {
         return $this->summary( $split );
     }
 
+    /**
+     * summary for health region (always split)
+     */
     public function summaryHealthRegion() {
         return $this->summary( true, 'healthregion' );
     }
 
     /**
-     * summary takes latest reports for each province and aggregates
+     * takes latest reports for each province and aggregates
      *  - $split if true, will not aggregate
      *  - $type province or healthregion
      */
@@ -126,38 +133,38 @@ class ReportController extends Controller
     }
 
     
-    /*
-        produces province report
-            $province: optional province code (defaults to all provinces)
-    */
+    /**
+     * produces province report
+     *  - $province: optional province code (defaults to all provinces)
+     */
     public function generateProvince( Request $request, $province = null ) {
         return $this->generateReport( $request, 'province', $province );
     }
 
     
-    /*
-        produces health region report based on province (grouped)
-            $hr_uid: optional health region uid (defaults to all health regions)
-    */
+    /**
+     * produces health region report based on province (grouped)
+     *  - $hr_uid: optional health region uid (defaults to all health regions)
+     */
     public function generateHealthRegion( Request $request, $hr_uid = null ) {
         return $this->generateReport( $request, 'healthregion', $hr_uid );
     }
     
-    /*
-        produces health region report based on province (grouped)
-            $province: required province code
-    */
+    /**
+     * produces health region report based on province (grouped)
+     *  - $province: required province code
+     */
     public function generateProvinceHealthRegion( Request $request, $province ) {
         // set this value to be read by generate function
         $request->merge( ['group_by_province' => true] );
         return $this->generateReport( $request, 'healthregion', $province );
     }
     
-    /*
-        produces report with daily and cumulative totals for key attributes
-            $type: optional province(default)|healthregion
-            $location: optional province code or hr_uid
-    */
+    /**
+     * produces report with daily and cumulative totals for key attributes
+     *   - $type: optional province(default)|healthregion
+     *   - $location: optional province code or hr_uid
+     */
     public function generateReport( Request $request, $type = 'province', $location = null ) {
 
         // cache
