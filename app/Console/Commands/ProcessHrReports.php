@@ -218,6 +218,7 @@ class ProcessHrReports extends Command
                         'total_criticals' => $report->criticals,
                         'total_recoveries' => $report->recoveries,
                         'total_vaccinations' => $report->vaccinations,
+                        'total_vaccinated' => $report->vaccinated,
                         'notes' => $report->notes,
                     ]
                 );
@@ -253,15 +254,7 @@ class ProcessHrReports extends Command
         }
 
         // core attributes
-        $core_attrs = [
-            'cases',
-            'fatalities',
-            'tests',
-            'hospitalizations',
-            'criticals',
-            'recoveries',
-            'vaccinations',
-        ];
+        $core_attrs = Common::attributes();
 
         // HR reports is all total
         // attributes where change is expected and total must be calculated
