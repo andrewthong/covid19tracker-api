@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Flynsarmy\CsvSeeder\CsvSeeder;
 
+use DB;
+
 class ProvinceSeeder extends Seeder
 {
     /**
@@ -17,7 +19,7 @@ class ProvinceSeeder extends Seeder
         $table = 'provinces';
 
         // truncate: comment out if using to add data
-        DB::table($table)->truncate();
+        // DB::table($table)->truncate();
 
         // use csv to seed database
         $seed_csv = base_path()."/database/seeders/csv/{$table}.csv";
