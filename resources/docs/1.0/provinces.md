@@ -37,6 +37,17 @@ Returns a list of provinces.
 ]
 ```
 
+### Attributes
+
+Additional context for the attributes returned.
+
+| Attribute | Description |
+| :- | :- |
+| Code | Code or initial of the province. This is used as the primary identifier when aggregating data |
+| Geographic | A boolean used to indicate whether the grouping is geographical or not. In the dataset, this allows for groupings like "Repatriated" |
+| Data Status | This is set by the Manage utility to note the current status of reporting |
+| Updated At | Timestamp when reports for the province (or health region in the province) was updated |
+
 <a name="parameters"></a>
 ## Parameters
 
