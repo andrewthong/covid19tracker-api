@@ -9,7 +9,7 @@
 <a name="basic"></a>
 ## Basic Usage
 
-Returns a summary of total cases and fatalities.
+Returns a summary of data based on the latest available information. This is the latest reported date in the dataset across all provinces.
 
 | Method | URI |
 | :- | :- |
@@ -20,24 +20,30 @@ Returns a summary of total cases and fatalities.
 
 ```json
 {
-  "data": [
+  "data":[
     {
-      "latest_date": "2020-04-13",
-      "change_cases": null,
-      "change_fatalities": null,
-      "change_tests": "6464",
-      "change_hospitalizations": "23",
-      "change_criticals": "2",
-      "change_recoveries": "240",
-      "total_cases": "18554",
-      "total_fatalities": "417",
-      "total_tests": "433650",
-      "total_hospitalizations": "1801",
-      "total_criticals": "571",
-      "total_recoveries": "7412"
+      "latest_date":"2021-02-21",
+      "change_cases":"2301",
+      "change_fatalities":"41",
+      "change_tests":"88097",
+      "change_hospitalizations":"-61",
+      "change_criticals":"12",
+      "change_recoveries":"2707",
+      "change_vaccinations":"40424",
+      "change_vaccinated":"11039",
+      "change_vaccines_distributed":"0",
+      "total_cases":"850482",
+      "total_fatalities":"21673",
+      "total_tests":"24094600",
+      "total_hospitalizations":"2274",
+      "total_criticals":"555",
+      "total_recoveries":"797494",
+      "total_vaccinations":"1492270",
+      "total_vaccinated":"415505",
+      "total_vaccines_distributed":"1851710"
     }
   ],
-  "last_updated":"2020-04-26 12:40:18"
+  "last_updated":"2021-02-21 17:38:06"
 }
 ```
 
@@ -47,6 +53,7 @@ An array of summary. When reporting on all provinces, there will only be one obj
 ### last_updated
 Refers to the last time the reports were processed, in America/Regina time.
 
+<a name="split"></a>
 ## Split
 
 This will not aggregate all province totals.
@@ -61,20 +68,67 @@ This will not aggregate all province totals.
 {
   "data": [
     {
-      "province": "ON",
-      "date": "2020-04-13",
-      "change_cases": null,
-      "change_fatalities": null,
-      "change_tests": 5150,
-      "change_hospitalizations": 22,
-      "change_criticals": 2,
-      "change_recoveries": 236,
-      "total_cases": 5396,
-      "total_fatalities": 189,
-      "total_tests": 106696,
-      "total_hospitalizations": 760,
-      "total_criticals": 263,
-      "total_recoveries": 3357
+      "province":"ON",
+      "date":"2021-02-21",
+      "change_cases":1031,
+      "change_fatalities":10,
+      "change_tests":48178,
+      "change_hospitalizations":-39,
+      "change_criticals":14,
+      "change_recoveries":1081,
+      "change_vaccinations":16404,
+      "change_vaccinated":6771,
+      "change_vaccines_distributed":0,
+      "total_cases":297924,
+      "total_fatalities":6859,
+      "total_tests":10581076,
+      "total_hospitalizations":660,
+      "total_criticals":277,
+      "total_recoveries":280754,
+      "total_vaccinations":556533,
+      "total_vaccinated":235922,
+      "total_vaccines_distributed":683255
+    },
+    ...
+  ]
+}
+```
+
+<a name="split-by-health-region"></a>
+## Split by Health Region
+
+This is similar to split but broken down by health regions.
+
+*vaccines distributed is not available at the health region level.
+
+| Method | URI |
+| :- | :- |
+| GET | `/summary/split/hr` |
+
+### Sample Response
+
+```json
+{
+  "data": [
+    {
+      "hr_uid":3526,
+      "date":"2021-03-15",
+      "change_cases":3,
+      "change_fatalities":0,
+      "change_tests":1456,
+      "change_hospitalizations":1,
+      "change_criticals":null,
+      "change_recoveries":1,
+      "change_vaccinations":2364,
+      "change_vaccinated":-2,
+      "total_cases":208,
+      "total_fatalities":4,
+      "total_tests":106226,
+      "total_hospitalizations":2,
+      "total_criticals":0,
+      "total_recoveries":198,
+      "total_vaccinations":8784,
+      "total_vaccinated":1060
     },
     ...
   ]
