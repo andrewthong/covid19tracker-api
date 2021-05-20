@@ -121,7 +121,6 @@ class VaccineController extends Controller
             $table = 'vaccine_groups';
 
             $select_core = [
-                'province',
                 'date'
             ];
 
@@ -141,6 +140,7 @@ class VaccineController extends Controller
                 $where_core[] = "province = '{$province}'";
             // _ALL is aggregate data aka "Canada"
             } else if( $split ) {
+                $select_core[] = 'province';
                 $where_core[] = "province != '_ALL'";
             } else {
                 $where_core[] = "province = '_ALL'";
@@ -166,9 +166,9 @@ class VaccineController extends Controller
             $report = DB::select($query);
 
             $response = [
+                'province' => $province ? $province : 'All',
                 'data' =>  $report,
             ];
-            if( $province ) $response['province'] = $province;
 
             return $response;
 
