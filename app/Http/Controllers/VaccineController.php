@@ -100,10 +100,18 @@ class VaccineController extends Controller
 
     }
 
+    /**
+     * [helper] get vaccine age group reports by province
+     */
     public function ageGroupByProvince( Request $request, $province ) {
         return $this->ageGroup( $request, false, $province );
     }
 
+    /**
+     * get vaccine age group records
+     * $ssplit (bool): use designated _ALL for whole country if false otherwise returns all provinces
+     * $province (str): if set, will return only records for the province
+     */
     public function ageGroup( Request $request, $split = false, $province = null ) {
 
         // cache
@@ -118,6 +126,7 @@ class VaccineController extends Controller
             ];
 
             // select a specific age group
+            // MySQL 8.0 has JSON_TABLE which could allow for selecting specific stats
             if( $request->group ) {
                 $select_core[] = "JSON_EXTRACT(`data`, '$.\"{$request->group}\"') AS data";
             } else {
@@ -127,14 +136,17 @@ class VaccineController extends Controller
 
             $where_core = [];
 
+            // check for province
             if( $province ) {
                 $where_core[] = "province = '{$province}'";
+            // _ALL is aggregate data aka "Canada"
             } else if( $split ) {
                 $where_core[] = "province != '_ALL'";
             } else {
                 $where_core[] = "province = '_ALL'";
             }
 
+            // before and after date
             if( $request->after ) {
                 $where_core[] = "`date` >= '{$request->after}'";
             }
