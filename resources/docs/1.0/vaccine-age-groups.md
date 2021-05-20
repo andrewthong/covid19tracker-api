@@ -16,7 +16,7 @@ By default, this request returns a week-by-week report of vaccine stats by vario
 
 | Method | URI |
 | :- | :- |
-| GET | `/vaccines/age-group` |
+| GET | `/vaccines/age-groups` |
 
 <a name="sample-response"></a>
 
@@ -54,7 +54,7 @@ An array of vaccination reports.
 
 ### Example
 
-`/vaccines/age-group?after=2021-03-01&group=80%2B`
+`/vaccines/age-groups?after=2021-03-01&group=80%2B`
 
 <a name="split"></a>
 ## Split
@@ -63,7 +63,7 @@ This will return all provinces (except ALL/Canada).
 
 | Method | URI |
 | :- | :- |
-| GET | `/vaccines/age-group/split` |
+| GET | `/vaccines/age-groups/split` |
 
 ### Data
 An array of vaccination reports but with an addition when split.
@@ -77,8 +77,8 @@ Filter the data to the province level by providing a province code e.g. `SK`. Al
 
 | Method | URI |
 | :- | :- |
-| GET | `/vaccines/age-group/province/:code` |
+| GET | `/vaccines/age-groups/province/:code` |
 
 ### Example
 
-`/vaccines/age-group/province/ab`
+`/vaccines/age-groups/province/ab`
