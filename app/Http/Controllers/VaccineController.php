@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
 use App\VaccineDistribution;
+use App\VaccineAgeGroup;
 use App\Common;
 
 class VaccineController extends Controller
@@ -91,6 +92,72 @@ class VaccineController extends Controller
             ];
 
             // return to be stored in
+            return $response;
+
+        });//cache closure
+
+        return $value;
+
+    }
+
+    public function ageGroupByProvince( Request $request, $province ) {
+        return $this->ageGroup( $request, false, $province );
+    }
+
+    public function ageGroup( Request $request, $split = false, $province = null ) {
+
+        // cache
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use( $request, $split, $province ) {
+
+            $table = 'vaccine_groups';
+
+            $select_core = [
+                'province',
+                'date'
+            ];
+
+            // select a specific age group
+            if( $request->group ) {
+                $select_core[] = "JSON_EXTRACT(`data`, '$.\"{$request->group}\"') AS data";
+            } else {
+                // default
+                $select_core[] = 'data';
+            }
+
+            $where_core = [];
+
+            if( $province ) {
+                $where_core[] = "province = '{$province}'";
+            } else if( $split ) {
+                $where_core[] = "province != '_ALL'";
+            } else {
+                $where_core[] = "province = '_ALL'";
+            }
+
+            if( $request->after ) {
+                $where_core[] = "`date` >= '{$request->after}'";
+            }
+            if( $request->before ) {
+                $where_core[] = "`date` <= '{$request->before}'";
+            }
+
+            // query
+            $select_stmt = implode( ",", $select_core );
+            $where_stmt = "";
+            if( $where_core ) {
+                $where_stmt = "WHERE " . implode(" AND ", $where_core);
+            }
+
+            $query = "SELECT {$select_stmt} FROM {$table} {$where_stmt} ORDER BY `date` ASC";
+
+            $report = DB::select($query);
+
+            $response = [
+                'data' =>  $report,
+            ];
+            if( $province ) $response['province'] = $province;
+
             return $response;
 
         });//cache closure
