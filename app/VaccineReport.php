@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Common;
 
+/**
+ * v2 report system: modular reporting tables
+ * see README-report.md
+ */
 class VaccineReport extends Model
 {
     protected $table = 'vaccine_reports';
