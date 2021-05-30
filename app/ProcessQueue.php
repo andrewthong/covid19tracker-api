@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use DateTime;
 use Illuminate\Support\Facades\Artisan;
 
+use App\Common;
 use App\Utility;
 use App\Option;
 
@@ -83,17 +84,11 @@ class ProcessQueue extends Model
                 $exit_code_hr = Artisan::call('report:processhr', $params);
 
                 // v2 modular reporting
-                $additional_report_tables = [
-                    'vaccine_reports',
-                ];
+                $additional_report_tables = Common::availableReports();
                 $exit_codes = [];
                 foreach( $additional_report_tables as $report_table ) {
-                    // get province whitelist
-                    $enabled_provinces = Option::get("{$report_table}_enabled_provinces");
-                    // convert to array
-                    $enabled_provinces = $enabled_provinces ? explode( ',', $enabled_provinces ) : false;
-                    // if not set, allow all otherwise check if province is whitelisted before proceeding
-                    if( !$enabled_provinces || in_array( $item->province, $enabled_provinces ) ) {
+                    // check for whitelist
+                    if( Common::isProvinceEnabledForReport( $item->province, $report_table ) ) {
                         $params_v2 = $params;
                         $params_v2['--table'] = $report_table;
                         $exit_codes[$report_table] = Artisan::call('report:fill', $params_v2);

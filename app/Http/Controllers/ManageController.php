@@ -38,6 +38,29 @@ class ManageController extends Controller
             $response['hr_reports'] = HrReport::whereIn('hr_uid', $hr_uids)->where([
                 'date' => $date
             ])->get();
+
+            // v2 report system
+            $response['report_v2'] = [];
+            $additional_report_tables = Common::availableReports();
+            foreach( $additional_report_tables as $report_table ) {
+                if( Common::isProvinceEnabledForReport( $province, $report_table ) ) {
+                    $response['report_v2'][$report_table] = [
+                        'enabled' => true,
+                        'data' => [],
+                    ];
+                    // helper candidate if list grows
+                    if( $report_table === 'vaccine_reports' ) {
+                        $base_attrs = array_fill_keys(VaccineReport::attrs(), null);
+                        $base_data = VaccineReport::firstOrNew([
+                            'province' => $province,
+                            'date' => $date
+                        ], $base_attrs )->toArray();
+                        // clean up attrs
+                        $response['report_v2'][$report_table]['data'] = array_intersect_key( $base_data, $base_attrs );
+                    }
+                }
+            }
+
             return $response;
         }
         return response([
@@ -107,19 +130,23 @@ class ManageController extends Controller
         }
 
         // process vaccine report
-        if( request('vaccine_report') ) {
-            $vaccine_report_attrs = VaccineReport::attrs(); 
-            $where_values = [
-                'province' => $province_code,
-                'date' => $date
-            ];
-            // only keep core attributes, discard everything else
-            $report_values = array_intersect_key( request('vaccine_report'), $vaccine_report_attrs );
-            // update or create
-            VaccineReport::updateOrCreate(
-                $where_values,
-                array_merge( $where_values, $report_values )
-            );
+        if( request('report_v2') ) {
+            $report_v2_data = request('report_v2');
+            $vaccine_report_data = $report_v2_data['vaccine_reports'];
+            if( $vaccine_report_data ) {
+                $vaccine_report_attrs = VaccineReport::attrs(); 
+                $where_values = [
+                    'province' => $province_code,
+                    'date' => $date
+                ];
+                // only keep core attributes, discard everything else
+                $report_values = array_intersect_key( $vaccine_report_data, array_fill_keys($vaccine_report_attrs, null) );
+                // update or create
+                VaccineReport::updateOrCreate(
+                    $where_values,
+                    array_merge( $where_values, $report_values )
+                );
+            }
         }
 
         // save province status

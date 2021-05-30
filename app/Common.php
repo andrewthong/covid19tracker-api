@@ -178,6 +178,16 @@ class Common {
 
     /**
      * helper for v2 report system
+     * returns array of tables using this system
+     */
+    public static function availableReports() {
+        return [
+            'vaccine_reports',
+        ];
+    }
+
+    /**
+     * helper for v2 report system
      * takes attrs and optionally splits them into change and total groups
      * e.g. ['change_attrs'=>[...], 'total_attrs'=>[...]]
      */
@@ -199,6 +209,20 @@ class Common {
             }
         }
         return $response;
+    }
+
+    /**
+     * helper for v2 report system
+     * checks if province is whitelisted for a given report table
+     * by default if no whitelist is found, assumes all provinces allowed
+     */
+    public static function isProvinceEnabledForReport( $province, $report_table ) {
+        // get province whitelist
+        $enabled_provinces = Option::get("{$report_table}_enabled_provinces");
+        // convert to array
+        $enabled_provinces = $enabled_provinces ? explode( ',', $enabled_provinces ) : false;
+        // if not set, allow all otherwise check if province is whitelisted before proceeding
+        return !$enabled_provinces || in_array( $province, $enabled_provinces );
     }
 
 }
