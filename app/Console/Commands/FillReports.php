@@ -9,6 +9,8 @@ use App\Common;
 use App\Utility;
 use App\Option;
 
+use App\VaccineReport;
+
 class FillReports extends Command
 {
     /**
@@ -52,10 +54,7 @@ class FillReports extends Command
         // key = table name
         // set _attrs based on what data_entry will fill; the counterpart is then filled by this script
         $supported_tables = [
-            'vaccine_reports' => [
-                'change_attrs' => [],
-                'total_attrs' => ['adults_vaccinated', 'adults_vaccinations'],
-            ],
+            'vaccine_reports' => VaccineReport::attrs( true ),
         ];
 
         // options support

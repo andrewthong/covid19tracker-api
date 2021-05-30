@@ -12,6 +12,8 @@ use App\HrReport;
 use App\Report;
 use App\ProcessQueue;
 
+use App\VaccineReport;
+
 class ManageController extends Controller
 {
 
@@ -102,6 +104,22 @@ class ManageController extends Controller
                     array_merge( $where_values, $hr_report_values )
                 );
             }
+        }
+
+        // process vaccine report
+        if( request('vaccine_report') ) {
+            $vaccine_report_attrs = VaccineReport::attrs(); 
+            $where_values = [
+                'province' => $province_code,
+                'date' => $date
+            ];
+            // only keep core attributes, discard everything else
+            $report_values = array_intersect_key( request('vaccine_report'), $vaccine_report_attrs );
+            // update or create
+            VaccineReport::updateOrCreate(
+                $where_values,
+                array_merge( $where_values, $report_values )
+            );
         }
 
         // save province status

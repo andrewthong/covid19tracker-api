@@ -176,4 +176,29 @@ class Common {
 
     }
 
+    /**
+     * helper for v2 report system
+     * takes attrs and optionally splits them into change and total groups
+     * e.g. ['change_attrs'=>[...], 'total_attrs'=>[...]]
+     */
+    public static function attrsHelper( $attrs = [], $split = false ) {
+        $response = $attrs; // $split === false (default)
+        if( $split ) {
+            $split_groups = ['change', 'total'];
+            $response = [];
+            foreach($split_groups as $s ) {
+                $group_key = "{$s}_attrs";
+                $response[$group_key] = [];
+                foreach( $attrs as $key => $attr ) {
+                    // check if attr starts with
+                    if( strpos($attr, "{$s}_") === 0 ) {
+                        $response[$group_key][] = substr( $attr, strlen($s)+1 );
+                        unset($attrs[$key]); // remove it from base array
+                    }
+                }
+            }
+        }
+        return $response;
+    }
+
 }

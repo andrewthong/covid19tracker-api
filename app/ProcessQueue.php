@@ -81,6 +81,25 @@ class ProcessQueue extends Model
                 $exit_code = Artisan::call('report:process', $params);
                 // run processing for each health region
                 $exit_code_hr = Artisan::call('report:processhr', $params);
+
+                // v2 modular reporting
+                $additional_report_tables = [
+                    'vaccine_reports',
+                ];
+                $exit_codes = [];
+                foreach( $additional_report_tables as $report_table ) {
+                    // get province whitelist
+                    $enabled_provinces = Option::get("{$report_table}_enabled_provinces");
+                    // convert to array
+                    $enabled_provinces = $enabled_provinces ? explode( ',', $enabled_provinces ) : false;
+                    // if not set, allow all otherwise check if province is whitelisted before proceeding
+                    if( !$enabled_provinces || in_array( $item->province, $enabled_provinces ) ) {
+                        $params_v2 = $params;
+                        $params_v2['--table'] = $report_table;
+                        $exit_codes[$report_table] = Artisan::call('report:fill', $params_v2);
+                    }
+                }
+
                 // store id to update later
                 $processed_ids[] = $item->id;
             }
