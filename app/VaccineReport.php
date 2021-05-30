@@ -28,4 +28,16 @@ class VaccineReport extends Model
         return Common::attrsHelper( $attrs, $split );
     }
 
+    public static function reportAttrs( $split = false ) {
+        $attrs = [
+            'change_adults_vaccinations',
+            'change_adults_vaccinated',
+        ];
+        return Common::attrsHelper( $attrs, $split );
+    }
+
+    public static function allAttrs() {
+        return array_merge( self::attrs(), self::reportAttrs() );
+    }
+
 }

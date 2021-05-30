@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 
 use App\VaccineDistribution;
 use App\VaccineAgeGroup;
+use App\VaccineReport;
 use App\Common;
 
 class VaccineController extends Controller
@@ -145,6 +146,62 @@ class VaccineController extends Controller
             } else {
                 $where_core[] = "province = '_ALL'";
             }
+
+            // before and after date
+            if( $request->after ) {
+                $where_core[] = "`date` >= '{$request->after}'";
+            }
+            if( $request->before ) {
+                $where_core[] = "`date` <= '{$request->before}'";
+            }
+
+            // query
+            $select_stmt = implode( ",", $select_core );
+            $where_stmt = "";
+            if( $where_core ) {
+                $where_stmt = "WHERE " . implode(" AND ", $where_core);
+            }
+
+            $query = "SELECT {$select_stmt} FROM {$table} {$where_stmt} ORDER BY `date` ASC";
+
+            $report = DB::select($query);
+
+            $response = [
+                'province' => $province ? $province : 'All',
+                'data' =>  $report,
+            ];
+
+            return $response;
+
+        });//cache closure
+
+        return $value;
+
+    }
+
+
+
+    /**
+     * get vaccine reports
+     * $province (str): required
+     */
+    public function report( Request $request, $province ) {
+
+        // cache
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use( $request, $province ) {
+
+            $table = 'vaccine_reports';
+
+            $select_core = array_merge(
+                ['date'],
+                VaccineReport::allAttrs()
+            );
+
+            $where_core = [];
+
+            // province
+            $where_core[] = "province = '{$province}'";
 
             // before and after date
             if( $request->after ) {
