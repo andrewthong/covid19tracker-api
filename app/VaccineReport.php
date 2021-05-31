@@ -32,7 +32,7 @@ class VaccineReport extends Model
         return Common::attrsHelper( $attrs, $split );
     }
 
-    public static function reportAttrs( $split = false ) {
+    public static function processingAttrs( $split = false ) {
         $attrs = [
             'change_adults_vaccinations',
             'change_adults_vaccinated',
@@ -41,7 +41,7 @@ class VaccineReport extends Model
     }
 
     public static function allAttrs() {
-        return array_merge( self::attrs(), self::reportAttrs() );
+        return array_merge( self::attrs(), self::processingAttrs() );
     }
 
 }
