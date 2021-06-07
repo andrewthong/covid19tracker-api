@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use DateTime;
 use Illuminate\Support\Facades\Artisan;
 
+use App\Common;
 use App\Utility;
 use App\Option;
 
@@ -81,6 +82,19 @@ class ProcessQueue extends Model
                 $exit_code = Artisan::call('report:process', $params);
                 // run processing for each health region
                 $exit_code_hr = Artisan::call('report:processhr', $params);
+
+                // v2 modular reporting
+                $additional_report_tables = Common::availableReports();
+                $exit_codes = [];
+                foreach( $additional_report_tables as $report_table ) {
+                    // check for whitelist
+                    if( Common::isProvinceEnabledForReport( $item->province, $report_table ) ) {
+                        $params_v2 = $params;
+                        $params_v2['--table'] = $report_table;
+                        $exit_codes[$report_table] = Artisan::call('report:fill', $params_v2);
+                    }
+                }
+
                 // store id to update later
                 $processed_ids[] = $item->id;
             }

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
 use App\VaccineDistribution;
+use App\VaccineAgeGroup;
+use App\VaccineReport;
 use App\Common;
 
 class VaccineController extends Controller
@@ -91,6 +93,140 @@ class VaccineController extends Controller
             ];
 
             // return to be stored in
+            return $response;
+
+        });//cache closure
+
+        return $value;
+
+    }
+
+    /**
+     * [helper] get vaccine age group reports by province
+     */
+    public function ageGroupByProvince( Request $request, $province ) {
+        return $this->ageGroup( $request, false, $province );
+    }
+
+    /**
+     * get vaccine age group records
+     * $ssplit (bool): use designated _ALL for whole country if false otherwise returns all provinces
+     * $province (str): if set, will return only records for the province
+     */
+    public function ageGroup( Request $request, $split = false, $province = null ) {
+
+        // cache
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use( $request, $split, $province ) {
+
+            $table = 'vaccine_groups';
+
+            $select_core = [
+                'date'
+            ];
+
+            // select a specific age group
+            // MySQL 8.0 has JSON_TABLE which could allow for selecting specific stats
+            if( $request->group ) {
+                $select_core[] = "JSON_EXTRACT(`data`, '$.\"{$request->group}\"') AS data";
+            } else {
+                // default
+                $select_core[] = 'data';
+            }
+
+            $where_core = [];
+
+            // check for province
+            if( $province ) {
+                $where_core[] = "province = '{$province}'";
+            // _ALL is aggregate data aka "Canada"
+            } else if( $split ) {
+                $select_core[] = 'province';
+                $where_core[] = "province != '_ALL'";
+            } else {
+                $where_core[] = "province = '_ALL'";
+            }
+
+            // before and after date
+            if( $request->after ) {
+                $where_core[] = "`date` >= '{$request->after}'";
+            }
+            if( $request->before ) {
+                $where_core[] = "`date` <= '{$request->before}'";
+            }
+
+            // query
+            $select_stmt = implode( ",", $select_core );
+            $where_stmt = "";
+            if( $where_core ) {
+                $where_stmt = "WHERE " . implode(" AND ", $where_core);
+            }
+
+            $query = "SELECT {$select_stmt} FROM {$table} {$where_stmt} ORDER BY `date` ASC";
+
+            $report = DB::select($query);
+
+            $response = [
+                'province' => $province ? $province : 'All',
+                'data' =>  $report,
+            ];
+
+            return $response;
+
+        });//cache closure
+
+        return $value;
+
+    }
+
+
+
+    /**
+     * get vaccine reports
+     * $province (str): required
+     */
+    public function report( Request $request, $province ) {
+
+        // cache
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use( $request, $province ) {
+
+            $table = 'vaccine_reports';
+
+            $select_core = array_merge(
+                ['date'],
+                VaccineReport::allAttrs()
+            );
+
+            $where_core = [];
+
+            // province
+            $where_core[] = "province = '{$province}'";
+
+            // before and after date
+            if( $request->after ) {
+                $where_core[] = "`date` >= '{$request->after}'";
+            }
+            if( $request->before ) {
+                $where_core[] = "`date` <= '{$request->before}'";
+            }
+
+            // query
+            $select_stmt = implode( ",", $select_core );
+            $where_stmt = "";
+            if( $where_core ) {
+                $where_stmt = "WHERE " . implode(" AND ", $where_core);
+            }
+
+            $query = "SELECT {$select_stmt} FROM {$table} {$where_stmt} ORDER BY `date` ASC";
+
+            $report = DB::select($query);
+
+            $response = [
+                'province' => $province ? $province : 'All',
+                'data' =>  $report,
+            ];
+
             return $response;
 
         });//cache closure

@@ -6,3 +6,4 @@
     - [Fatalities](/{{route}}/{{version}}/fatalities)
     - [Provinces](/{{route}}/{{version}}/provinces)
     - [Health Regions](/{{route}}/{{version}}/regions)
+    - [Vaccine Age Groups](/{{route}}/{{version}}/vaccine-age-groups)
