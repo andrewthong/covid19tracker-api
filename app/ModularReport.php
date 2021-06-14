@@ -37,21 +37,21 @@ class ModularReport extends Model
      *  $split: when true, splits attrs into total and change keys
      */
     public static function referenceAttrs( $split = false ) {
-        return Common::attrsHelper( self::reference_attrs, $split );
+        return Common::attrsHelper( static::reference_attrs, $split );
     }
 
     /**
      * attributes that are generated from processing
      */
     public static function processedAttrs( $split = false ) {
-        return Common::attrsHelper( self::processed_attrs, $split );
+        return Common::attrsHelper( static::processed_attrs, $split );
     }
 
     /**
      * return all attributes
      */
     public static function allAttrs() {
-        return array_merge( self::processed_attrs, self::reference_attrs, self::other_attrs );
+        return array_merge( static::processed_attrs, static::reference_attrs, static::other_attrs );
     }
 
 }

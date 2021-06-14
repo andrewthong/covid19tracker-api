@@ -134,7 +134,7 @@ class ManageController extends Controller
             $report_v2_data = request('report_v2');
             $vaccine_report_data = $report_v2_data['vaccine_reports'];
             if( $vaccine_report_data ) {
-                $vaccine_report_attrs = VaccineReport::attrs(); 
+                $vaccine_report_attrs = VaccineReport::referenceAttrs(); 
                 $where_values = [
                     'province' => $province_code,
                     'date' => $date
