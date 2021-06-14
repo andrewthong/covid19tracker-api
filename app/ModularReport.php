@@ -5,6 +5,8 @@ namespace App;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Support\Facades\DB;
+
 use App\Common;
 
 /**
@@ -52,6 +54,31 @@ class ModularReport extends Model
      */
     public static function allAttrs() {
         return array_merge( static::processed_attrs, static::reference_attrs, static::other_attrs );
+    }
+
+    public static function getTableName() {
+        return (new static())->getTable();
+    }
+
+    public static function latest() {
+        $table = static::getTableName();
+
+        $select_core = array_merge(
+            ['t1.province', 'date'],
+            static::allAttrs()
+        );
+
+        $select_stmt = implode( ",", $select_core );
+
+        $query = "SELECT {$select_stmt} FROM {$table} t1 JOIN (SELECT province, MAX(`date`) as latest_date FROM {$table} group by `province`) t2 ON t1.province = t2.province AND t1.date = t2.latest_date";
+
+        $report = DB::select($query);
+
+        $response = [
+            'data' =>  $report,
+        ];
+
+        return $response;
     }
 
 }
