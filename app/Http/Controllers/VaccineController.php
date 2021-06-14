@@ -235,4 +235,20 @@ class VaccineController extends Controller
 
     }
 
+    /**
+     * 
+     */
+    public function latestReports( Request $request ) {
+
+        // cache
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use( $request ) {
+
+            return VaccineReport::latest();
+
+        });//cache closure
+
+        return $value;
+    }
+
 }
