@@ -50,7 +50,7 @@ class ManageController extends Controller
                     ];
                     // helper candidate if list grows
                     if( $report_table === 'vaccine_reports' ) {
-                        $base_attrs = array_fill_keys(VaccineReport::attrs(), null);
+                        $base_attrs = array_fill_keys(VaccineReport::referenceAttrs(), null);
                         $base_data = VaccineReport::firstOrNew([
                             'province' => $province,
                             'date' => $date
