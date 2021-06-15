@@ -56,10 +56,16 @@ class ModularReport extends Model
         return array_merge( static::processed_attrs, static::reference_attrs, static::other_attrs );
     }
 
+    /**
+     * helper to retrieve table name
+     */
     public static function getTableName() {
         return (new static())->getTable();
     }
 
+    /**
+     * helper to pull latest records for all unique provinces
+     */
     public static function latest() {
         $table = static::getTableName();
 
@@ -73,6 +79,23 @@ class ModularReport extends Model
         $query = "SELECT {$select_stmt} FROM {$table} t1 JOIN (SELECT province, MAX(`date`) as latest_date FROM {$table} group by `province`) t2 ON t1.province = t2.province AND t1.date = t2.latest_date";
 
         $report = DB::select($query);
+
+        $response = [
+            'data' =>  $report,
+        ];
+
+        return $response;
+    }
+
+    /**
+     * helper to pull the latest record for the specified province
+     */
+    public static function latestByProvince( $province ) {
+        $report = static::select(
+                array_merge(['province', 'date'], static::allAttrs())
+            )->where('province', $province)
+            ->latest('date')
+            ->first();
 
         $response = [
             'data' =>  $report,
