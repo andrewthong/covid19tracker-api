@@ -49,6 +49,7 @@ Route::get('vaccines/age-groups/{split}', 'VaccineController@ageGroup')->where('
 Route::get('vaccines/age-groups/province/{province}', 'VaccineController@ageGroupByProvince')->where(['province' => '[A-Za-z_]+']);
 
 Route::get('vaccines/reports/latest', 'VaccineController@latestReports');
+Route::get('vaccines/reports/latest/{province}', 'VaccineController@latestReports')->where(['province' => '[A-Za-z_]+']);
 Route::get('vaccines/reports/province/{province}', 'VaccineController@report')->where(['province' => '[A-Za-z_]+']);
 
 Route::get('notes', 'NoteController@all');
