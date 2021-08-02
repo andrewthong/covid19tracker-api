@@ -55,7 +55,8 @@ Route::get('vaccines/reports/province/{province}', 'VaccineController@report')->
 Route::get('notes', 'NoteController@all');
 Route::get('notes/tag/{tag}', 'NoteController@all')->where('tag', '[A-Za-z_]+');
 
-// partner-specific (remember to define env)
+// partner-specific
+// set env then php artisan config:clear
 Route::get('_p/'.env('PARTNER01', 'none').'/report-hr-vaccination', 'PartnerReportController@getHealthRegionVaccineReport');
 
 // ADMIN (manage/)

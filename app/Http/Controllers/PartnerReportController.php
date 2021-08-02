@@ -11,6 +11,10 @@ use App\Option;
 use App\Province;
 use App\ProcessedReport;
 
+/**
+ * generic controller for specific partner endpoints
+ * not intended for public use
+ */
 class PartnerReportController extends Controller
 {
     /**
@@ -46,6 +50,11 @@ class PartnerReportController extends Controller
                 ->orWhereNotNull('total_vaccinated')
                 ->first();
             $earliest_date = $result->date;
+
+            // safeguard if no data
+            if( !$earliest_date ) {
+                return \response()->json(null);
+            }
 
             // prepare SELECT
             $select_stmt = implode(",", $select_core);
