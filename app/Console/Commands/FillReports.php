@@ -54,7 +54,7 @@ class FillReports extends Command
         // key = table name
         // set _attrs based on what data_entry will fill; the counterpart is then filled by this script
         $supported_tables = [
-            'vaccine_reports' => VaccineReport::attrs( true ),
+            'vaccine_reports' => VaccineReport::referenceAttrs( true ),
         ];
 
         // options support

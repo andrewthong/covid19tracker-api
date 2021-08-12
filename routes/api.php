@@ -48,10 +48,16 @@ Route::get('vaccines/age-groups/', 'VaccineController@ageGroup');
 Route::get('vaccines/age-groups/{split}', 'VaccineController@ageGroup')->where('split', 'split');
 Route::get('vaccines/age-groups/province/{province}', 'VaccineController@ageGroupByProvince')->where(['province' => '[A-Za-z_]+']);
 
+Route::get('vaccines/reports/latest', 'VaccineController@latestReports');
+Route::get('vaccines/reports/latest/{province}', 'VaccineController@latestReports')->where(['province' => '[A-Za-z_]+']);
 Route::get('vaccines/reports/province/{province}', 'VaccineController@report')->where(['province' => '[A-Za-z_]+']);
 
 Route::get('notes', 'NoteController@all');
 Route::get('notes/tag/{tag}', 'NoteController@all')->where('tag', '[A-Za-z_]+');
+
+// partner-specific
+// set env then php artisan config:clear
+Route::get('_p/'.env('PARTNER01', 'none').'/report-hr-vaccination', 'PartnerReportController@getHealthRegionVaccineReport');
 
 // ADMIN (manage/)
 Route::middleware('guest')->group(function () {
