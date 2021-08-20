@@ -149,13 +149,6 @@ class ReportController extends Controller
 
             $where_core = [];
 
-            // query core modifiers
-            foreach( [$change_prefix, $total_prefix] as $prefix ) {
-                foreach( $core_attrs as $attr ) {
-                    $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
-                }
-            }
-
             // base (province)
             $location_col = 'province';
             $processed_table = 'processed_reports';
@@ -242,6 +235,53 @@ class ReportController extends Controller
 
             return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
             
+        });//cache closure
+
+        return $value;
+    }
+
+    public function generateRecentHealthRegion() {
+        // cache (requests not supported)
+        $cache_key = 'reports/health-regions/recent';
+        $value = Cache::rememberForever( $cache_key, function() {
+            
+            // setup
+            $select_core = array_merge(
+                ['date', 'hr_uid'],
+                Common::prefixArrayItems( Common::attributes() )
+            );
+
+            $table = 'processed_hr_reports';
+
+            // get last 15 days
+            $date_from = date('Y-m-d', strtotime('-15 days'));
+
+            // prepare SELECT
+            $select_stmt = implode(",", $select_core);
+
+            // prepare WHERE
+            $where_stmt = "WHERE `date` >= '{$date_from}'";
+
+            // DB query
+            $data = DB::select("
+                SELECT
+                    {$select_stmt}
+                FROM
+                    {$table}
+                {$where_stmt}
+                ORDER BY
+                    `date`, `hr_uid`
+            ");
+
+            $last_run = Common::getLastUpdated( 'healthregion' );
+
+            $response = [
+                'last_updated' => $last_run,
+                'data' => $data,
+            ];
+
+            return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
+
         });//cache closure
 
         return $value;
