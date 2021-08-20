@@ -72,6 +72,27 @@ class Common {
         return $core_attrs;
     }
 
+    /** 
+     * prepends an array of prefixes to each item of a given array
+     * $arr (array)
+     * - list of strings
+     * optional $prefixes (array)
+     * - list of prefixes to be prepended
+     */
+    static function prefixArrayItems($arr, $prefixes = null) {
+        // defaults to change and total
+        if(!$prefixes) {
+            $prefixes = ['change_', 'total_'];
+        }
+        $new_arr = [];
+        foreach( $prefixes as $prefix ) {
+            foreach( $arr as $attr ) {
+                $new_arr[] = "{$prefix}{$attr}";
+            }
+        }
+        return $new_arr;
+    }
+
     /**
      * return an array of province codes
      */
