@@ -277,6 +277,7 @@ class ReportController extends Controller
 
             $response = [
                 'last_updated' => $last_run,
+                'recent_from' => $date_from,
                 'data' => $data,
             ];
 
