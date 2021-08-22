@@ -240,6 +240,10 @@ class ReportController extends Controller
         return $value;
     }
 
+    /**
+     * recent reports for all health regions uncombined
+     * uses env value RECENT_REPORT_DAYS (defaults to 7)
+     */
     public function generateRecentHealthRegion() {
         // cache (requests not supported)
         $cache_key = 'reports/health-regions/recent';
@@ -253,8 +257,9 @@ class ReportController extends Controller
 
             $table = 'processed_hr_reports';
 
-            // get last 15 days
-            $date_from = date('Y-m-d', strtotime('-15 days'));
+            // days to go back
+            $days_ago = env('RECENT_REPORT_DAYS', 7);
+            $date_from = date('Y-m-d', strtotime("-{$days_ago} days"));
 
             // prepare SELECT
             $select_stmt = implode(",", $select_core);
