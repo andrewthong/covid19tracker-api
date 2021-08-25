@@ -40,6 +40,7 @@ Route::get('regions/{hr_uid}', 'HealthRegionController@regions')->where('hr_uid'
 Route::get('regions/{hr_uid}/reports', 'ReportController@generateHealthRegion')->where('hr_uid', '[\d]+');
 Route::get('reports/regions', 'ReportController@generateHealthRegion');
 Route::get('reports/regions/{hr_uid}', 'ReportController@generateHealthRegion')->where('hr_uid', '[\d]+');
+Route::get('reports/health-regions/recent', 'ReportController@generateRecentHealthRegion');
 
 Route::get('vaccines/distribution', 'VaccineController@distribution');
 Route::get('vaccines/distribution/{split}', 'VaccineController@distribution')->where('split', 'split');
