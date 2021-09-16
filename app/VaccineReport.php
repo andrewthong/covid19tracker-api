@@ -22,18 +22,12 @@ class VaccineReport extends ModularReport
 
     // processed attributes are derived from reference data
     const processed_attrs = [
-        'change_adults_vaccinations',
-        'change_adults_vaccinated',
-        'change_vaccinations_out_of_province',
-        'change_vaccinated_out_of_province',
+        'change_boosters_1',
     ];
 
     // reference attributes are provided by data-entry activities
     const reference_attrs = [
-        'total_adults_vaccinations',
-        'total_adults_vaccinated',
-        'total_vaccinations_out_of_province',
-        'total_vaccinated_out_of_province',
+        'total_boosters_1',
     ];
 
     // other attributes that are not processed
