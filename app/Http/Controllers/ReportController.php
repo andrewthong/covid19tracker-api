@@ -150,11 +150,11 @@ class ReportController extends Controller
             $where_core = [];
 
             // base (province)
-            $location_col = 'province';
+            $location_col = 'r.province';
             $processed_table = 'processed_reports';
 
             if( $type === 'healthregion' ) {
-                $location_col = 'hr_uid';
+                $location_col = 'r.hr_uid';
                 $processed_table = 'processed_hr_reports';
             }
 
@@ -165,17 +165,17 @@ class ReportController extends Controller
 
             // date
             if( $request->date ) {
-                $where_core[] = "`date` = '{$request->date}'";
+                $where_core[] = "r.date = '{$request->date}'";
             }
             // date range (if date is not provided)
             else if( $request->after ) {
-                $where_core[] = "`date` >= '{$request->after}'";
+                $where_core[] = "r.date >= '{$request->after}'";
                 // before defaults to today
                 $date_before = date('Y-m-d');
                 if( $request->before ) {
                     $date_before = $request->before;
                 }
-                $where_core[] = "`date` <= '{$date_before}'";
+                $where_core[] = "r.date <= '{$date_before}'";
             }
 
             // stat
@@ -185,7 +185,7 @@ class ReportController extends Controller
             }
 
             // build out select list
-            $select_core = ['date'];
+            $select_core = ['r.date'];
             foreach( [$change_prefix, $total_prefix] as $prefix ) {
                 foreach( $core_attrs as $attr ) {
                     $select_core[] = "SUM({$prefix}{$attr}) AS {$prefix}{$attr}";
@@ -194,22 +194,42 @@ class ReportController extends Controller
             
             // prepare SELECT
             $select_stmt = implode(",", $select_core);
+
+            // prepare WHERE
             $where_stmt = "";
             if( $where_core ) {
                 $where_stmt = "WHERE " . implode(" AND ", $where_core);
             }
 
-            $result = DB::select("
+            // prepare JOIN
+            $join_stmt = "";
+            $vaccine_table = "vaccine_reports";
+            if($type === 'province') {
+                $join_select_core = [];
+                $join_stmt = "LEFT OUTER JOIN {$vaccine_table} as v ON r.province = v.province AND r.date = v.date";
+                // additional SELECT
+                foreach( [$change_prefix, $total_prefix] as $prefix ) {
+                    foreach( ['boosters_1'] as $attr ) {
+                        $join_select_core[] = "SUM(v.{$prefix}{$attr}) AS {$prefix}{$attr}";
+                    }
+                }
+                $select_stmt .= ','.implode(",", $join_select_core);
+            }
+
+            $query_stmt = "
                 SELECT
                     {$select_stmt}
                 FROM
-                    {$processed_table}
+                    {$processed_table} as r
+                {$join_stmt}
                 {$where_stmt}
                 GROUP BY
-                    `date`
+                    r.date
                 ORDER BY
-                    `date`
-            ");
+                    r.date
+            ";
+
+            $result = DB::select($query_stmt);
 
             // convert DB::select to a basic array
             $data = json_decode(json_encode($result), true);
