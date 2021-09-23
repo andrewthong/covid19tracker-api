@@ -142,6 +142,10 @@ class ReportController extends Controller
 
             // setup
             $core_attrs = Common::attributes( null, $type );
+            // add vaccine report columns
+            if( $type === 'province' )
+                $core_attrs[] = 'boosters_1';
+
             // TODO: migrate to a config
             $change_prefix = 'change_';
             $total_prefix = 'total_';
