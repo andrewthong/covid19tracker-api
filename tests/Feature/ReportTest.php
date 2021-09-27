@@ -93,7 +93,7 @@ class ReportTest extends TestCase
     }
 
     /**
-     * report range;
+     * report data range
      */
     public function test_province_date_range()
     {
@@ -105,6 +105,40 @@ class ReportTest extends TestCase
                 ->has('data.0', fn ($json) =>
                     $json->where('date', '2021-05-01')
                         ->etc()
+                )
+                ->etc()
+        );
+    }
+
+    /**
+     * summary
+     */
+    public function test_summary()
+    {
+        $response = $this->json('GET', '/summary/');
+        $response->assertJson(fn (AssertableJson $json) =>
+            $json->has('last_updated')
+                ->has('data', 1)
+                ->has('data.0', fn ($json) =>
+                    $json->has('latest_date')
+                        ->has('change_cases')
+                        ->has('change_fatalities')
+                        ->has('change_tests')
+                        ->has('change_hospitalizations')
+                        ->has('change_criticals')
+                        ->has('change_recoveries')
+                        ->has('change_vaccinations')
+                        ->has('change_vaccinated')
+                        ->has('change_vaccines_distributed')
+                        ->has('total_cases')
+                        ->has('total_fatalities')
+                        ->has('total_tests')
+                        ->has('total_hospitalizations')
+                        ->has('total_criticals')
+                        ->has('total_recoveries')
+                        ->has('total_vaccinations')
+                        ->has('total_vaccinated')
+                        ->has('total_vaccines_distributed')
                 )
                 ->etc()
         );
