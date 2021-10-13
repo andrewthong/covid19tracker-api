@@ -141,11 +141,21 @@ class ManageController extends Controller
                 ];
                 // only keep core attributes, discard everything else
                 $report_values = array_intersect_key( $vaccine_report_data, array_fill_keys($vaccine_report_attrs, null) );
-                // update or create
-                VaccineReport::updateOrCreate(
-                    $where_values,
-                    array_merge( $where_values, $report_values )
-                );
+                // check if exists
+                $update_db = true;
+                if( VaccineReport::where($where_values)->count() === 0 ) {
+                    // skip if empty and record doesn't already exist
+                    if( Common::containsOnlyNull($vaccine_report_data) ) {
+                        $update_db = false;
+                    }
+                }
+                if( $update_db ) {
+                    // update or create
+                    VaccineReport::updateOrCreate(
+                        $where_values,
+                        array_merge( $where_values, $report_values )
+                    );
+                }
             }
         }
 

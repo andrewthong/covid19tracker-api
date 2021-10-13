@@ -132,7 +132,7 @@ class FillReports extends Command
         $change_prefix = 'change_';
         $total_prefix = 'total_';
         
-        $reset_value = 0;
+        $reset_value = null;
 
         // control, starter to compare to
         $reset_arr = [];
@@ -198,9 +198,11 @@ class FillReports extends Command
                 $tt_attr = $total_prefix.$attr;
                 // gaps can introduce weird results
                 if( is_null($report->{$tt_attr}) ) {
-                    // set it to backtrack value so change is 0
-                    $update_arr[ $tt_attr ] = $backtrack->{$tt_attr};
-                    $report->{$tt_attr} = $update_arr[ $tt_attr ];
+                    // set it to backtrack value unless backtrack is also null
+                    if( !is_null($backtrack->{$tt_attr}) ) {
+                        $update_arr[ $tt_attr ] = $backtrack->{$tt_attr};
+                        $report->{$tt_attr} = $update_arr[ $tt_attr ];
+                    }
                 }
                 // subtract current total w/ backtrack total
                 $update_arr[ $ch_attr ] =
