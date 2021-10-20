@@ -92,22 +92,4 @@ class ReportTest extends TestCase
         );
     }
 
-    /**
-     * report range;
-     */
-    public function test_province_date_range()
-    {
-        $response = $this->json('GET', '/reports/province/ns?after=2021-05-01&before=2021-05-05');
-        $response->assertJson(fn (AssertableJson $json) =>
-            $json->where('province', 'ns')
-                ->has('last_updated')
-                ->has('data', 5)
-                ->has('data.0', fn ($json) =>
-                    $json->where('date', '2021-05-01')
-                        ->etc()
-                )
-                ->etc()
-        );
-    }
-
 }
