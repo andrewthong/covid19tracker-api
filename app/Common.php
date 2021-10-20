@@ -246,11 +246,4 @@ class Common {
         return !$enabled_provinces || in_array( $province, $enabled_provinces );
     }
 
-    /**
-     * helper to check if all keys in an object are null
-     */
-    public static function containsOnlyNull( $obj ) {
-        return empty(array_filter($obj, function ($a) { return $a !== null;}));
-    }
-
 }
