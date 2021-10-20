@@ -150,17 +150,17 @@ class ReportController extends Controller
             $where_core = [];
 
             // base (province)
-            $location_col = 'province';
+            $location_col = 'r.province';
             $processed_table = 'processed_reports';
 
             if( $type === 'healthregion' ) {
-                $location_col = 'hr_uid';
+                $location_col = 'r.hr_uid';
                 $processed_table = 'processed_hr_reports';
             }
 
             // check for province request
             if( $location ) {
-                $where_core[] = "r.{$location_col} = '{$location}'";
+                $where_core[] = "{$location_col} = '{$location}'";
             }
 
             // date
