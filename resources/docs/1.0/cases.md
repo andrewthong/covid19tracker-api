@@ -1,4 +1,6 @@
-# Cases
+﻿# Cases
+
+This feature is depreciated, and individual-level case data is no longer updated; it remains available to allow access to historical data.
 
 ---
 

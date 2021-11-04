@@ -1,4 +1,4 @@
-# Summary
+﻿# Summary
 
 ---
 
@@ -31,6 +31,7 @@ Returns a summary of data based on the latest available information. This is the
       "change_recoveries":"2707",
       "change_vaccinations":"40424",
       "change_vaccinated":"11039",
+      "change_boosters_1":"2000",
       "change_vaccines_distributed":"0",
       "total_cases":"850482",
       "total_fatalities":"21673",
@@ -40,6 +41,7 @@ Returns a summary of data based on the latest available information. This is the
       "total_recoveries":"797494",
       "total_vaccinations":"1492270",
       "total_vaccinated":"415505",
+      "total_boosters_1":"2000",
       "total_vaccines_distributed":"1851710"
     }
   ],
@@ -78,6 +80,7 @@ This will not aggregate all province totals.
       "change_recoveries":1081,
       "change_vaccinations":16404,
       "change_vaccinated":6771,
+      "change_boosters_1":2000,
       "change_vaccines_distributed":0,
       "total_cases":297924,
       "total_fatalities":6859,
@@ -87,6 +90,7 @@ This will not aggregate all province totals.
       "total_recoveries":280754,
       "total_vaccinations":556533,
       "total_vaccinated":235922,
+      "total_boosters_1":2000,
       "total_vaccines_distributed":683255
     },
     ...
@@ -97,9 +101,9 @@ This will not aggregate all province totals.
 <a name="split-by-health-region"></a>
 ## Split by Health Region
 
-This is similar to split but broken down by health regions.
+This is similar to split but provides current data for each individual health region.
 
-*vaccines distributed is not available at the health region level.
+Note that while most vaccination data is available by health region,  vaccines *distributed* to each health region is not available. As well, some provinces do not report any vaccination data by health region.
 
 | Method | URI |
 | :- | :- |
@@ -121,6 +125,7 @@ This is similar to split but broken down by health regions.
       "change_recoveries":1,
       "change_vaccinations":2364,
       "change_vaccinated":-2,
+      "change_boosters_1":3,
       "total_cases":208,
       "total_fatalities":4,
       "total_tests":106226,
@@ -129,6 +134,7 @@ This is similar to split but broken down by health regions.
       "total_recoveries":198,
       "total_vaccinations":8784,
       "total_vaccinated":1060
+      "total_boosters_1":43,
     },
     ...
   ]

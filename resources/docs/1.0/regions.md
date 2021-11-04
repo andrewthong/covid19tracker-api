@@ -1,4 +1,4 @@
-# Health Regions
+﻿# Health Regions
 
 ---
 
@@ -10,7 +10,7 @@
 <a name="basic"></a>
 ## Basic Usage
 
-Returns a list of regions
+Returns a list of regions, including the hr_uid, which becomes helpful when seeking data for specific health regions with other endpoints.
 
 | Method | URI |
 | :- | :- |
