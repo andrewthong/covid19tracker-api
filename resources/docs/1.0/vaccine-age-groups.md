@@ -1,4 +1,4 @@
-# Vaccine Age Groups
+﻿# Vaccine Age Groups
 
 ---
 
@@ -12,7 +12,9 @@
 
 ## Basic Usage
 
-By default, this request returns a week-by-week report of vaccine stats by various age groups.
+By default, this request returns a week-by-week report of vaccine stats by various age groups. 
+
+While national-level data and data for most provinces is updated weekly from PHAC, some provinces including Ontario, Quebec and Saskatchewan include data updated daily from provincial sources.
 
 | Method | URI |
 | :- | :- |

@@ -1,4 +1,4 @@
-# Overview
+﻿# Overview
 
 ---
 
@@ -11,12 +11,14 @@
 <a name="welcome"></a>
 ## Welcome
 
-This is the API service for the [COVID-19 Tracker Canada](https://covid19tracker.ca) project. The goal is to provide fast access to the dataset maintained by the COVID-19 Tracker Canada team.
+This is the API service for the [COVID-19 Tracker Canada](https://covid19tracker.ca) project. The goal is to provide immediate access to the dataset maintained by the COVID-19 Tracker Canada team.
 
 <a name="get-started"></a>
 ## Get Started
 
 `GET` https://api.covid19tracker.ca/summary
+
+Returns the current date's national-level data including cumulative and new cases, fatalities, tests, recoveries, vaccinations and more. 
 
 See additional routes in the menu.
 
