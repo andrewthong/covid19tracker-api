@@ -1,4 +1,4 @@
-﻿# Vaccination Data
+# Vaccination Data
 
 ---
 
