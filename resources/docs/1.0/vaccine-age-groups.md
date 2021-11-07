@@ -1,4 +1,4 @@
-﻿# Vaccine Age Groups
+# Vaccine Age Groups
 
 ---
 

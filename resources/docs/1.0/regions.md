@@ -1,4 +1,4 @@
-﻿# Health Regions
+# Health Regions
 
 ---
 
