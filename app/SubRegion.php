@@ -8,9 +8,8 @@ class SubRegion extends Model
 {
     protected $table = 'sub_regions';
 
-    public $autoincrement = false;
-
     protected $primaryKey = 'code';
+    public $incrementing = false;
 
     protected $hidden = array('created_at', 'updated_at');
 
