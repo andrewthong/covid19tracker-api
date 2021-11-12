@@ -22,7 +22,7 @@ class SubRegionReportController extends Controller
 
         // cache
         $cache_key = \Request::getRequestUri();
-        $value = Cache::rememberForever( $cache_key, function() use( $request, $province ) {
+        $value = Cache::rememberForever( $cache_key, function() use( $request, $code ) {
 
             $table = 'sr_vaccine_reports';
 
