@@ -6,11 +6,17 @@ use Illuminate\Http\Request;
 
 use App\Common;
 use App\Utility;
+
 use App\Province;
 use App\HealthRegion;
+use App\SubRegion;
+
 use App\HrReport;
 use App\Report;
+
 use App\ProcessQueue;
+
+use App\SrVaccineReport;
 
 use App\VaccineReport;
 
@@ -158,6 +164,33 @@ class ManageController extends Controller
 
     public function processQueue() {
         return ProcessQueue::process();
+    }
+
+    /**
+     * Get sub-region reports for a given province and date
+     */
+    public function getSubRegionReports( Request $request, $province ) {
+        $provinces = Common::getProvinceCodes( false );
+        $date = $request->date;
+        // ensure valid date
+        if( !Common::isValidDate( $date ) ) {
+            abort(400, "Invalid date provided");
+        }
+        // ensure valid province
+        if( in_array( $province, $provinces ) ) {
+            $response = [];
+            $regions = SubRegion::where(['province' => $province]);
+            $codes = $regions->pluck('code')->toArray();
+            $response['regions'] = $regions->get();
+            $response['sr_vaccine_reports'] = SrVaccineReport::whereIn('code', $codes)->where([
+                'date' => $date
+            ])->get();
+
+            return $response;
+        }
+        return response([
+            'message' => "Invalid province ({$province}) selected",
+        ], 400);
     }
 
 }
