@@ -58,6 +58,7 @@ Route::get('notes/tag/{tag}', 'NoteController@all')->where('tag', '[A-Za-z_]+');
 
 // sub regions (not to be confused with health regions)
 Route::get('sub-regions/', 'SubRegionController@regions');
+Route::get('sub-regions/provinces', 'SubRegionController@provinces');
 Route::get('sub-regions/{code}', 'SubRegionController@regions')->where('code', '[A-Za-z0-9_]+');
 
 Route::get('reports/sub-regions', 'SubRegionReportController@report');
