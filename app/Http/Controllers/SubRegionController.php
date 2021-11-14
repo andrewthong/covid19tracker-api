@@ -15,7 +15,7 @@ class SubRegionController extends Controller
      */
     public function regions( Request $request, $code = null ) {
         $cache_key = $request->getRequestUri();
-        $value = Cache::rememberForever( $cache_key, function() use ($request) {
+        $value = Cache::rememberForever( $cache_key, function() use ($request, $code) {
             $regions = [];
             if( $code ) {
                 $regions = SubRegion::find( $code );
