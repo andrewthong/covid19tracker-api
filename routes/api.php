@@ -58,6 +58,7 @@ Route::get('notes/tag/{tag}', 'NoteController@all')->where('tag', '[A-Za-z_]+');
 
 // sub regions (not to be confused with health regions)
 Route::get('sub-regions/', 'SubRegionController@regions');
+Route::get('sub-regions/provinces', 'SubRegionController@provinces');
 Route::get('sub-regions/{code}', 'SubRegionController@regions')->where('code', '[A-Za-z0-9_]+');
 
 Route::get('reports/sub-regions', 'SubRegionReportController@report');
@@ -80,6 +81,9 @@ Route::middleware('auth:api')->group(function () {
     
     Route::get('manage/report/{province}', 'ManageController@getReports')->where('province', '[A-Za-z_]+');
     Route::post('manage/report', 'ManageController@saveReports');
+
+    Route::get('manage/sr-report/{province}', 'ManageController@getSubRegionReports')->where('province', '[A-Za-z_]+');
+    Route::post('manage/sr-report', 'ManageController@saveSubRegionReports');
 });
 
 Route::middleware(['auth:api', 'role:admin'])->group(function () {

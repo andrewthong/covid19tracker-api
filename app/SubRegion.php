@@ -17,4 +17,10 @@ class SubRegion extends Model
     {
         return $this->hasMany('App\SrVaccineReport', 'code', 'code');
     }
+
+    public function parent()
+    {
+        return $this->belongsTo('App\Province', 'province', 'code');
+    }
+
 }
