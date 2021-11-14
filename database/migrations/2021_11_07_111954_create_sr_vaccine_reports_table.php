@@ -19,13 +19,13 @@ class CreateSrVaccineReportsTable extends Migration
             $table->date('date');
             // stats
             $table->integer('total_dose_1')->nullable();
-            $table->integer('percent_dose_1')->nullable();
+            $table->decimal('percent_dose_1', $precision = 6, $scale = 5)->nullable();
             $table->enum('source_dose_1', ['total', 'percent'])->nullable();
             $table->integer('total_dose_2')->nullable();
-            $table->integer('percent_dose_2')->nullable();
+            $table->decimal('percent_dose_2', $precision = 6, $scale = 5)->nullable();
             $table->enum('source_dose_2', ['total', 'percent'])->nullable();
             $table->integer('total_dose_3')->nullable();
-            $table->integer('percent_dose_3')->nullable();
+            $table->decimal('percent_dose_3', $precision = 6, $scale = 5)->nullable();
             $table->enum('source_dose_3', ['total', 'percent'])->nullable();
         });
     }

@@ -193,4 +193,58 @@ class ManageController extends Controller
         ], 400);
     }
 
+    public function saveSubRegionReports( Request $request ) {
+
+        // validate date
+        $date = request('date');
+        if( !Common::isValidDate( $date ) ) {
+            abort(400, "Invalid report date");
+        }
+
+        // validate province
+        $province_code = request('province');
+        if( !Common::isValidProvinceCode( $province_code, false ) ) {
+            abort(400, "Invalid report province");
+        }
+
+        // validate permission
+        $user = auth()->guard('api')->user();
+        $user->load(['roles', 'provinces']);
+        // not admin
+        if( $user->roles->pluck('name')[0] !== 'admin') {
+            // doesn't have province assigned
+            if( !in_array($province_code, $user->provinces->pluck('code')->toArray()) ) {
+                abort(400, "You do not have permission for {$province_code}");
+            }
+        }
+
+        // core attributes for report and hr report model
+        $attrs = array_flip( SrVaccineReport::statAttrs() );
+
+        // process sr report entries
+        if( request('sr_report') ) {
+            foreach (request('sr_report') as $code => $data) {
+                $where_values = [
+                    'code' => $code,
+                    'date' => $date
+                ];
+                // fill values
+                $sr_report_values = array_intersect_key( $data, $attrs );
+                // update or create SRV report entry
+                SrVaccineReport::updateOrCreate(
+                    $where_values,
+                    array_merge( $where_values, $sr_report_values )
+                );
+            }
+        }
+
+        // response
+        return response([
+            'message' => 'Sub Region Vaccine Report saved',
+            'province' => $province_code,
+            'date' => $date,
+        ], 200);
+
+    }
+
 }
