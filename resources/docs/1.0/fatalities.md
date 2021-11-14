@@ -1,6 +1,6 @@
-# Fatalities
+﻿# Fatalities
 
-This feature is depreciated, and individual-level fatality data is no longer updated; it remains available to allow access to historical data.
+*This feature is depreciated, and individual-level fatality data is no longer updated; it remains available to allow access to historical data.*
 
 ---
 
