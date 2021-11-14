@@ -1,4 +1,4 @@
-﻿- ## API
+- ## API
     - [Overview](/{{route}}/{{version}}/overview)
     - [Summary](/{{route}}/{{version}}/summary)
     - [Reports](/{{route}}/{{version}}/reports)
