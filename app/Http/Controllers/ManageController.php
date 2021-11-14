@@ -179,7 +179,7 @@ class ManageController extends Controller
         // ensure valid province
         if( in_array( $province, $provinces ) ) {
             $response = [];
-            $regions = SubRegion::where(['province' => $province]);
+            $regions = SubRegion::where(['province' => $province])->orderBy('code');
             $codes = $regions->pluck('code')->toArray();
             $response['regions'] = $regions->get();
             $response['sr_vaccine_reports'] = SrVaccineReport::whereIn('code', $codes)->where([
