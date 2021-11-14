@@ -13,7 +13,7 @@
 
 Vaccination data has been of particular interest over recent months. This section aims to assist in the navigation of our API to enable quick, easy access to vaccination data at the health region, provincial and national levels.
 
-The attributes for vaccination data are the same across endpoints.
+The attributes for vaccination data are the same across endpoints, with the exception of subregions which is outlined in the next section.
 
 | Attribute | Description|
 | :- | :- |
@@ -21,6 +21,40 @@ The attributes for vaccination data are the same across endpoints.
 |`vaccinated`| The total number of people fully vaccinated; effectively, the total number of 2nd doses administered.| 
 |`boosters_1`| The total number of additional (3rd) doses administered.| 
 |`vaccines_distributed`| The total number of vaccines delivered to a province for administration.| 
+
+
+
+<a name="hr"></a>
+### Subregion Data
+Vaccination data by subregion is available for select provinces and territories.
+
+| Type | Dates | URI | Summary |
+| :- | :- |:- |:- |
+| Single Subregion | All| `/reports/sub-regions/CODE` |Returns time-series of all data available for a subregion |
+| All Subregions | Current | `/reports/sub-regions/recent` |Returns current data for all subregions|
+| All Subregions | All |Due to large payload, only available upon request. |Returns time-series of data for all subregions|
+
+As previously mentioned, the attributes for subregion level vaccination data are different than all other vaccination endpoints. The attributes are as below:
+| Attribute | Description|
+| :- | :- |
+|`total_dose_x`| The total number of a particular dose administered in the region.| 
+|`percent_dose_x`| The percentage of residents in each subregion who have received a particular dose.| 
+|`source_dose_x`| The format of the original source data; `total` or `percent`| 
+
+Some jurisdictions only report percentages or only raw data, and not both. However, when precise population data is available, the source data (either total or percent) is automatically converted to an estimated percentage or estimated total value, making both formats available to users. The `source_dose_x` attribute indicates which format is the original, precise value. 
+
+This permits use of a consistent format across subregions with differing sources.
+
+#### Eligible and Total Percentages
+To further add to complexity, total population data is not available for all sub-regions. Instead, some have only released 'eligible' population values, which excludes the portion of the population that cannot yet receive the vaccine. Please refer to the table below to ensure that you are familiar with the significance of the data from subregions from each province: 
+| Province | Subregion Percentage Type|
+| :- | :- |
+|AB| Total Population| 
+|SK| Total Population| 
+|NT| Total Population| 
+|NL| ***Eligible Population Only***| 
+
+
 
 <a name="hr"></a>
 ### Health Region Data
