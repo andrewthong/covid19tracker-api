@@ -86,7 +86,3 @@ Vaccination data is available for all provinces
 | National | All| `/reports/` |Returns time-series of all data available, including vaccination data |
 | National | Current | `/summary/` |Returns current data, including vaccination data |
 | National | All |`/vaccines/age-groups/` |Returns time-series of age data for vaccinations |
-
-
-
-

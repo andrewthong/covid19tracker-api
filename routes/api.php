@@ -56,6 +56,16 @@ Route::get('vaccines/reports/province/{province}', 'VaccineController@report')->
 Route::get('notes', 'NoteController@all');
 Route::get('notes/tag/{tag}', 'NoteController@all')->where('tag', '[A-Za-z_]+');
 
+// sub regions (not to be confused with health regions)
+Route::get('sub-regions/', 'SubRegionController@regions');
+Route::get('sub-regions/provinces', 'SubRegionController@provinces');
+Route::get('sub-regions/{code}', 'SubRegionController@regions')->where('code', '[A-Za-z0-9_]+');
+
+Route::get('reports/sub-regions', 'SubRegionReportController@report');
+Route::get('reports/sub-regions/recent', 'SubRegionReportController@recentReports');
+Route::get('reports/sub-regions/summary', 'SubRegionReportController@summary');
+Route::get('reports/sub-regions/{code}', 'SubRegionReportController@report')->where('code', '[A-Za-z0-9_]+');
+
 // partner-specific
 // set env then php artisan config:clear
 Route::get('_p/'.env('PARTNER01', 'none').'/report-hr-vaccination', 'PartnerReportController@getHealthRegionVaccineReport');
@@ -72,6 +82,9 @@ Route::middleware('auth:api')->group(function () {
     
     Route::get('manage/report/{province}', 'ManageController@getReports')->where('province', '[A-Za-z_]+');
     Route::post('manage/report', 'ManageController@saveReports');
+
+    Route::get('manage/sr-report/{province}', 'ManageController@getSubRegionReports')->where('province', '[A-Za-z_]+');
+    Route::post('manage/sr-report', 'ManageController@saveSubRegionReports');
 });
 
 Route::middleware(['auth:api', 'role:admin'])->group(function () {
