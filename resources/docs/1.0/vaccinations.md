@@ -31,8 +31,9 @@ Vaccination data by subregion is available for select provinces and territories.
 | Type | Dates | URI | Summary |
 | :- | :- |:- |:- |
 | Single Subregion | All| `/reports/sub-regions/CODE` |Returns time-series of all data available for a subregion |
-| All Subregions | Current | `/reports/sub-regions/recent` |Returns current data for all subregions|
-| All Subregions | All |Due to large payload, only available upon request. |Returns time-series of data for all subregions|
+| All Subregions | Current | `/reports/sub-regions/summary` |Returns current data for all subregions|
+| All Subregions | Recent | `/reports/sub-regions/recent` |Returns the 15 most recent reports for each subregion|
+| All Subregions | All |Due to large payload, only available upon request. |Returns time-series of all data for all subregions|
 
 As previously mentioned, the attributes for subregion level vaccination data are different than all other vaccination endpoints. The attributes are as below:
 | Attribute | Description|
@@ -52,6 +53,7 @@ To further add to complexity, total population data is not available for all sub
 |AB| Total Population| 
 |SK| Total Population| 
 |NT| Total Population| 
+|ON| Total Population| 
 |NL| ***Eligible Population Only***| 
 
 
@@ -84,8 +86,3 @@ Vaccination data is available for all provinces
 | National | All| `/reports/` |Returns time-series of all data available, including vaccination data |
 | National | Current | `/summary/` |Returns current data, including vaccination data |
 | National | All |`/vaccines/age-groups/` |Returns time-series of age data for vaccinations |
-
-
-
-
-

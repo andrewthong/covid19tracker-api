@@ -23,6 +23,7 @@ The current number of subregions by province can be found below:
 | NL | 38 |
 | NT | 30 |
 | SK | 13 |
+| ON | 514 |
 
 <a name="overview"></a>
 ## Basic Usage
