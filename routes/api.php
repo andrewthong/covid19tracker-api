@@ -63,6 +63,7 @@ Route::get('sub-regions/{code}', 'SubRegionController@regions')->where('code', '
 
 Route::get('reports/sub-regions', 'SubRegionReportController@report');
 Route::get('reports/sub-regions/recent', 'SubRegionReportController@recentReports');
+Route::get('reports/sub-regions/summary', 'SubRegionReportController@summary');
 Route::get('reports/sub-regions/{code}', 'SubRegionReportController@report')->where('code', '[A-Za-z0-9_]+');
 
 // partner-specific

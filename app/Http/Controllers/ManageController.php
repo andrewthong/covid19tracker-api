@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Common;
 use App\Utility;
+use App\Option;
 
 use App\Province;
 use App\HealthRegion;
@@ -237,6 +238,9 @@ class ManageController extends Controller
                 );
             }
         }
+
+        // save update time
+        Option::set( 'report_sr_last_processed', date('Y-m-d H:i:s') );
 
         // response
         return response([

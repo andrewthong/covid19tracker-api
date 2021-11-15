@@ -23,4 +23,15 @@ class SubRegion extends Model
         return $this->belongsTo('App\Province', 'province', 'code');
     }
 
+    public static function getCodes($province = null)
+    {
+        $sub_regions = null;
+        if( $province ) {
+            $sub_regions = self::where('province', $province);
+        } else {
+            $sub_regions = self::all();
+        }
+        return $sub_regions->pluck('code')->toArray();
+    }
+
 }

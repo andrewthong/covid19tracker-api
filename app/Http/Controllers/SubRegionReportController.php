@@ -116,4 +116,67 @@ class SubRegionReportController extends Controller
 
         return $value;
     }
+
+    /**
+     * summary takes latest reports for each sub region
+     */
+    public function summary() {
+
+        // cache
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() {
+
+            // setup
+            $core_attrs = SrVaccineReport::statAttrs();
+
+            $location_col = 'code';
+            $processed_table = 'sr_vaccine_reports';
+            $location_codes = SubRegion::getCodes();
+
+            // meta
+            $last_run = Option::get( 'report_sr_last_processed' );
+
+            // preparing SQL query
+            $select_core = [];
+            $date_select = "MAX(date) AS latest_date";
+            $stat_select = 'SUM(%1$s) AS %1$s';
+
+            // $split modifiers, we no longer need to group
+            $select_core[] = $location_col;
+            $date_select = "date";
+
+            $select_core[] = $date_select;
+
+            $select_core = array_merge(
+                $select_core,
+                $core_attrs
+            );
+
+            $subquery_core = [];
+            $subquery_stmt = '';
+            $query = '';
+
+            $select_core = array_map(function($value) { return 't1.'.$value; }, $select_core);
+            $select_stmt = implode( ",", $select_core );
+            $query = "
+                SELECT {$select_stmt} from {$processed_table} t1 
+                JOIN (SELECT code, MAX(`date`) as latest_date from {$processed_table} group by `code`) t2 
+                ON t1.code = t2.code AND t1.date = t2.latest_date
+            ";
+
+            $report = DB::select($query);
+
+            $response = [
+                'data' =>  $report,
+                'last_updated' => $last_run,
+            ];
+
+            // return to be stored in
+            return $response;
+            
+        });//cache closure
+
+        return $value;
+    }
+
 }
