@@ -13,7 +13,9 @@
 
 Vaccination data has been of particular interest over recent months. This section aims to assist in the navigation of our API to enable quick, easy access to vaccination data at the health region, provincial and national levels.
 
+
 The attributes for vaccination data are the same across endpoints, with the exception of subregions which is outlined in the next section.
+
 
 | Attribute | Description|
 | :- | :- |
@@ -48,7 +50,9 @@ Some jurisdictions only report percentages or only raw data, and not both. Howev
 
 This permits use of a consistent format across subregions with differing sources.
 
+
 #### Eligible and Total Percentages
+
 
 To further add to complexity, total population data is not available for all sub-regions. Instead, some have only released 'eligible' population values, which excludes the portion of the population that cannot yet receive the vaccine. Please refer to the table below to ensure that you are familiar with the significance of the data from subregions from each province: 
 
@@ -57,7 +61,8 @@ To further add to complexity, total population data is not available for all sub
 |AB| Total Population| 
 |SK| Total Population| 
 |NT| Total Population| 
-|ON| Total Population| 
+|ON| Total Population|
+|MB| **Eligible Population Only**|  
 |NL| **Eligible Population Only**| 
 
 

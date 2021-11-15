@@ -24,6 +24,7 @@ The current number of subregions by province can be found below:
 | NT | 30 |
 | SK | 13 |
 | ON | 514 |
+| MB | 79 |
 
 <a name="overview"></a>
 ## Basic Usage
@@ -75,8 +76,10 @@ This is reflected in both the population value and percentages returned. Please 
 | :- | :- |
 |AB| Total Population| 
 |SK| Total Population| 
-|NT| Total Population| 
-|NL| ***Eligible Population Only***| 
+|NT| Total Population|
+|ON| Total Population| 
+|MB| **Eligible Population Only**| 
+|NL| **Eligible Population Only**| 
 
 <a name="data"></a>
 ## Accessing the Data
