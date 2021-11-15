@@ -26,6 +26,7 @@ The attributes for vaccination data are the same across endpoints, with the exce
 
 <a name="hr"></a>
 ### Subregion Data
+
 Vaccination data by subregion is available for select provinces and territories.
 
 | Type | Dates | URI | Summary |
@@ -36,6 +37,7 @@ Vaccination data by subregion is available for select provinces and territories.
 | All Subregions | All |Due to large payload, only available upon request. |Returns time-series of all data for all subregions|
 
 As previously mentioned, the attributes for subregion level vaccination data are different than all other vaccination endpoints. The attributes are as below:
+
 | Attribute | Description|
 | :- | :- |
 |`total_dose_x`| The total number of a particular dose administered in the region.| 
@@ -47,14 +49,16 @@ Some jurisdictions only report percentages or only raw data, and not both. Howev
 This permits use of a consistent format across subregions with differing sources.
 
 #### Eligible and Total Percentages
+
 To further add to complexity, total population data is not available for all sub-regions. Instead, some have only released 'eligible' population values, which excludes the portion of the population that cannot yet receive the vaccine. Please refer to the table below to ensure that you are familiar with the significance of the data from subregions from each province: 
+
 | Province | Subregion Percentage Type|
 | :- | :- |
 |AB| Total Population| 
 |SK| Total Population| 
 |NT| Total Population| 
 |ON| Total Population| 
-|NL| ***Eligible Population Only***| 
+|NL| **Eligible Population Only**| 
 
 
 
@@ -86,3 +90,7 @@ Vaccination data is available for all provinces
 | National | All| `/reports/` |Returns time-series of all data available, including vaccination data |
 | National | Current | `/summary/` |Returns current data, including vaccination data |
 | National | All |`/vaccines/age-groups/` |Returns time-series of age data for vaccinations |
+
+
+
+
