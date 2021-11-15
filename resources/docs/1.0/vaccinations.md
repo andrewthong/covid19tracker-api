@@ -90,4 +90,3 @@ Vaccination data is available for all provinces
 
 
 
-
