@@ -66,6 +66,9 @@ Route::get('reports/sub-regions/recent', 'SubRegionReportController@recentReport
 Route::get('reports/sub-regions/summary', 'SubRegionReportController@summary');
 Route::get('reports/sub-regions/{code}', 'SubRegionReportController@report')->where('code', '[A-Za-z0-9_]+');
 
+// open submissions
+Route::post('collect/rapid-test', 'RapidTestController@submit');
+
 // partner-specific
 // set env then php artisan config:clear
 Route::get('_p/'.env('PARTNER01', 'none').'/report-hr-vaccination', 'PartnerReportController@getHealthRegionVaccineReport');
