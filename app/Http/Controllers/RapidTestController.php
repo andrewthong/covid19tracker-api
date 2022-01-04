@@ -27,6 +27,23 @@ class RapidTestController extends Controller
                 $errors []= 'Missing '.$field;
             }
         }
+        
+        // recaptcha
+        $recaptcha_secret = env('RECAPTCHA_SECRET_KEY');
+        if( $recaptcha_secret ) {
+            if( !$request->has('g-recaptcha-response') ) {
+                $errors []= 'Missing captcha';
+            } else {
+                $captcha = $request['g-recaptcha-response'];
+                // post request to server
+                $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . urlencode($recaptcha_secret) .  '&response=' . urlencode($captcha);
+                $recaptcha_response = file_get_contents($recaptcha_url);
+                $recaptcha_response_keys = json_decode($recaptcha_response,true);
+                if( !$recaptcha_response_keys["success"] ) {
+                    $errors []= 'Captcha failed. Please try again.';
+                }
+            }
+        }
 
         // validate age (5 characters)
         if( $request->has('age') ) {
