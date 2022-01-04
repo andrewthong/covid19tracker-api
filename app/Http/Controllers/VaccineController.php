@@ -34,6 +34,7 @@ class VaccineController extends Controller
                 'moderna',
                 'astrazeneca',
                 'johnson',
+                'pfizer_biontech_paediatric',
             ];
 
             // provinces

@@ -14,9 +14,11 @@
         "flynsarmy/csv-seeder": "2.*",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^7.0.1",
+        "jenssegers/mongodb": "^3.8",
         "laravel/framework": "^8.0",
         "laravel/passport": "^10.0",
         "laravel/tinker": "^2.0",
+        "mongodb/mongodb": "^1.6",
         "spatie/laravel-permission": "^3.17"
     },
     "require-dev": {
