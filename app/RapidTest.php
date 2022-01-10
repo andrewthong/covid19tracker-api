@@ -20,4 +20,15 @@ class RapidTest extends Model
         'test_result',
     ];
 
+    /**
+     * available values for test result
+     */
+    static function getTestResultsTypes() {
+        return [
+            'positive',
+            'negative',
+            'invalid result'
+        ];
+    }
+
 }
