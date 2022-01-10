@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use Carbon;
+
 use App\RapidTest;
 
 class RapidTestController extends Controller
@@ -59,7 +61,19 @@ class RapidTestController extends Controller
         if( $request->has('test_date') ) {
             $test_date = substr(trim($request->test_date), 0, 10);
             if( !preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $test_date) ) {
-                $errors []= 'Invalid date';
+                $errors []= 'Invalid test date';
+            }
+            // date must be between today and RAPID_TESTS_START_DATE
+            $min_date = env('RAPID_TESTS_START_DATE', '2021-12-01');
+            $min_u = strtotime($min_date);
+            $max_u = Carbon\Carbon::now('America/St_Johns')->timestamp;
+            $max_date = date('Y-m-d', $max_u);
+            $the_date = strtotime($test_date);
+            if( $the_date < $min_u ) {
+                $errors []= "Test date cannot be before {$min_date}";
+            }
+            if( $the_date >= $max_u ) {
+                $errors []= "Test date cannot be after {$max_date}";
             }
         }
 
