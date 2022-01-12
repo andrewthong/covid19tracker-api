@@ -55,6 +55,10 @@ class RapidTestController extends Controller
         // 3-char postal code
         if( $request->has('postal_code') ) {
             $postal_code = strtoupper(substr(trim($request->postal_code), 0, 3));
+            // validate postal code
+            if( !preg_match('/^[ABCEGHJKLMNPRSTVXY]{1}[0-9]{1}/', $postal_code) ) {
+                $errors []= 'Invalid postal code';
+            }
         }
 
         // validate date
