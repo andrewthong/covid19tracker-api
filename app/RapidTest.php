@@ -18,6 +18,7 @@ class RapidTest extends Model
         'postal_code',
         'test_date',
         'test_result',
+        'ip',
     ];
 
     /**

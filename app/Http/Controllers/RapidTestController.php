@@ -96,6 +96,7 @@ class RapidTestController extends Controller
             $record->postal_code = $postal_code;
             $record->test_date = $test_date;
             $record->test_result = $test_result;
+            $record->ip = $request->ip();
             // save
             $record->save();
             return response()->json(['created' => true]);
