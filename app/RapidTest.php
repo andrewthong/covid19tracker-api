@@ -18,6 +18,18 @@ class RapidTest extends Model
         'postal_code',
         'test_date',
         'test_result',
+        'ip',
     ];
+
+    /**
+     * available values for test result
+     */
+    static function getTestResultsTypes() {
+        return [
+            'positive',
+            'negative',
+            'invalid result'
+        ];
+    }
 
 }
