@@ -106,28 +106,31 @@ class RapidTestController extends Controller
         }
     }
 
+    /**
+     * return summary of rapid tests
+     */
     public function summary() {
-        // return RapidTest::raw(function ($collection) {
-        //     return $collection->aggregate([
-        //         ['$group' => ['_id' => '$test_result', 'count' => ['$sum' => 1]]],
-        //         ['$sort' => ['_id' => 1]],
-        //     ]);
-        // });
-        $response = [
-            'test_results' => [],
-            'test_dates' => [],
-        ];
+        // cache
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use ($split, $type) {
 
-        $response['total'] = RapidTest::count();
+            $response = [
+                'test_results' => [],
+                'test_dates' => [],
+            ];
 
-        $results = RapidTest::getTestResultsTypes();
-        foreach( $results as $result ) {
-            $response['test_results'][$result] = RapidTest::where('test_result', $result)->count();
-        }
-        $response['test_dates']['earliest'] = RapidTest::orderBy('test_date', 'asc')->first()->test_date->format('Y-m-d');
-        $response['test_dates']['latest'] = RapidTest::orderBy('test_date', 'desc')->first()->test_date->format('Y-m-d');
+            $response['total'] = RapidTest::count();
 
-        return response()->json($response);
+            $results = RapidTest::getTestResultsTypes();
+            foreach( $results as $result ) {
+                $response['test_results'][$result] = RapidTest::where('test_result', $result)->count();
+            }
+            $response['test_dates']['earliest'] = RapidTest::orderBy('test_date', 'asc')->first()->test_date->format('Y-m-d');
+            $response['test_dates']['latest'] = RapidTest::orderBy('test_date', 'desc')->first()->test_date->format('Y-m-d');
+
+            return response()->json($response);
+
+        });//cache closure
 
     }
 
