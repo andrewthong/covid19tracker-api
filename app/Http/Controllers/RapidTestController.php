@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 use Carbon;
 
@@ -84,7 +86,7 @@ class RapidTestController extends Controller
         // validate result
         if( $request->has('test_result') ) {
             $test_result = strtolower(trim($request->test_result));
-            if( !in_array($test_result, ['positive', 'negative', 'invalid result']) ) {
+            if( !in_array($test_result, ['positive', 'negative', 'invalid result', 'invalid']) ) {
                 $errors []= 'Invalid test result';
             }
         }
@@ -108,6 +110,7 @@ class RapidTestController extends Controller
 
     /**
      * return summary of rapid tests
+     * deprecated (use RapidTestReports as it covers processed submissions)
      */
     public function summary() {
         // cache

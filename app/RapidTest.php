@@ -36,11 +36,12 @@ class RapidTest extends Model
     /**
      * available values for test result
      */
-    static function getTestResultsTypes() {
+    static function getTestResultsTypes( $new_invalid = false ) {
+        $invalid_label = $new_invalid ? 'invalid' : 'invalid result';
         return [
             'positive',
             'negative',
-            'invalid result'
+            $invalid_label,
         ];
     }
 
