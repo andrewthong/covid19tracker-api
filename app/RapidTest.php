@@ -64,7 +64,7 @@ class RapidTest extends Model
         if( $the_date < $min_u ) {
             return "Test date cannot be before {$min_date}";
         }
-        if( $the_date >= $max_u ) {
+        if( $the_date > $max_u ) {
             return "Test date cannot be after {$max_date}";
         }
 
