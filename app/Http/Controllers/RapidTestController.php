@@ -76,7 +76,7 @@ class RapidTestController extends Controller
             if( $the_date < $min_u ) {
                 $errors []= "Test date cannot be before {$min_date}";
             }
-            if( $the_date >= $max_u ) {
+            if( $the_date > $max_u ) {
                 $errors []= "Test date cannot be after {$max_date}";
             }
         }
