@@ -66,6 +66,18 @@ class ProcessRtReports extends Command
             $limit = 1000;
         }
 
+        // report queue; store here to minimize db writes
+        $queue = [];
+
+        // base report template
+        $report_template = [
+            'province' => '',
+            'date' => '',
+            'positive' => null,
+            'negative' => null,
+            'invalid' => null,
+        ];
+
         $this->line("");
 
         $this->line(" # <fg=black;bg=white>Rapid test data processing utility</>");
@@ -105,13 +117,19 @@ class ProcessRtReports extends Command
             if( !RapidTest::isTestDateInvalid($test->test_date) ) {
                 $date = $test->test_date;
             }
+
             // continue only if province and date are valid
             if( $province && $date ) {
 
-                // get report
-                $report = RapidTestReport::updateOrCreate(
-                    ['province' => $province, 'date' => $date]
-                );
+                // queue key
+                $queue_key = "{$province}_{$date}";
+                
+                // check if queue_key exists
+                if( !isset($queue[$queue_key]) ) {
+                    $queue[$queue_key] = $report_template;
+                    $queue[$queue_key]['province'] = $province;
+                    $queue[$queue_key]['date'] = $date;
+                }
 
                 // increment appropriate test result
                 $increment_col = $test->test_result;
@@ -119,8 +137,7 @@ class ProcessRtReports extends Command
                 if( !in_array($increment_col, ['positive', 'negative']) ) {
                     $increment_col = 'invalid';
                 }
-                $report[$increment_col] += 1;
-                $report->save();
+                $queue[$queue_key][$increment_col] += 1;
 
                 // update processing status
                 $test->update([$key => 'processed']);
@@ -134,6 +151,35 @@ class ProcessRtReports extends Command
         }
 
         $bar->finish();
+
+        $this->line('');
+        $this->line(' >> Processing queue...');
+
+        $bar2 = $this->output->createProgressBar( count($queue) );
+        $bar2->start();
+
+        // perform database operations
+        if( $queue ) {
+            foreach( $queue as $queue_item ) {
+                $report = RapidTestReport::updateOrCreate([
+                    'province' => $queue_item['province'],
+                    'date' => $queue_item['date'],
+                ]);
+
+                // add values if needed
+                foreach( ['positive', 'negative', 'invalid'] as $attr ) {
+                    if( $queue_item[$attr] ) {
+                        $report[$attr] += $queue_item[$attr];
+                    }
+                }
+
+                // save
+                $report->save();
+            }
+            $bar2->advance();
+        }
+
+        $bar2->finish();
 
         $this->line('');
         $this->line(" <fg=green;bg=black>Processing complete.</>");
