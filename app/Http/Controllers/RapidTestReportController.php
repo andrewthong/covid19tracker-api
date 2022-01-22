@@ -18,8 +18,9 @@ class RapidTestReportController extends Controller
     /**
      * summary of collected rapid tests from reports
      * using reports so that only processed submissions are counted
+     *  - $split if true, will not aggregate
      */
-    public function summary() {
+    public function summary( $split = false ) {
         // cache
         // $cache_key = \Request::getRequestUri();
         // $value = Cache::rememberForever( $cache_key, function() {
@@ -45,6 +46,91 @@ class RapidTestReportController extends Controller
             $response['test_dates']['latest'] = RapidTestReport::orderBy('date', 'desc')->first()->date;
 
             return response()->json($response);
+
+        // });//cache closure
+    }
+
+    public function summary2( $split = false ) {
+        // cache
+        // $cache_key = \Request::getRequestUri();
+        // $value = Cache::rememberForever( $cache_key, function() {
+
+            $response = [];
+
+            $table = 'rt_reports';
+
+            $location_codes = [];
+
+            $select_core = [
+                'MIN(`date`) as earliest_date',
+                'MAX(`date`) as latest_date',
+                'SUM(`positive`) as total_positive',
+                'SUM(`negative`) as total_negative',
+                'SUM(`invalid`) as total_invalid',
+            ];
+
+            $select_split = [
+                'province',
+                'earliest_date',
+                'latest_date',
+                'total_positive',
+                'total_negative',
+                'total_invalid',
+            ];
+
+            $subquery_stmt = '';
+            $select_stmt = implode( ",", $select_core );
+
+            if( $split ) {
+                // add province to select
+                array_unshift( $select_core, 'province' );
+                $select_stmt = implode( ",", $select_core );
+                // get location codes
+                $location_codes = Common::getProvinceCodes();
+            
+                // loop through locations to build subquery
+                // note: using original select core
+                foreach( $location_codes as $lc ) {
+                    $subquery_core[] = "(
+                        SELECT {$select_stmt}
+                        FROM {$table}
+                        WHERE
+                            `province`='{$lc}'
+                        ORDER BY `date` DESC
+                        LIMIT 1
+                    )";
+                }
+                $subquery_stmt = implode( " UNION ", $subquery_core );
+                $subquery_stmt = "( ${subquery_stmt} ) split";
+
+                // update selects to use
+                // needs to be done after the location codes for loop
+                $select_stmt = implode( ",", $select_split );
+
+            } else {
+                // summary for all records, no subquery needed
+                $subquery_stmt = "{$table} LIMIT 1";
+            }
+
+            // db
+            $query = "
+                SELECT
+                    {$select_stmt}
+                FROM
+                    {$subquery_stmt}
+            ";
+
+            $report = DB::select($query);
+
+            // timestamp
+            $last_run = Option::get('rapid_test_last_processed');
+
+            $response = [
+                'data' => $report,
+                'last_updated' => $last_run,
+            ];
+
+            return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
 
         // });//cache closure
     }
