@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 use Carbon;
 
@@ -84,7 +86,7 @@ class RapidTestController extends Controller
         // validate result
         if( $request->has('test_result') ) {
             $test_result = strtolower(trim($request->test_result));
-            if( !in_array($test_result, ['positive', 'negative', 'invalid result']) ) {
+            if( !in_array($test_result, ['positive', 'negative', 'invalid result', 'invalid']) ) {
                 $errors []= 'Invalid test result';
             }
         }
@@ -106,28 +108,32 @@ class RapidTestController extends Controller
         }
     }
 
+    /**
+     * return summary of rapid tests
+     * deprecated (use RapidTestReports as it covers processed submissions)
+     */
     public function summary() {
-        // return RapidTest::raw(function ($collection) {
-        //     return $collection->aggregate([
-        //         ['$group' => ['_id' => '$test_result', 'count' => ['$sum' => 1]]],
-        //         ['$sort' => ['_id' => 1]],
-        //     ]);
-        // });
-        $response = [
-            'test_results' => [],
-            'test_dates' => [],
-        ];
+        // cache
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use ($split, $type) {
 
-        $response['total'] = RapidTest::count();
+            $response = [
+                'test_results' => [],
+                'test_dates' => [],
+            ];
 
-        $results = RapidTest::getTestResultsTypes();
-        foreach( $results as $result ) {
-            $response['test_results'][$result] = RapidTest::where('test_result', $result)->count();
-        }
-        $response['test_dates']['earliest'] = RapidTest::orderBy('test_date', 'asc')->first()->test_date->format('Y-m-d');
-        $response['test_dates']['latest'] = RapidTest::orderBy('test_date', 'desc')->first()->test_date->format('Y-m-d');
+            $response['total'] = RapidTest::count();
 
-        return response()->json($response);
+            $results = RapidTest::getTestResultsTypes();
+            foreach( $results as $result ) {
+                $response['test_results'][$result] = RapidTest::where('test_result', $result)->count();
+            }
+            $response['test_dates']['earliest'] = RapidTest::orderBy('test_date', 'asc')->first()->test_date->format('Y-m-d');
+            $response['test_dates']['latest'] = RapidTest::orderBy('test_date', 'desc')->first()->test_date->format('Y-m-d');
+
+            return response()->json($response);
+
+        });//cache closure
 
     }
 

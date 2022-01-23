@@ -67,7 +67,10 @@ Route::get('reports/sub-regions/summary', 'SubRegionReportController@summary');
 Route::get('reports/sub-regions/{code}', 'SubRegionReportController@report')->where('code', '[A-Za-z0-9_]+');
 
 // rapid tests
-Route::get('rapid-tests/', 'RapidTestController@summary');
+Route::get('rapid-tests/', 'RapidTestReportController@summary2');
+Route::get('rapid-tests/{split}', 'RapidTestReportController@summary2')->where('split', 'split');
+Route::get('rapid-tests/report', 'RapidTestReportController@generateReport');
+Route::get('rapid-tests/report/province/{province}', 'RapidTestReportController@generateReport')->where('province', '[A-Za-z_]+');
 
 // open submissions
 Route::post('collect/rapid-test', 'RapidTestController@submit');

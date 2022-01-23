@@ -5,6 +5,8 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+use Illuminate\Support\Facades\Artisan;
+
 use App\ProcessQueue;
 
 class Kernel extends ConsoleKernel
@@ -30,6 +32,13 @@ class Kernel extends ConsoleKernel
                 ProcessQueue::process();
             })
             ->everyMinute()
+            ->runInBackground();
+        $schedule->call(function () {
+                Artisan::call('report:processrt');
+            })
+            ->everyFifteenMinutes()
+            ->timezone('America/St_Johns')
+            ->between('1:00', '5:00')
             ->runInBackground();
     }
 
