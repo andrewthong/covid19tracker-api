@@ -8,7 +8,7 @@ See it in action at https://api.covid19tracker.ca
 
 ### Prerequisites
 
-A hosting environment configured for Laravel 7.x should have no issues. Please see Laravel's [Server Requirements](https://laravel.com/docs/7.x/installation#server-requirements) for up-to-date information.
+A hosting environment configured for Laravel 8.x should have no issues. Please see Laravel's [Server Requirements](https://laravel.com/docs/8.x/installation#server-requirements) for up-to-date information.
 
 #### MySQL Database
 
@@ -16,11 +16,11 @@ Data is stored in a MySQL database. You will need to create one for this project
 
 #### Cache
 
-A few routes use [caching](https://laravel.com/docs/7.x/cache) and has been tested with `file` and `redis` cache drivers.
+A few routes use [caching](https://laravel.com/docs/8.x/cache) and has been tested with `file` and `redis` cache drivers.
 
 #### Homestead
 
-[Laravel Homestead](https://laravel.com/docs/7.x/homestead) is also supported out of box for local development.
+[Laravel Homestead](https://laravel.com/docs/8.x/homestead) is also supported out of box for local development.
 
 > **Important** In order to use the CSV Seeders, you must have PHP 7.4 installed. Most deployments typically install version 7.2.
 
@@ -41,7 +41,7 @@ composer install
 ```
 cp .env.example .env
 ```
-Modify the .env with the proper database credentials.
+Update the .env with database credentials.
 
 #### 4. Generate Key
 ```
@@ -120,13 +120,31 @@ php artisan db:seed --class=CaseSeeder
 php artisan db:seed --class=FatalitySeeder
 ```
 
+### Postal Districts
+
+Used to determine province from rapid test submissions.
+
+```
+php artisan db:seed --class=PostalDistrictSeeder
+```
+
 ## Data Management
 
-[C19T-Manager](https://github.com/andrewthong/covid19tracker-manage) is a companion app to facilitate reporting. There are plans to migrate other functionality here including processing reports.
+[C19T-Manager](https://github.com/andrewthong/covid19tracker-manage) is a companion app to facilitate reporting.
+
+The URL where C19T-Manager is hosted will need to be whitelisted for CORS. Update `MANAGE_URL` in `.env` accordingly. Use a comma for multiple URLs.
+
+```
+MANAGE_URL=http://localhost:1234,http://localhost:5678
+```
 
 ## Processing Reports
 
-Processing reports is done through the CLI. Run the following command in the project root:
+Configure cron to run [Task Scheduling](https://laravel.com/docs/8.x/scheduling#running-the-scheduler) for Laravel and report changes done via the C19T-Manager will trigger processing automatically.
+
+### Manual Processing
+
+Processing reports is accessible through the CLI. Not necessary if you have configured the task scheduler. This is needed if not using the C19T-Manager and updating report tables directly.
 
 ```
 php artisan report:process
@@ -138,7 +156,7 @@ The prompt should be straightforward. Out-of-box, the processing function:
 * Calculates the day-to-day change in **tests**, **hospitalizations**, **criticals** (intensive care), **recoveries** and **vaccinations** from the `reports` table.
 * Stores this summarized data, which is used by the reports API
 
-### Health Region (HR) Reports
+#### Health Region (HR) Reports
 
 Support for health regions was added in late 2020. Health regions have a separate reports table (`hr_reports`) and can be processed from the CLI as well:
 
