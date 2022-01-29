@@ -172,6 +172,29 @@ A few select routes have caching enabled to minimize database load and speed per
 
 The cache is flushed when a report processing operation finishes. The cache can also be manually flushed from the C19T-Manager companion app.
 
+## Tests
+
+### Configure testing env
+
+By default, tests will use the APP_ENV defined in `phpunit.xml`. Create `.env.testing` with the following template and configure it as needed:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=test
+DB_USERNAME=test
+DB_PASSWORD=secret
+# used for partner-specific route
+PARTNER01=
+```
+
+### Running tests
+
+```
+php artisan test
+```
+
 ## Built With
 
 * [Laravel](https://laravel.com/) - The web framework used
