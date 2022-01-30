@@ -138,6 +138,29 @@ The URL where C19T-Manager is hosted will need to be whitelisted for CORS. Updat
 MANAGE_URL=http://localhost:1234,http://localhost:5678
 ```
 
+## Open Submissions
+
+Currently only rapid tests are supported.
+
+All open submissions can use [reCAPTCHA](https://www.google.com/recaptcha/about/) to minimize abuse. To enable this, sign-up and add your secret key to the `.env` for `RECAPTCHA_SECRET_KEY`.
+
+### Rapid Tests
+
+```
+POST /collect/rapid-test
+```
+
+Example payload:
+```
+{
+  "test_result": "negative",
+  "test_date": "2022-01-23",
+  "postal_code": "V3A",
+  "age": "20-29",
+  "g-recaptcha-response": "{if enabled}"
+}
+```
+
 ## Processing Reports
 
 Configure cron to run [Task Scheduling](https://laravel.com/docs/8.x/scheduling#running-the-scheduler) for Laravel and report changes done via the C19T-Manager will trigger processing automatically.
