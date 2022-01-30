@@ -36,9 +36,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
                 Artisan::call('report:processrt');
             })
-            ->everyFifteenMinutes()
-            ->timezone('America/St_Johns')
-            ->between('1:00', '5:00')
+            ->hourly()
             ->runInBackground();
     }
 
