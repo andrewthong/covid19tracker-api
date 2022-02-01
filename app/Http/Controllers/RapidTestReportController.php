@@ -22,8 +22,8 @@ class RapidTestReportController extends Controller
      */
     public function summary( $split = false ) {
         // cache
-        // $cache_key = \Request::getRequestUri();
-        // $value = Cache::rememberForever( $cache_key, function() {
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use ($split) {
 
             $response = [
                 'test_results' => [],
@@ -47,13 +47,15 @@ class RapidTestReportController extends Controller
 
             return response()->json($response);
 
-        // });//cache closure
+        });//cache closure
+
+        return $value;
     }
 
     public function summary2( $split = false ) {
         // cache
-        // $cache_key = \Request::getRequestUri();
-        // $value = Cache::rememberForever( $cache_key, function() {
+        $cache_key = \Request::getRequestUri();
+        $value = Cache::rememberForever( $cache_key, function() use ($split) {
 
             $response = [];
 
@@ -132,7 +134,9 @@ class RapidTestReportController extends Controller
 
             return response()->json($response)->setEncodingOptions(JSON_NUMERIC_CHECK);
 
-        // });//cache closure
+        });//cache closure
+
+        return $value;
     }
 
     /**
