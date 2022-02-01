@@ -33,6 +33,7 @@ class ReportTest extends TestCase
                         ->has('change_vaccinated')
                         ->has('change_vaccines_distributed')
                         ->has('change_boosters_1')
+                        ->has('change_boosters_2')
                         ->has('total_cases')
                         ->has('total_fatalities')
                         ->has('total_tests')
@@ -43,6 +44,7 @@ class ReportTest extends TestCase
                         ->has('total_vaccinated')
                         ->has('total_vaccines_distributed')
                         ->has('total_boosters_1')
+                        ->has('total_boosters_2')
                 )
                 ->etc()
         );
