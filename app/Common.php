@@ -56,6 +56,7 @@ class Common {
             'vaccinations',
             'vaccinated',
             'boosters_1',
+            'boosters_2',
         ];
         // province specific fields
         if( $p === true || $p === 'province' ) {

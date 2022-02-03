@@ -40,6 +40,7 @@ class PartnerReportController extends Controller
                 'total_vaccinations',
                 'total_vaccinated',
                 'total_boosters_1',
+                'total_boosters_2',
             ];
 
             $table = 'processed_hr_reports';
