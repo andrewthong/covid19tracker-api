@@ -10,6 +10,7 @@ use App\Option;
 
 use App\HrReport;
 use App\HealthRegion;
+use App\ProcessQueue;
 
 class ImportUtility extends Model
 {
@@ -144,7 +145,10 @@ class ImportUtility extends Model
             'rows' => count($csv),
             'created' => 0,
             'updated' => 0,
+            'time_start' => microtime(true),
         ];
+
+        $queue_dict = [];
 
         // it's looping time
         foreach( $csv as $row ) {
@@ -186,7 +190,23 @@ class ImportUtility extends Model
             if ($updated) {
                 $entry->save();
             }
+            // update queue if necessary
+            if( $queue_dict[$row['region']] ) {
+                # if date is earlier, update
+                if( $row['date'] > $queue_dict[$row['date']] ) {
+                    $queue_dict[$row['region']] = $row['date'];
+                }
+            } else {
+                $queue_dict[$row['region']] = $row['date'];
+            }
         }
+
+        // add queue
+        foreach( $queue_dict as $region => $date ) {
+            ProcessQueue::lineUp($region, $date);
+        }
+
+        $response['time_end'] = microtime(true);
 
         Utility::log( 'ImportUtility', 'Diff processed', $response );
         return $response;
