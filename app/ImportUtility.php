@@ -191,9 +191,9 @@ class ImportUtility extends Model
                 $entry->save();
             }
             // update queue if necessary
-            if( $queue_dict[$row['region']] ) {
+            if( isset( $queue_dict[$row['region']] ) ) {
                 # if date is earlier, update
-                if( $row['date'] > $queue_dict[$row['date']] ) {
+                if( $row['date'] > $queue_dict[$row['region']] ) {
                     $queue_dict[$row['region']] = $row['date'];
                 }
             } else {
