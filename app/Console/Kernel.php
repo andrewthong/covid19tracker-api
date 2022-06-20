@@ -38,6 +38,11 @@ class Kernel extends ConsoleKernel
             })
             ->hourly()
             ->runInBackground();
+        $schedule->call(function () {
+                Artisan::call('import:data');
+            })
+            ->everyFiveMinutes()
+            ->runInBackground();
     }
 
     /**
