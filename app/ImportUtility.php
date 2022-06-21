@@ -193,7 +193,7 @@ class ImportUtility extends Model
             // update queue if necessary
             if( isset( $queue_dict[$row['region']] ) ) {
                 # if date is earlier, update
-                if( $row['date'] > $queue_dict[$row['region']] ) {
+                if( $row['date'] < $queue_dict[$row['region']] ) {
                     $queue_dict[$row['region']] = $row['date'];
                 }
             } else {
