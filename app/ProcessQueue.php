@@ -66,10 +66,24 @@ class ProcessQueue extends Model
      * processes all items in the queue
      */
     static function process() {
+        // setup: key for option
+        $is_running_key = 'processqueue_is_running';
+        $is_running = Option::get( $is_running_key );
+        if( $is_running ) {
+            return [
+                'processed' => [],
+                'result' => 'ProcessQueue is currently running',
+            ];
+        }
         $processed_ids = [];
         // retrieve items awaiting processing
         $items = self::getLine();
         if( count($items) ) {
+            // set option
+            Option::updateOrCreate(
+                ['attribute' => $is_running_key],
+                ['value' => true]
+            );
             // loop
             foreach( $items as $item ) {
                 $params = [
@@ -103,6 +117,12 @@ class ProcessQueue extends Model
                 ->update([
                     'processed' => true
                 ]);
+            // complete
+            // reset option
+            Option::updateOrCreate(
+                ['attribute' => $is_running_key],
+                ['value' => false]
+            );
             // clear cache
             Utility::clearCache();
             // modify global last updated
@@ -114,7 +134,8 @@ class ProcessQueue extends Model
         }
 
         return [
-            'processed' => $processed_ids
+            'processed' => $processed_ids,
+            'result' => 'ProcessQueue completed',
         ];
     }
 }
