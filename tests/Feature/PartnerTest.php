@@ -27,6 +27,7 @@ class PartnerTest extends TestCase
                         ->has('total_vaccinated')
                         ->has('total_boosters_1')
                         ->has('total_boosters_2')
+                        ->has('total_boosters_3')
                 )
         );
     }
