@@ -22,6 +22,7 @@ class Report extends Model
         'vaccinated',
         'boosters_1',
         'boosters_2',
+        'boosters_3',
     ];
 
     // not using eloquent timestamps

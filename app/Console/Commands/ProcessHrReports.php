@@ -221,6 +221,7 @@ class ProcessHrReports extends Command
                         'total_vaccinated' => $report->vaccinated,
                         'total_boosters_1' => $report->boosters_1,
                         'total_boosters_2' => $report->boosters_2,
+                        'total_boosters_3' => $report->boosters_3,
                         'notes' => $report->notes,
                     ]
                 );
